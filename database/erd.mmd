@@ -1,0 +1,128 @@
+flowchart TD
+    %% ==========================================
+    %% SƠ ĐỒ ERD DẠNG CHEN (THỰC THỂ - MỐI QUAN HỆ)
+    %% Hình chữ nhật: Thực thể
+    %% Hình thoi: Mối quan hệ
+    %% Hình oval: Thuộc tính
+    %% ==========================================
+
+    %% 1. THỰC THỂ NGƯỜI DÙNG
+    USER["NGƯỜI DÙNG"]
+    u_id(["<u>id</u> (PK)"])
+    u_username(["username"])
+    u_email(["email"])
+    u_password(["password"])
+    u_fullname(["full_name"])
+    u_phone(["phone"])
+    u_currency(["currency"])
+    u_created(["created_at"])
+
+    USER --- u_id
+    USER --- u_username
+    USER --- u_email
+    USER --- u_password
+    USER --- u_fullname
+    USER --- u_phone
+    USER --- u_currency
+    USER --- u_created
+
+    %% 2. THỰC THỂ GIAO DỊCH
+    TRANS["GIAO DỊCH"]
+    t_id(["<u>id</u> (PK)"])
+    t_type(["type"])
+    t_amount(["amount"])
+    t_date(["transaction_date"])
+    t_method(["payment_method"])
+    t_note(["note"])
+    t_created(["created_at"])
+
+    TRANS --- t_id
+    TRANS --- t_type
+    TRANS --- t_amount
+    TRANS --- t_date
+    TRANS --- t_method
+    TRANS --- t_note
+    TRANS --- t_created
+
+    %% 3. THỰC THỂ DANH MỤC
+    CAT["DANH MỤC"]
+    c_id(["<u>id</u> (PK)"])
+    c_name(["name"])
+    c_type(["type"])
+    c_icon(["icon"])
+    c_color(["color"])
+    c_created(["created_at"])
+
+    CAT --- c_id
+    CAT --- c_name
+    CAT --- c_type
+    CAT --- c_icon
+    CAT --- c_color
+    CAT --- c_created
+
+    %% 4. THỰC THỂ NGÂN SÁCH
+    BUDGET["NGÂN SÁCH"]
+    b_id(["<u>id</u> (PK)"])
+    b_amount(["amount"])
+    b_month(["month"])
+    b_year(["year"])
+    b_threshold(["alert_threshold"])
+    b_created(["created_at"])
+
+    BUDGET --- b_id
+    BUDGET --- b_amount
+    BUDGET --- b_month
+    BUDGET --- b_year
+    BUDGET --- b_threshold
+    BUDGET --- b_created
+
+    %% 5. THỰC THỂ THÔNG BÁO
+    NOTIF["THÔNG BÁO"]
+    n_id(["<u>id</u> (PK)"])
+    n_title(["title"])
+    n_message(["message"])
+    n_type(["type"])
+    n_read(["is_read"])
+    n_created(["created_at"])
+
+    NOTIF --- n_id
+    NOTIF --- n_title
+    NOTIF --- n_message
+    NOTIF --- n_type
+    NOTIF --- n_read
+    NOTIF --- n_created
+
+    %% ==========================================
+    %% CÁC MỐI QUAN HỆ (HÌNH THOI VÀ BẬC QUAN HỆ)
+    %% ==========================================
+
+    %% Người dùng thực hiện Giao dịch (1 - N)
+    R_THUCHIEN{"Thực hiện"}
+    USER ---|1| R_THUCHIEN
+    R_THUCHIEN ---|N| TRANS
+
+    %% Danh mục phân loại Giao dịch (1 - N)
+    R_PHANLOAI{"Phân loại"}
+    CAT ---|1| R_PHANLOAI
+    R_PHANLOAI ---|N| TRANS
+
+    %% Người dùng tạo Danh mục riêng (1 - N)
+    R_TAO{"Tạo riêng"}
+    USER ---|1| R_TAO
+    R_TAO ---|N| CAT
+
+    %% Người dùng thiết lập Ngân sách (1 - N)
+    R_THIETLAP{"Thiết lập"}
+    USER ---|1| R_THIETLAP
+    R_THIETLAP ---|N| BUDGET
+
+    %% Danh mục áp dụng cho Ngân sách (1 - N)
+    R_APDUNG{"Áp dụng cho"}
+    CAT ---|1| R_APDUNG
+    R_APDUNG ---|N| BUDGET
+
+    %% Người dùng nhận Thông báo (1 - N)
+    R_NHAN{"Nhận"}
+    USER ---|1| R_NHAN
+    R_NHAN ---|N| NOTIF
+
