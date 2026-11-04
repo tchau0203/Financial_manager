@@ -24,6 +24,7 @@ quanlychitieu/
 │   ├── auth/
 │   │   ├── register.php                 # API Đăng ký tài khoản
 │   │   ├── login.php                    # API Đăng nhập
+│   │   ├── me.php                       # API Kiểm tra phiên đăng nhập
 │   │   └── logout.php                   # API Đăng xuất
 │   ├── transaction/
 │   │   ├── add.php                      # API Thêm giao dịch thu / chi
@@ -98,11 +99,14 @@ quanlychitieu/
 - **`api/auth/register.php`**:
   - **Phương thức**: `POST`
   - **Tham số nhận vào**: `username`, `email`, `password`, `full_name`.
-  - **Chức năng**: Kiểm tra tính hợp lệ dữ liệu, kiểm tra không trùng lặp username/email, mã hóa mật khẩu bằng `password_hash($password, PASSWORD_BCRYPT)`, lưu vào bảng `users`, tự động tạo session và tạo thông báo chào mừng.
+  - **Chức năng**: Kiểm tra tính hợp lệ dữ liệu, kiểm tra không trùng lặp username/email, mã hóa mật khẩu bằng `password_hash($password, PASSWORD_DEFAULT)` và lưu vào bảng `users`.
 - **`api/auth/login.php`**:
   - **Phương thức**: `POST`
   - **Tham số nhận vào**: `username` (hoặc email), `password`.
   - **Chức năng**: Tìm tài khoản theo username hoặc email, đối chiếu mật khẩu bằng `password_verify()`, lưu `user_id` vào `$_SESSION['user_id']`, trả về thông tin user (đã loại bỏ trường mật khẩu).
+- **`api/auth/me.php`**:
+  - **Phương thức**: `GET`
+  - **Chức năng**: Trả về thông tin tài khoản đang đăng nhập; trả HTTP `401` khi không có phiên hợp lệ.
 - **`api/auth/logout.php`**:
   - **Phương thức**: `POST` hoặc `GET`
   - **Chức năng**: Xóa dữ liệu phiên trong mảng `$_SESSION`, hủy cookie phiên làm việc trên trình duyệt và gọi `session_destroy()`.
@@ -239,7 +243,7 @@ quanlychitieu/
 ---
 
 ### 13. File `database/quanlychitieu.sql` & `index.html`
-- **`database/quanlychitieu.sql`**: Kịch bản tạo CSDL MySQL đầy đủ: Định nghĩa 5 bảng chính (`users`, `categories`, `transactions`, `budgets`, `notifications`), các khóa ngoại, ràng buộc toàn vẹn và nạp sẵn các danh mục chuẩn cùng tài khoản mẫu test (`demo` / `demo123`).
+- **`database/quanlychitieu.sql`**: Kịch bản tạo CSDL MySQL gồm 5 bảng chính (`users`, `categories`, `transactions`, `budgets`, `notifications`), các khóa ngoại, ràng buộc toàn vẹn và các danh mục mặc định.
 - **`index.html`**: Trang đích cửa ngõ: Kiểm tra phiên đăng nhập của người dùng qua API `api/auth/me.php` để tự động điều hướng vào `pages/dashboard.html` (nếu đã đăng nhập) hoặc `pages/login.html` (nếu chưa đăng nhập).
 
 ---
