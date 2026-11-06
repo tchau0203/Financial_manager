@@ -27,7 +27,8 @@ $notifStmt->execute([$userId]);
 $unreadCount = (int)($notifStmt->fetch()['unread_count'] ?? 0);
 
 jsonResponse([
-    'success'      => true,
-    'user'         => $user,
-    'unread_notifs'=> $unreadCount
+    'success'       => true,
+    'user'          => $user,
+    'data'          => $user,
+    'unread_notifs' => $unreadCount
 ]);

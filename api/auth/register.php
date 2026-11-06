@@ -52,6 +52,7 @@ $_SESSION['user_id'] = $userId;
 jsonResponse([
     'success' => true,
     'message' => 'Đăng ký thành công',
-    'user'    => ['id' => $userId, 'username' => $username, 'email' => $email, 'full_name' => $full_name]
+    'user'    => ['id' => $userId, 'username' => $username, 'email' => $email, 'full_name' => $full_name],
+    'data'    => ['id' => $userId, 'username' => $username, 'email' => $email, 'full_name' => $full_name]
 ], 201);
 ?>

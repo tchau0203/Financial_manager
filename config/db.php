@@ -4,16 +4,40 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 
+function loadEnvFile($filePath) {
+    if (!file_exists($filePath)) return [];
+    $vars = [];
+    $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if ($line === '' || str_starts_with($line, '#')) continue;
+        if (strpos($line, '=') !== false) {
+            list($name, $value) = explode('=', $line, 2);
+            $name  = trim($name);
+            $value = trim($value, " \t\n\r\0\x0B\"'");
+            $vars[$name] = $value;
+            putenv("$name=$value");
+            $_ENV[$name] = $value;
+        }
+    }
+    return $vars;
+}
+
 function getDbConnection() {
     static $pdo = null;
     if ($pdo === null) {
-        $host   = 'localhost';
-        $dbname = 'quanlychitieu';
-        $user   = 'root';
-        $pass   = '';
+        $envFile = dirname(__DIR__) . DIRECTORY_SEPARATOR . '.env';
+        $env = loadEnvFile($envFile);
+
+        $host   = $env['DB_HOST'] ?? getenv('DB_HOST') ?: '127.0.0.1';
+        $port   = (int)($env['DB_PORT'] ?? getenv('DB_PORT') ?: 3306);
+        $dbname = $env['DB_NAME'] ?? getenv('DB_NAME') ?: 'quanlychitieu';
+        $user   = $env['DB_USER'] ?? getenv('DB_USER') ?: 'root';
+        $pass   = $env['DB_PASS'] ?? getenv('DB_PASS') ?? '';
+
         try {
             $pdo = new PDO(
-                "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
+                "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4",
                 $user, $pass,
                 [
                     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
@@ -22,7 +46,7 @@ function getDbConnection() {
                 ]
             );
         } catch (PDOException $e) {
-            jsonResponse(['error' => 'Kết nối CSDL thất bại'], 500);
+            jsonResponse(['error' => 'Kết nối CSDL thất bại: ' . $e->getMessage()], 500);
             exit;
         }
     }

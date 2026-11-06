@@ -37,5 +37,6 @@ unset($user['password']);
 jsonResponse([
     'success' => true,
     'message' => 'Đăng nhập thành công',
-    'user'    => $user
+    'user'    => $user,
+    'data'    => $user
 ]);
