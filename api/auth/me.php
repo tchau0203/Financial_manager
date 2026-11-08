@@ -16,6 +16,7 @@ $stmt->execute([$userId]);
 $user = $stmt->fetch();
 
 if (!$user) {
+    // Trường hợp tài khoản bị xóa khi phiên còn tồn tại
     session_destroy();
     jsonResponse(['error' => 'Người dùng không tồn tại'], 404);
 }

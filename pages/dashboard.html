@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng Điều Khiển - Quản Lý Chi Tiêu</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <i class="fa-solid fa-wallet" style="margin-right: 0.5rem; color: var(--primary);"></i> CashManager
+            </div>
+            <ul class="sidebar-menu">
+                <li class="active"><a href="dashboard.html"><i class="fa-solid fa-chart-pie"></i> Bảng điều khiển</a></li>
+                <li><a href="income.html"><i class="fa-solid fa-arrow-down-long"></i> Thu nhập</a></li>
+                <li><a href="expense.html"><i class="fa-solid fa-arrow-up-long"></i> Chi tiêu</a></li>
+                <li><a href="budget.html"><i class="fa-solid fa-piggy-bank"></i> Ngân sách</a></li>
+                <li><a href="report.html"><i class="fa-solid fa-chart-column"></i> Báo cáo</a></li>
+                <li><a href="account.html"><i class="fa-solid fa-gear"></i> Tài khoản</a></li>
+            </ul>
+        </aside>
+
+        <div class="main-content">
+            <header class="header">
+                <div style="font-weight: 700; font-size: 1.25rem;">Tổng quan tài chính</div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span id="header-username" style="font-weight: 600;">Đang tải...</span>
+                    <button id="btnQuickAdd" class="btn btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">
+                        <i class="fa-solid fa-plus"></i> Thêm nhanh
+                    </button>
+                    <button id="btnLogout" class="btn" style="background: #fee2e2; color: #991b1b; padding: 0.4rem 0.8rem; font-size: 0.85rem;">
+                        <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-body">
+                <!-- 4 Thẻ KPI -->
+                <div class="grid-kpi">
+                    <div class="card">
+                        <div class="card-title">Tổng thu tháng này</div>
+                        <div class="card-value" id="kpi-income" style="color: var(--success);">0 đ</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Tổng chi tháng này</div>
+                        <div class="card-value" id="kpi-expense" style="color: var(--danger);">0 đ</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Số dư ròng</div>
+                        <div class="card-value" id="kpi-balance" style="color: var(--primary);">0 đ</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Tỷ lệ tiết kiệm</div>
+                        <div class="card-value" id="kpi-saving" style="color: var(--warning);">0%</div>
+                    </div>
+                </div>
+
+                <!-- Widget tiến độ ngân sách -->
+                <div class="card" style="margin-bottom: 2rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="font-size: 1rem;">Tiến độ ngân sách tháng</h3>
+                        <span id="budget-progress-text" style="font-size: 0.875rem; color: var(--text-muted);">Đang tải...</span>
+                    </div>
+                    <div class="progress">
+                        <div id="budget-progress-bar" class="progress-bar"></div>
+                    </div>
+                </div>
+
+                <!-- 2 Biểu đồ -->
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+                    <div class="card">
+                        <h3>Xu hướng thu chi 12 tháng</h3>
+                        <div style="position: relative; height: 260px; margin-top: 1rem;">
+                            <canvas id="trendChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3>Cơ cấu chi tiêu tháng này</h3>
+                        <div style="position: relative; height: 260px; margin-top: 1rem;">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bảng 5 Giao dịch gần đây -->
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3>Giao dịch gần đây</h3>
+                        <a href="expense.html" style="font-size: 0.875rem; color: var(--primary); text-decoration: none;">Xem tất cả</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Loại</th>
+                                    <th>Danh mục</th>
+                                    <th>Ngày</th>
+                                    <th>Ghi chú</th>
+                                    <th style="text-align: right;">Số tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-tx-tbody">
+                                <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Đang tải...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Thêm Giao Dịch Nhanh -->
+    <div id="modalQuickAdd" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Thêm giao dịch nhanh</h3>
+                <button id="btnCloseModal" class="modal-close">&times;</button>
+            </div>
+            <form id="formQuickAdd">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Loại giao dịch</label>
+                        <select id="quick_type" class="form-control" required>
+                            <option value="expense">Chi tiêu</option>
+                            <option value="income">Thu nhập</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ID Danh mục</label>
+                        <input type="number" id="quick_category_id" class="form-control" placeholder="Mã danh mục (ví dụ: 1)" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Số tiền (VNĐ)</label>
+                        <input type="number" id="quick_amount" class="form-control" placeholder="100000" required min="1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Ngày giao dịch</label>
+                        <input type="date" id="quick_date" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phương thức thanh toán</label>
+                        <select id="quick_method" class="form-control">
+                            <option value="cash">Tiền mặt</option>
+                            <option value="bank">Chuyển khoản</option>
+                            <option value="e-wallet">Ví điện tử</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Ghi chú</label>
+                        <input type="text" id="quick_note" class="form-control" placeholder="Ghi chú thêm...">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Lưu giao dịch</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/dashboard.js"></script>
+    <script>
+        document.getElementById('quick_date').valueAsDate = new Date();
+    </script>
+</body>
+</html>

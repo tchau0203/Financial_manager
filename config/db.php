@@ -74,6 +74,7 @@ function getJsonInput() {
     }
     return $_POST ?? [];
 }
+<<<<<<< HEAD
 
 function checkBudgetAlerts($userId, $pdo) {
     $currentMonth = (int)date('n');

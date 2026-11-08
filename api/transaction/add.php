@@ -44,7 +44,6 @@ $stmt->execute([
 if ($type === 'expense') {
     checkBudgetAlerts($userId, $pdo);
 }
-
 jsonResponse([
     'success' => true,
     'message' => 'Đã thêm giao dịch thành công',
