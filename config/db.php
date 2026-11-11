@@ -1,8 +1,8 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-date_default_timezone_set('Asia/Ho_Chi_Minh');
+$host = "localhost";
+$dbname = "quanlychitieu";
+$username = "root";
+$password = "";
 
 function loadEnvFile($filePath) {
     if (!file_exists($filePath)) return [];
