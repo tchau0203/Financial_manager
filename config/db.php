@@ -30,7 +30,7 @@ function getDbConnection() {
         $env = loadEnvFile($envFile);
 
         $host   = $env['DB_HOST'] ?? getenv('DB_HOST') ?: '127.0.0.1';
-        $port   = (int)($env['DB_PORT'] ?? getenv('DB_PORT') ?: 3307);
+        $port   = (int)($env['DB_PORT'] ?? getenv('DB_PORT') ?: 3306);
         $dbname = $env['DB_NAME'] ?? getenv('DB_NAME') ?: 'quanlychitieu';
         $user   = $env['DB_USER'] ?? getenv('DB_USER') ?: 'root';
         $pass   = $env['DB_PASS'] ?? getenv('DB_PASS') ?? '';
