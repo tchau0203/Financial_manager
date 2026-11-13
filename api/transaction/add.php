@@ -42,7 +42,9 @@ $stmt->execute([
 
 // Nếu là giao dịch chi tiêu, kích hoạt cảnh báo ngân sách
 if ($type === 'expense') {
-    checkBudgetAlerts($userId, $pdo);
+    $txMonth = (int)$parsedDate->format('n');
+    $txYear  = (int)$parsedDate->format('Y');
+    checkBudgetAlerts($userId, $pdo, $txMonth, $txYear);
 }
 jsonResponse([
     'success' => true,

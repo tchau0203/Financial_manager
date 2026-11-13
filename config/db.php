@@ -75,9 +75,9 @@ function getJsonInput() {
     return $_POST ?? [];
 }
 
-function checkBudgetAlerts($userId, $pdo) {
-    $currentMonth = (int)date('n');
-    $currentYear  = (int)date('Y');
+function checkBudgetAlerts($userId, $pdo, $month = null, $year = null) {
+    $targetMonth = $month ? (int)$month : (int)date('n');
+    $targetYear  = $year ? (int)$year : (int)date('Y');
 
     $stmt = $pdo->prepare('
         SELECT b.*, c.name as category_name 
@@ -85,7 +85,7 @@ function checkBudgetAlerts($userId, $pdo) {
         LEFT JOIN categories c ON b.category_id = c.id
         WHERE b.user_id = ? AND b.month = ? AND b.year = ?
     ');
-    $stmt->execute([$userId, $currentMonth, $currentYear]);
+    $stmt->execute([$userId, $targetMonth, $targetYear]);
     $budgets = $stmt->fetchAll();
 
     foreach ($budgets as $b) {
@@ -94,7 +94,7 @@ function checkBudgetAlerts($userId, $pdo) {
             WHERE user_id = ? AND category_id = ? AND type = "expense"
               AND MONTH(transaction_date) = ? AND YEAR(transaction_date) = ?
         ');
-        $spentStmt->execute([$userId, $b['category_id'], $currentMonth, $currentYear]);
+        $spentStmt->execute([$userId, $b['category_id'], $targetMonth, $targetYear]);
         $spent = (float)$spentStmt->fetchColumn();
 
         $budgetAmount = (float)$b['amount'];

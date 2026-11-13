@@ -48,7 +48,9 @@ $stmt->execute([$type, $categoryId, $amount, $date, $paymentMethod, $note, $id, 
 
 // Kiểm tra ngân sách nếu là chi tiêu
 if ($type === 'expense') {
-    checkBudgetAlerts($userId, $pdo);
+    $txMonth = (int)$parsedDate->format('n');
+    $txYear  = (int)$parsedDate->format('Y');
+    checkBudgetAlerts($userId, $pdo, $txMonth, $txYear);
 }
 
 jsonResponse([

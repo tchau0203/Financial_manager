@@ -41,7 +41,7 @@ $stmt = $pdo->prepare(
 );
 $stmt->execute([$userId, $categoryId, $amount, $month, $year, $alertThreshold]);
 
-checkBudgetAlerts($userId, $pdo);
+checkBudgetAlerts($userId, $pdo, $month, $year);
 
 jsonResponse([
     'success' => true,
