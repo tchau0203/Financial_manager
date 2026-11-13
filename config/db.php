@@ -1,8 +1,8 @@
 <?php
-$host = "localhost";
-$dbname = "quanlychitieu";
-$username = "root";
-$password = "";
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+date_default_timezone_set('Asia/Ho_Chi_Minh');
 
 function loadEnvFile($filePath) {
     if (!file_exists($filePath)) return [];
@@ -74,7 +74,6 @@ function getJsonInput() {
     }
     return $_POST ?? [];
 }
-<<<<<<< HEAD
 
 function checkBudgetAlerts($userId, $pdo) {
     $currentMonth = (int)date('n');
@@ -102,14 +101,27 @@ function checkBudgetAlerts($userId, $pdo) {
         $threshold = (float)($b['alert_threshold'] ?? 80);
         if ($budgetAmount > 0) {
             $pct = ($spent / $budgetAmount) * 100;
+            $catName = $b['category_name'] ?? 'Chung';
+            
             if ($pct >= 100) {
                 $title = "Cảnh báo vượt ngân sách";
-                $msg = "Bạn đã chi tiêu " . number_format($spent, 0, ',', '.') . " đ vượt hạn mức " . number_format($budgetAmount, 0, ',', '.') . " đ cho danh mục " . ($b['category_name'] ?? 'Chung');
-                $pdo->prepare('INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, "danger")')->execute([$userId, $title, $msg]);
+                $msg = "Bạn đã chi tiêu " . number_format($spent, 0, ',', '.') . " đ vượt hạn mức " . number_format($budgetAmount, 0, ',', '.') . " đ cho danh mục " . $catName;
+                
+                // Tránh lặp thông báo nếu cảnh báo chưa đọc đã tồn tại
+                $checkStmt = $pdo->prepare('SELECT id FROM notifications WHERE user_id = ? AND title = ? AND message LIKE ? AND is_read = 0 LIMIT 1');
+                $checkStmt->execute([$userId, $title, "%$catName%"]);
+                if (!$checkStmt->fetch()) {
+                    $pdo->prepare('INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, "danger")')->execute([$userId, $title, $msg]);
+                }
             } elseif ($pct >= $threshold) {
                 $title = "Cảnh báo sắp đạt hạn mức";
-                $msg = "Bạn đã chi " . round($pct, 1) . "% hạn mức ngân sách cho danh mục " . ($b['category_name'] ?? 'Chung');
-                $pdo->prepare('INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, "warning")')->execute([$userId, $title, $msg]);
+                $msg = "Bạn đã chi " . round($pct, 1) . "% hạn mức ngân sách cho danh mục " . $catName;
+                
+                $checkStmt = $pdo->prepare('SELECT id FROM notifications WHERE user_id = ? AND title = ? AND message LIKE ? AND is_read = 0 LIMIT 1');
+                $checkStmt->execute([$userId, $title, "%$catName%"]);
+                if (!$checkStmt->fetch()) {
+                    $pdo->prepare('INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, "warning")')->execute([$userId, $title, $msg]);
+                }
             }
         }
     }
