@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi Tiêu - Quản Lý Chi Tiêu</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+        .filter-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0.75rem; align-items: end; }
+        .filter-bar .form-group { margin-bottom: 0; }
+        .btn-light { background: #f1f5f9; color: var(--text-main); }
+        .btn-light:hover { background: #e2e8f0; }
+        .btn-danger { background: var(--danger); color: #fff; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-icon { width: 32px; height: 32px; padding: 0; border-radius: var(--radius-sm); background: #f1f5f9; color: var(--text-muted); }
+        .btn-icon:hover { background: #e2e8f0; color: var(--text-main); }
+        .btn-icon.danger:hover { background: #fee2e2; color: var(--danger); }
+        .layout-2col { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 1.5rem; align-items: start; }
+        .select-with-icon { display: flex; align-items: center; gap: 0.6rem; }
+        .select-with-icon i { width: 1.25rem; text-align: center; }
+        .select-with-icon .form-control { flex: 1; min-width: 0; }
+        .cat-cell { display: inline-flex; align-items: center; gap: 0.5rem; }
+        .cat-dot { width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; background: #f1f5f9; }
+        .pagination { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; font-size: 0.875rem; color: var(--text-muted); }
+        .pager { display: flex; gap: 0.35rem; }
+        .pager button { min-width: 34px; height: 34px; border: 1px solid var(--border-color); background: var(--bg-card); border-radius: var(--radius-sm); cursor: pointer; color: var(--text-main); }
+        .pager button:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
+        .pager button.current { background: var(--primary); border-color: var(--primary); color: #fff; }
+        .pager button:disabled { opacity: 0.45; cursor: not-allowed; }
+        .empty-row td { text-align: center; color: var(--text-muted); padding: 2rem 1rem; }
+        .note-cell { max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .menu-toggle { display: none; align-items: center; justify-content: center; }
+        .sidebar { transition: transform 0.2s ease; }
+        @media (max-width: 768px) {
+            .menu-toggle { display: inline-flex; }
+            .sidebar.open { transform: translateX(0); box-shadow: 0 0 0 100vmax rgba(15, 23, 42, 0.45); }
+            .header { padding: 0 1rem; }
+            .content-body { padding: 1rem; }
+        }
+        /* Màn hình < 1500px: biểu đồ xuống dưới bảng để bảng đủ rộng, không bị cắt cột Thao tác */
+        @media (max-width: 1500px) { .layout-2col { grid-template-columns: minmax(0, 1fr); } }
+        .table th, .table td { white-space: nowrap; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <i class="fa-solid fa-wallet" style="margin-right: 0.5rem; color: var(--primary);"></i> CashManager
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html"><i class="fa-solid fa-chart-pie"></i> Bảng điều khiển</a></li>
+                <li><a href="income.html"><i class="fa-solid fa-arrow-down-long"></i> Thu nhập</a></li>
+                <li class="active"><a href="expense.html"><i class="fa-solid fa-arrow-up-long"></i> Chi tiêu</a></li>
+                <li><a href="budget.html"><i class="fa-solid fa-piggy-bank"></i> Ngân sách</a></li>
+                <li><a href="report.html"><i class="fa-solid fa-chart-column"></i> Báo cáo</a></li>
+                <li><a href="account.html"><i class="fa-solid fa-gear"></i> Tài khoản</a></li>
+            </ul>
+        </aside>
+
+        <div class="main-content">
+            <header class="header">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <button type="button" id="btnMenu" class="btn btn-icon menu-toggle" aria-label="Mở menu"><i class="fa-solid fa-bars"></i></button>
+                    <div style="font-weight: 700; font-size: 1.25rem;">Quản lý chi tiêu</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span id="header-username" style="font-weight: 600;">Đang tải...</span>
+                    <button id="btnLogout" class="btn" style="background: #fee2e2; color: #991b1b; padding: 0.4rem 0.8rem; font-size: 0.85rem;">
+                        <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-body">
+                <!-- 3 Thẻ chỉ số -->
+                <div class="grid-kpi">
+                    <div class="card">
+                        <div class="card-title">Chi hôm nay</div>
+                        <div class="card-value" id="stat-today" style="color: var(--danger);">0 đ</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Chi tháng này</div>
+                        <div class="card-value" id="stat-month" style="color: var(--danger);">0 đ</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Bình quân/ngày (tháng này)</div>
+                        <div class="card-value" id="stat-avg" style="color: var(--warning);">0 đ</div>
+                    </div>
+                </div>
+
+                <div class="layout-2col">
+                    <div>
+                        <!-- Tìm kiếm & bộ lọc -->
+                        <div class="card" style="margin-bottom: 1.5rem;">
+                            <div class="toolbar">
+                                <h3>Danh sách chi tiêu</h3>
+                                <button id="btnAddExpense" class="btn btn-danger">
+                                    <i class="fa-solid fa-plus"></i> Thêm chi tiêu
+                                </button>
+                            </div>
+                            <div class="filter-bar">
+                                <div class="form-group">
+                                    <label class="form-label" for="filter_search">Tìm kiếm</label>
+                                    <input type="search" id="filter_search" class="form-control" placeholder="Ghi chú, danh mục...">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="filter_category">Danh mục</label>
+                                    <div class="select-with-icon">
+                                        <i id="filter_category-preview" class="fa-solid fa-tag" style="color: var(--text-muted);"></i>
+                                        <select id="filter_category" class="form-control"><option value="">Tất cả danh mục</option></select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="filter_method">Phương thức</label>
+                                    <select id="filter_method" class="form-control">
+                                        <option value="">Tất cả</option>
+                                        <option value="Tiền mặt">Tiền mặt</option>
+                                        <option value="Banking">Banking</option>
+                                        <option value="Ví điện tử">Ví điện tử</option>
+                                        <option value="Thẻ tín dụng">Thẻ tín dụng</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="filter_from">Từ ngày</label>
+                                    <input type="date" id="filter_from" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="filter_to">Đến ngày</label>
+                                    <input type="date" id="filter_to" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <button id="btnResetFilter" class="btn btn-light" style="width: 100%;">
+                                        <i class="fa-solid fa-rotate-left"></i> Đặt lại
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bảng giao dịch chi -->
+                        <div class="card">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Ngày</th>
+                                            <th>Danh mục</th>
+                                            <th>Ghi chú</th>
+                                            <th>Phương thức</th>
+                                            <th style="text-align: right;">Số tiền</th>
+                                            <th style="text-align: right;">Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="expense-tbody">
+                                        <tr class="empty-row"><td colspan="6">Đang tải...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="pagination">
+                                <span id="page-info"></span>
+                                <div id="pager" class="pager"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cơ cấu chi tiêu -->
+                    <div class="card">
+                        <h3>Cơ cấu chi tiêu tháng này</h3>
+                        <div style="position: relative; height: 260px; margin-top: 1rem;">
+                            <canvas id="expenseChart"></canvas>
+                        </div>
+                        <p id="chart-empty" style="display: none; text-align: center; color: var(--text-muted); font-size: 0.875rem;">Chưa có dữ liệu tháng này.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Thêm / Sửa chi tiêu -->
+    <div id="modalTx" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Thêm chi tiêu</h3>
+                <button type="button" id="btnCloseTx" class="modal-close" aria-label="Đóng">&times;</button>
+            </div>
+            <form id="formTx">
+                <div class="modal-body">
+                    <input type="hidden" id="tx_id">
+                    <div class="form-group">
+                        <label class="form-label" for="tx_category_id">Danh mục</label>
+                        <div class="select-with-icon">
+                            <i id="tx_category_id-preview" class="fa-solid fa-tag" style="color: var(--text-muted);"></i>
+                            <select id="tx_category_id" class="form-control" required><option value="">Chọn danh mục</option></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="tx_amount">Số tiền (VNĐ)</label>
+                        <input type="number" id="tx_amount" class="form-control" placeholder="100000" required min="1" step="1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="tx_date">Ngày chi</label>
+                        <input type="date" id="tx_date" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="tx_method">Phương thức thanh toán</label>
+                        <select id="tx_method" class="form-control">
+                            <option value="Tiền mặt">Tiền mặt</option>
+                            <option value="Banking">Banking</option>
+                            <option value="Ví điện tử">Ví điện tử</option>
+                            <option value="Thẻ tín dụng">Thẻ tín dụng</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="tx_note">Ghi chú</label>
+                        <input type="text" id="tx_note" class="form-control" placeholder="Ghi chú thêm..." maxlength="500">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnCancelTx" class="btn btn-light">Hủy</button>
+                    <button type="submit" id="btnSaveTx" class="btn btn-danger">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/expense.js"></script>
+</body>
+</html>
