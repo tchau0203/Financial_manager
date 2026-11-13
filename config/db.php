@@ -30,7 +30,7 @@ function getDbConnection() {
         $env = loadEnvFile($envFile);
 
         $host   = $env['DB_HOST'] ?? getenv('DB_HOST') ?: '127.0.0.1';
-        $port   = (int)($env['DB_PORT'] ?? getenv('DB_PORT') ?: 3306);
+        $port   = (int)($env['DB_PORT'] ?? getenv('DB_PORT') ?: 3307);
         $dbname = $env['DB_NAME'] ?? getenv('DB_NAME') ?: 'quanlychitieu';
         $user   = $env['DB_USER'] ?? getenv('DB_USER') ?: 'root';
         $pass   = $env['DB_PASS'] ?? getenv('DB_PASS') ?? '';
@@ -73,5 +73,57 @@ function getJsonInput() {
         return json_decode($raw, true) ?? [];
     }
     return $_POST ?? [];
+}
+
+function checkBudgetAlerts($userId, $pdo, $month = null, $year = null) {
+    $targetMonth = $month ? (int)$month : (int)date('n');
+    $targetYear  = $year ? (int)$year : (int)date('Y');
+
+    $stmt = $pdo->prepare('
+        SELECT b.*, c.name as category_name 
+        FROM budgets b
+        LEFT JOIN categories c ON b.category_id = c.id
+        WHERE b.user_id = ? AND b.month = ? AND b.year = ?
+    ');
+    $stmt->execute([$userId, $targetMonth, $targetYear]);
+    $budgets = $stmt->fetchAll();
+
+    foreach ($budgets as $b) {
+        $spentStmt = $pdo->prepare('
+            SELECT COALESCE(SUM(amount), 0) FROM transactions 
+            WHERE user_id = ? AND category_id = ? AND type = "expense"
+              AND MONTH(transaction_date) = ? AND YEAR(transaction_date) = ?
+        ');
+        $spentStmt->execute([$userId, $b['category_id'], $targetMonth, $targetYear]);
+        $spent = (float)$spentStmt->fetchColumn();
+
+        $budgetAmount = (float)$b['amount'];
+        $threshold = (float)($b['alert_threshold'] ?? 80);
+        if ($budgetAmount > 0) {
+            $pct = ($spent / $budgetAmount) * 100;
+            $catName = $b['category_name'] ?? 'Chung';
+            
+            if ($pct >= 100) {
+                $title = "Cảnh báo vượt ngân sách";
+                $msg = "Bạn đã chi tiêu " . number_format($spent, 0, ',', '.') . " đ vượt hạn mức " . number_format($budgetAmount, 0, ',', '.') . " đ cho danh mục " . $catName;
+                
+                // Tránh lặp thông báo nếu cảnh báo chưa đọc đã tồn tại
+                $checkStmt = $pdo->prepare('SELECT id FROM notifications WHERE user_id = ? AND title = ? AND message LIKE ? AND is_read = 0 LIMIT 1');
+                $checkStmt->execute([$userId, $title, "%$catName%"]);
+                if (!$checkStmt->fetch()) {
+                    $pdo->prepare('INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, "danger")')->execute([$userId, $title, $msg]);
+                }
+            } elseif ($pct >= $threshold) {
+                $title = "Cảnh báo sắp đạt hạn mức";
+                $msg = "Bạn đã chi " . round($pct, 1) . "% hạn mức ngân sách cho danh mục " . $catName;
+                
+                $checkStmt = $pdo->prepare('SELECT id FROM notifications WHERE user_id = ? AND title = ? AND message LIKE ? AND is_read = 0 LIMIT 1');
+                $checkStmt->execute([$userId, $title, "%$catName%"]);
+                if (!$checkStmt->fetch()) {
+                    $pdo->prepare('INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, "warning")')->execute([$userId, $title, $msg]);
+                }
+            }
+        }
+    }
 }
 ?>

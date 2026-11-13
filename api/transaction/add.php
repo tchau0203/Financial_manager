@@ -40,6 +40,12 @@ $stmt->execute([
     $note
 ]);
 
+// Nếu là giao dịch chi tiêu, kích hoạt cảnh báo ngân sách
+if ($type === 'expense') {
+    $txMonth = (int)$parsedDate->format('n');
+    $txYear  = (int)$parsedDate->format('Y');
+    checkBudgetAlerts($userId, $pdo, $txMonth, $txYear);
+}
 jsonResponse([
     'success' => true,
     'message' => 'Đã thêm giao dịch thành công',
