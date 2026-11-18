@@ -2,38 +2,37 @@
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') exit;
 
-require_once '../../config/db.php';
-$userId = requireAuth();
-
-$type = $_GET['type'] ?? '';
-$pdo = getDbConnection();
-
-$sql = "
-    SELECT c.*, COUNT(t.id) as transaction_count
-    FROM categories c
-    LEFT JOIN transactions t ON c.id = t.category_id AND t.user_id = :userId
-    WHERE (c.user_id IS NULL OR c.user_id = :userId2)
-";
-
-$params = [
-    ':userId' => $userId,
-    ':userId2' => $userId
-];
-
-if (in_array($type, ['income', 'expense'])) {
-    $sql .= " AND c.type = :type";
-    $params[':type'] = $type;
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    exit;
 }
 
-$sql .= " GROUP BY c.id ORDER BY c.type, c.id ASC";
+require_once '../../config/db.php';
 
-$stmt = $pdo->prepare($sql);
-$stmt->execute($params);
-$categories = $stmt->fetchAll();
+$userId = requireAuth();
+$pdo = getDbConnection();
+
+$stmt = $pdo->prepare(
+    'SELECT id, title, message, type, is_read, created_at
+     FROM notifications
+     WHERE user_id = ?
+     ORDER BY created_at DESC
+     LIMIT 20'
+);
+$stmt->execute([$userId]);
+$notifications = $stmt->fetchAll();
+
+$countStmt = $pdo->prepare(
+    'SELECT COUNT(*)
+     FROM notifications
+     WHERE user_id = ? AND is_read = 0'
+);
+$countStmt->execute([$userId]);
 
 jsonResponse([
     'success' => true,
-    'data' => $categories
+    'data' => [
+        'notifications' => $notifications,
+        'unread_count' => (int)$countStmt->fetchColumn()
+    ]
 ]);
