@@ -1,10 +1,44 @@
 // Logic Bảng điều khiển
 let trendChartInstance = null;
 let categoryChartInstance = null;
+let allCategories = [];
+
+async function loadQuickCategories() {
+    try {
+        const res = await apiFetch('/category/list.php');
+        if (res && res.success) {
+            allCategories = res.data || [];
+            updateQuickCategorySelect();
+        }
+    } catch (e) {
+        console.error('Lỗi tải danh mục:', e);
+    }
+}
+
+function updateQuickCategorySelect() {
+    const typeSelect = document.getElementById('quick_type');
+    const type = typeSelect ? typeSelect.value : 'expense';
+    const select = document.getElementById('quick_category_id');
+    if (!select) return;
+
+    const filtered = allCategories.filter(c => c.type === type);
+    if (filtered.length) {
+        select.innerHTML = filtered.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    } else {
+        select.innerHTML = '<option value="">-- Không có danh mục --</option>';
+    }
+}
 
 document.addEventListener('DOMContentLoaded', async () => {
     const user = await checkAuth();
     if (!user) return;
+
+    loadQuickCategories();
+
+    const quickType = document.getElementById('quick_type');
+    if (quickType) {
+        quickType.addEventListener('change', updateQuickCategorySelect);
+    }
 
     const btnLogout = document.getElementById('btnLogout');
     if (btnLogout) {
@@ -24,7 +58,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const formQuickAdd = document.getElementById('formQuickAdd');
 
     if (btnQuickAdd && modalQuickAdd) {
-        btnQuickAdd.addEventListener('click', () => modalQuickAdd.classList.add('show'));
+        btnQuickAdd.addEventListener('click', () => {
+            modalQuickAdd.classList.add('show');
+            updateQuickCategorySelect();
+        });
     }
     if (btnCloseModal && modalQuickAdd) {
         btnCloseModal.addEventListener('click', () => modalQuickAdd.classList.remove('show'));
