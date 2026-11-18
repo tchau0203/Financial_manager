@@ -78,8 +78,7 @@
   
     async function loadCats() {
       try {
-        cats = list(await api('../api/category/list.php')).filter(c => !+c.is_default);
-        render();
+        cats = list(await api('../api/category/list.php')).filter(c => c.user_id !== null && c.user_id !== undefined);
       } catch (e) { toast(e.message, true); }
     }
   
