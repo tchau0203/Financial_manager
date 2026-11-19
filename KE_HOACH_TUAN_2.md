@@ -1,167 +1,171 @@
 # 📋 Kế Hoạch Triển Khai Sprint 2 (Tuần 2) — Hệ Thống Quản Lý Tài Chính Cá Nhân
 
-- **Tên dự án:** CashManager — Ứng dụng Quản lý Chi tiêu Cá nhân  
-- **Thời gian thực hiện:** Tuần 2 (Tiếp nối thành công của Sprint 1)  
+- **Tên dự án:** CashManager — Quản Lý Chi Tiêu Cá Nhân & Nhóm  
+- **Thời gian thực hiện:** Sprint Tuần 2  
 - **Nhánh tích hợp chính:** `main` (hoặc `feature/test-code`)  
-- **Mục tiêu Sprint 2:** Nâng cấp hệ thống từ mức **Cơ bản (Core Features)** lên mức **Nâng cao & Hoàn thiện (Advanced & Production-ready)**: Bổ sung Quản lý nhiều Ví tiền/Tài khoản thanh toán, Mục tiêu tiết kiệm (Savings Goals), Đính kèm hóa đơn chứng từ, Chuông thông báo thời gian thực, Gợi ý chi tiêu thông minh và Triển khai đưa ứng dụng lên Web Hosting trực tuyến.
+- **Mục tiêu Sprint 2:** Triển khai trọn vẹn 7 chức năng mở rộng nâng cao theo đặc tả yêu cầu:  
+  1. **Nhập dữ liệu Excel/CSV (Import Transactions)**  
+  2. **Xuất báo cáo tài chính PDF**  
+  3. **Đa tiền tệ (VND, USD, EUR, JPY...)**  
+  4. **Thông báo qua Email khi gần hết ngân sách**  
+  5. **Tìm kiếm & Bộ lọc nâng cao**  
+  6. **Sao lưu & Khôi phục dữ liệu (Backup & Restore)**  
+  7. **Chia sẻ tài chính (Quản lý ngân sách chung nhiều người)**  
 
 ---
 
-## 🗂️ 1. TỔNG QUAN PHÂN CÔNG NHIỆM VỤ TUẦN 2 (6 THÀNH VIÊN)
+## 🗂️ 1. PHÂN CÔNG NHIỆM VỤ CHO 6 THÀNH VIÊN TRONG NHÓM
 
-Dựa trên năng lực và sự phân vai hiệu quả từ Tuần 1, nhóm 6 thành viên tiếp tục phối hợp theo các phân hệ nâng cao:
-
-| Nhóm | Thành viên | Nhánh Git | Phân hệ phụ trách trong Tuần 2 |
+| Phân hệ / Nhóm | Thành viên | Nhánh Git | Chức năng phụ trách chính |
 | :--- | :--- | :--- | :--- |
-| **🏆 Nhóm 1: Architecture, Deploy & UI/UX** | **Thái Châu** (Lead/Full-stack) + **Ngô Bảo** (FE) | `feature/deploy-ux` | • Triển khai ứng dụng lên Web Hosting trực tuyến (InfinityFree/VPS)<br>• Hoàn thiện Responsive Mobile 100%, Drawer menu, Dark mode<br>• Chuông thông báo thời gian thực trên Header |
-| **🎯 Nhóm 2: Ví tiền & Mục tiêu tiết kiệm** | **NG Bảo** (BE) + **QAnh** (FE) | `feature/wallet-savings` | • Phân hệ Quản lý nhiều Ví tiền (Tiền mặt, Tài khoản Ngân hàng, Ví MoMo, Thẻ tín dụng)<br>• Phân hệ Quản lý Mục tiêu tiết kiệm (Savings Goals) theo dõi tiến độ tích lũy quỹ |
-| **💡 Nhóm 3: Thông minh & Mở rộng báo cáo** | **Hoàng Nam** (BE/DB) + **Gia Huy** (Full-stack) | `feature/insights-export` | • Module Gợi ý tài chính thông minh (Smart Financial Advisor)<br>• Mở rộng CSDL: Đính kèm hóa đơn ảnh giao dịch<br>• Nâng cấp Báo cáo: So sánh các tháng, Xuất báo cáo PDF |
+| **📁 Nhóm 1: Xử lý Tệp & Báo cáo** | **NG Bảo** (BE) + **Quốc Anh** (FE) | `feature/import-pdf` | **1. Nhập dữ liệu Excel/CSV:** Đọc file upload, kiểm tra dữ liệu và import hàng loạt.<br>**2. Xuất báo cáo PDF:** Định dạng trang in PDF chuyên nghiệp theo tháng kèm biểu đồ. |
+| **🔍 Nhóm 2: Tìm kiếm & Tiền tệ** | **Hoàng Nam** (BE) + **Ngô Bảo** (FE) | `feature/search-currency` | **3. Đa tiền tệ:** Cấu hình tỷ giá, hiển thị ký hiệu (đ, $, €, ¥), quy đổi tự động.<br>**4. Tìm kiếm nâng cao:** Bộ lọc đa tiêu chí (khoảng tiền, khoảng ngày, danh mục, từ khóa). |
+| **👥 Nhóm 3: Chia sẻ nhóm & Bảo mật** | **Thái Châu** (Lead/BE) + **Gia Huy** (FE) | `feature/shared-email-backup` | **5. Chia sẻ tài chính:** Quản lý ngân sách chung, phân quyền thành viên trong quỹ.<br>**6. Thông báo Email:** Tích hợp gửi email cảnh báo khi chạm ngưỡng ngân sách.<br>**7. Sao lưu & Khôi phục:** Xuất file backup (.json) và restore dữ liệu. |
 
 ---
 
-## 🚀 2. CHI TIẾT TỪNG TÍNH NĂNG NÂNG CAO TRONG TUẦN 2
+## 🚀 2. THIẾT KẾ CHI TIẾT 7 CHỨC NĂNG NÂNG CAO
 
 ---
 
-### PHÂN HỆ 1: QUẢN LÝ NHIỀU VÍ TIỀN & NGUỒN TIỀN (MULTI-WALLET MANAGEMENT)
-> *Hiện tại: Giao dịch chỉ ghi nhận phương thức thanh toán dạng chữ (`cash`, `bank`).*  
-> *Mục tiêu Tuần 2: Người dùng có thể quản lý số dư từng ví cụ thể (ví dụ: Ví tiền mặt còn 2tr, Tài khoản VCB còn 15tr, MoMo còn 500k). Khi thu/chi thì số dư ví tự động tăng/giảm.*
-
-#### ✅ Backend — NG Bảo & Hoàng Nam
-* **Database Migration:** Tạo bảng `wallets`
-  ```sql
-  CREATE TABLE `wallets` (
-      `id` INT AUTO_INCREMENT PRIMARY KEY,
-      `user_id` INT NOT NULL,
-      `name` VARCHAR(100) NOT NULL, -- Tên ví: Ví tiền mặt, VCB, MoMo...
-      `balance` DECIMAL(15,2) DEFAULT 0.00, -- Số dư hiện tại
-      `icon` VARCHAR(50) DEFAULT 'fa-wallet',
-      `color` VARCHAR(20) DEFAULT '#4F46E5',
-      `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
-  );
-  ALTER TABLE `transactions` ADD COLUMN `wallet_id` INT NULL,
-  ADD CONSTRAINT `fk_trans_wallet` FOREIGN KEY (`wallet_id`) REFERENCES `wallets`(`id`) ON DELETE SET NULL;
-  ```
-* **Các API xây dựng:**
-  * `api/wallet/list.php`: Lấy danh sách ví kèm số dư hiện tại của từng ví.
-  * `api/wallet/add.php`: Thêm ví mới (Tên ví, số dư ban đầu, icon, màu).
-  * `api/wallet/transfer.php`: Chuyển tiền giữa 2 ví nội bộ (ví dụ: Rút từ ATM về Tiền mặt).
-  * Tự động cập nhật `balance` trong `api/transaction/add.php` (Thu: `balance += amount`, Chi: `balance -= amount`).
-
-#### ✅ Frontend — QAnh
-* **Màn hình & Giao diện:**
-  * Dựng trang `pages/wallets.html` & `assets/js/wallets.js`: Thẻ hiển thị số dư từng ví, tổng tài sản ròng.
-  * Tích hợp lựa chọn Ví thanh toán vào modal Thêm/Sửa thu chi ở `pages/income.html`, `pages/expense.html` và `dashboard.html`.
+### Chức năng 1: Nhập dữ liệu từ Excel / CSV (Import Transactions)
+* **Mô tả:** Cho phép người dùng tải lên file Excel (`.xlsx`, `.csv`) chứa danh sách giao dịch từ ngân hàng hoặc ứng dụng khác để nạp hàng loạt vào hệ thống mà không cần nhập tay từng dòng.
+* **Backend (NG Bảo):**
+  * File: `api/import/import_csv.php`.
+  * Nhận file từ `$_FILES['file']`, kiểm tra định dạng và kích thước.
+  * Phân tích các cột: Ngày giao dịch, Loại (Thu/Chi), Tên danh mục, Số tiền, Ghi chú.
+  * Tự động ánh xạ (map) tên danh mục với `category_id` trong database; thực hiện `INSERT` hàng loạt bằng transaction PDO.
+* **Frontend (Quốc Anh):**
+  * Giao diện: Thêm nút **"Nhập từ Excel/CSV"** và Modal tải tệp trên trang `income.html` và `expense.html`.
+  * Hỗ trợ Drag & Drop (kéo thả file), thanh tiến độ tải lên và bảng xem trước (preview) dữ liệu trước khi xác nhận lưu.
+  * Cung cấp nút tải về **File mẫu CSV chuẩn** để người dùng điền theo đúng cột.
 
 ---
 
-### PHÂN HỆ 2: MỤC TIÊU TIẾT KIỆM (SAVINGS GOALS)
-> *Mục tiêu Tuần 2: Giúp người dùng đặt ra mục tiêu tài chính (ví dụ: Tiết kiệm mua Laptop 20 triệu trước 31/12/2026). Mỗi lần gửi tiền tiết kiệm, hệ thống hiển thị thanh tiến độ hoàn thành %.*
-
-#### ✅ Backend — NG Bảo
-* **Database Migration:** Tạo bảng `savings_goals`
-  ```sql
-  CREATE TABLE `savings_goals` (
-      `id` INT AUTO_INCREMENT PRIMARY KEY,
-      `user_id` INT NOT NULL,
-      `name` VARCHAR(150) NOT NULL,
-      `target_amount` DECIMAL(15,2) NOT NULL,
-      `current_amount` DECIMAL(15,2) DEFAULT 0.00,
-      `deadline` DATE NULL,
-      `status` ENUM('in_progress', 'completed') DEFAULT 'in_progress',
-      `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
-  );
-  ```
-* **Các API xây dựng:**
-  * `api/savings/list.php`: Danh sách các mục tiêu tiết kiệm.
-  * `api/savings/create.php`: Tạo mục tiêu mới.
-  * `api/savings/deposit.php`: Nạp tiền vào quỹ tiết kiệm (tự động tính % hoàn thành).
-
-#### ✅ Frontend — QAnh & Gia Huy
-* Dựng thẻ Goal Card: Vòng tròn tiến độ %, số tiền còn thiếu, đếm ngược số ngày đến hạn chót (Deadline).
-* Hiệu ứng chúc mừng (Confetti animation) khi người dùng hoàn thành 100% mục tiêu tiết kiệm.
+### Chức năng 2: Xuất báo cáo tài chính dạng PDF (Export PDF)
+* **Mô tả:** Tạo file báo cáo tài chính tháng hoàn chỉnh dạng PDF có tiêu đề, bảng tổng kết thu/chi, số dư ròng và hình ảnh biểu đồ phân bổ.
+* **Backend (NG Bảo):**
+  * File: `api/export/export_pdf.php`.
+  * Tổng hợp toàn bộ số liệu thu chi của tháng được chọn.
+  * Tạo mẫu in HTML chuẩn A4 chuyên dụng (`@page { size: A4; margin: 15mm; }`) để tải về hoặc in trực tiếp.
+* **Frontend (Quốc Anh):**
+  * Nút **"Xuất báo cáo PDF"** trên trang `pages/report.html`.
+  * Tự động chụp lại biểu đồ Canvas Chart.js gắn vào bản in và kích hoạt lệnh in/xuất PDF chuẩn đẹp, không bị dính thanh menu Sidebar.
 
 ---
 
-### PHÂN HỆ 3: GỢI Ý TÀI CHÍNH THÔNG MINH (SMART FINANCIAL ADVISOR)
-> *Mục tiêu Tuần 2: Phân tích tự động lịch sử chi tiêu để đưa ra lời khuyên hữu ích cho người dùng.*
-
-#### ✅ Full-stack — Trần Gia Huy
-* **Logic phân tích thuật toán (Rule-based Insights Engine):**
-  * Tỷ lệ chi tiêu danh mục Ăn uống $> 40\%$ thu nhập $\rightarrow$ Đưa ra lời khuyên: *"Bạn đang chi quá nhiều cho ăn uống bên ngoài, hãy thử tự nấu ăn để tiết kiệm thêm 15% mỗi tháng."*
-  * Tỷ lệ tiết kiệm tháng này $< 10\%$ $\rightarrow$ Cảnh báo: *"Tỷ lệ tiết kiệm của bạn đang ở mức thấp, hãy áp dụng quy tắc 50/30/20."*
-  * Khoản chi bất thường: Xuất hiện giao dịch chi tiêu lớn gấp 3 lần mức trung bình hàng ngày $\rightarrow$ Gợi ý xem lại khoản chi.
-* **API:** `api/report/insights.php`: Trả về danh sách lời khuyên thông minh.
-* **Giao diện:** Thêm widget **"Lời khuyên thông minh hôm nay"** ngay đầu trang `pages/dashboard.html` và `pages/report.html`.
-
----
-
-### PHÂN HỆ 4: CHUÔNG THÔNG BÁO THỜI GIAN THỰC & ĐÍNH KÈM HÓA ĐƠN
-> *Mục tiêu Tuần 2: Chuông thông báo trên Header có số đếm đỏ (Badge), bấm vào mở dropdown xem nhanh các cảnh báo vượt hạn mức.*
-
-#### ✅ Backend — Hoàng Nam
-* **API Nâng cấp:**
-  * Mở rộng `api/transaction/add.php`: Hỗ trợ upload ảnh chụp hóa đơn (`multipart/form-data`) lưu vào thư mục `assets/uploads/receipts/`.
-  * Hoàn thiện hàm kiểm tra ngân sách tức thì, tự động đẩy tin nhắn vào `notifications`.
-
-#### ✅ Frontend — Ngô Bảo
-* Thêm icon chuông thông báo `<i class="fa-solid fa-bell"></i>` có gắn số lượng tin chưa đọc trên thanh Topbar chung của tất cả các trang.
-* Bấm vào chuông hiện popover menu danh sách thông báo, có nút "Đánh dấu tất cả là đã đọc".
+### Chức năng 3: Hỗ trợ Đa tiền tệ (Multi-Currency)
+* **Mô tả:** Người dùng có thể thiết lập đơn vị tiền tệ chính (VND, USD, EUR, JPY, GBP). Hệ thống tự động format ký hiệu tiền tệ và hỗ trợ tỷ giá quy đổi chuẩn.
+* **Database & Backend (Hoàng Nam):**
+  * Cập nhật trường `currency` trong bảng `users` (VND, USD, EUR, JPY).
+  * Viết bảng tỷ giá quy đổi tham chiếu: `1 USD = 25,400 VND`, `1 EUR = 27,200 VND`...
+  * File: `api/account/currency.php`: Cập nhật tiền tệ mặc định của tài khoản và lấy tỷ giá hiện hành.
+* **Frontend (Ngô Bảo):**
+  * Tùy chọn đổi đơn vị tiền tệ trong `pages/account.html`.
+  * Nâng cấp hàm `formatCurrency(amount, currency)` trong `assets/js/auth.js` để tự động hiển thị:
+    * VND: `15.000.000 đ`
+    * USD: `$1,500.00`
+    * EUR: `€1,200.00`
+    * JPY: `¥150,000`
 
 ---
 
-### PHÂN HỆ 5: XUẤT BÁO CÁO PDF CHUYÊN NGHIỆP & NÂNG CẤP BÁO CÁO
-> *Mục tiêu Tuần 2: Ngoài xuất file CSV, hỗ trợ người dùng in hoặc xuất trực tiếp file Báo cáo tài chính tháng ra định dạng PDF có biểu đồ.*
-
-#### ✅ Backend — Hoàng Nam
-* Tạo API `api/export/export_pdf.php` (dùng thư viện nhẹ hoặc tính năng in chuẩn CSS `@media print`).
-
-#### ✅ Frontend — Gia Huy
-* Bổ sung tính năng in báo cáo trên `pages/report.html`: Bấm "In báo cáo PDF" $\rightarrow$ Tự động căn chỉnh trang in sạch đẹp không dính thanh menu Sidebar.
-
----
-
-### PHÂN HỆ 6: TRIỂN KHAI LÊN WEB HOSTING (ONLINE DEPLOYMENT)
-> *Mục tiêu Tuần 2: Đưa website lên Internet để Thầy/Cô và bạn bè có thể truy cập trực tiếp bằng điện thoại/máy tính bất kỳ lúc nào.*
-
-#### ✅ Trưởng nhóm — Thái Châu
-* **Các bước triển khai:**
-  1. Đăng ký Web Hosting miễn phí hỗ trợ PHP 8 + MySQL (khuyên dùng **InfinityFree** hoặc **Hostinger/VPS**).
-  2. Tạo CSDL trên hosting và import file `database/quanlychitieu.sql`.
-  3. Cấu hình biến môi trường kết nối database trên máy chủ trực tuyến.
-  4. Đẩy mã nguồn thông qua FTP (FileZilla) hoặc GitHub Actions Deploy.
-  5. Kiểm thử toàn bộ 100% chức năng chạy online trên tên miền chính thức.
+### Chức năng 4: Thông báo qua Email khi gần hết ngân sách (Email Alerts)
+* **Mô tả:** Khi một khoản chi tiêu mới khiến ngân sách đạt $\ge 80\%$ hạn mức hoặc bị vượt quá $100\%$, hệ thống tự động gửi email cảnh báo đến hộp thư người dùng.
+* **Backend (Thái Châu):**
+  * Tích hợp thư viện gửi mail chuẩn qua SMTP (dùng Gmail SMTP hoặc hàm `mail()`).
+  * Nâng cấp hàm `checkBudgetAlerts()` trong `config/db.php`:
+    * Khi phát hiện trạng thái `warning` hoặc `exceeded`: Soạn nội dung email HTML có thiết kế đẹp mắt (Tên danh mục, Hạn mức, Số tiền đã tiêu, Số tiền còn lại).
+    * Gửi email tự động đến địa chỉ `email` của tài khoản đăng ký.
+* **Frontend (Gia Huy):**
+  * Thêm nút bật/tắt: *"Nhận email cảnh báo khi ngân sách đạt 80%"* trong phần Cài đặt tài khoản (`account.html`).
 
 ---
 
-## 🧪 3. KẾ HOẠCH KIỂM THỬ SPRINT 2 (TESTING PLAN)
+### Chức năng 5: Tìm kiếm & Bộ lọc nâng cao (Advanced Search & Filter)
+* **Mô tả:** Cho phép người dùng tìm kiếm giao dịch với nhiều tiêu chí kết hợp cùng lúc.
+* **Backend (Hoàng Nam):**
+  * Nâng cấp `api/transaction/list.php` hỗ trợ thêm các tham số lọc:
+    * `min_amount` và `max_amount`: Lọc theo khoảng số tiền (ví dụ: các khoản từ 500k đến 2 triệu).
+    * `from_date` và `to_date`: Lọc theo khoảng ngày linh hoạt.
+    * `payment_method`: Lọc theo hình thức (Tiền mặt, Chuyển khoản, Ví điện tử).
+    * `category_id`: Lọc theo danh mục.
+    * `search`: Tìm theo từ khóa trong ghi chú.
+* **Frontend (Ngô Bảo):**
+  * Dựng thanh công cụ tìm kiếm nâng cao dạng Drawer/Collapse trên trang `pages/income.html` và `pages/expense.html`:
+    * Thanh kéo trượt chọn khoảng số tiền (Price Range Slider).
+    * Ô chọn khoảng ngày bắt đầu - kết thúc.
+    * Nút Reset xóa nhanh toàn bộ bộ lọc.
 
-| STT | Kịch bản kiểm thử | Thao tác thực hiện | Kết quả mong đợi | Phụ trách |
+---
+
+### Chức năng 6: Sao lưu & Khôi phục dữ liệu (Backup & Restore)
+* **Mô tả:** Người dùng có thể tự tải toàn bộ dữ liệu tài chính của mình về máy tính dạng file sao lưu JSON/SQL an toàn, và có thể khôi phục lại khi cần.
+* **Backend (Thái Châu & Hoàng Nam):**
+  * `api/backup/export.php`: Trích xuất toàn bộ dữ liệu của `user_id` hiện tại (thông tin user, danh mục riêng, toàn bộ transactions, budgets) thành file `.json` có chữ ký bảo mật.
+  * `api/backup/restore.php`: Tiếp nhận file `.json` upload lên, kiểm tra tính toàn vẹn và nạp lại vào database (hỗ trợ chế độ: ghi đè hoặc giữ nguyên dữ liệu cũ).
+* **Frontend (Gia Huy):**
+  * Tab **"Sao lưu & Dữ liệu"** trong trang `pages/account.html`.
+  * Nút **"Tải bản sao lưu (.json)"** và khu vực **"Khôi phục dữ liệu từ file"**.
+
+---
+
+### Chức năng 7: Chia sẻ tài chính nhóm (Shared / Family Budget)
+* **Mô tả:** Cho phép nhiều người dùng (gia đình, nhóm bạn cùng phòng) cùng tham gia quản lý một quỹ ngân sách chung, ghi nhận ai là người đã chi tiền cho khoản nào.
+* **Database & Backend (Thái Châu):**
+  * Tạo bảng `shared_spaces` (Không gian quỹ chung) và `shared_members` (Thành viên được mời):
+    ```sql
+    CREATE TABLE `shared_spaces` (
+        `id` INT AUTO_INCREMENT PRIMARY KEY,
+        `owner_id` INT NOT NULL,
+        `name` VARCHAR(100) NOT NULL, -- Ví dụ: Quỹ gia đình, Chi tiêu phòng 402
+        `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (`owner_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
+    );
+    CREATE TABLE `shared_members` (
+        `space_id` INT NOT NULL,
+        `user_id` INT NOT NULL,
+        `role` ENUM('owner', 'member') DEFAULT 'member',
+        PRIMARY KEY (`space_id`, `user_id`),
+        FOREIGN KEY (`space_id`) REFERENCES `shared_spaces`(`id`) ON DELETE CASCADE,
+        FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
+    );
+    ```
+  * `api/shared/create.php`: Tạo quỹ chung mới.
+  * `api/shared/invite.php`: Mời thành viên vào quỹ bằng email hoặc mã mời.
+  * `api/shared/transactions.php`: Lấy và thêm giao dịch trong quỹ chung, hiển thị tên người đã chi tiền.
+* **Frontend (Gia Huy):**
+  * Dựng trang `pages/shared.html`: Chuyển đổi giữa *"Ví cá nhân"* và *"Không gian quỹ chung"*.
+  * Bảng chi tiêu nhóm hiển thị avatar và tên người thực hiện giao dịch.
+
+---
+
+## 🧪 3. KẾ HOẠCH KIỂM THỬ SPRINT 2 (TEST CASES)
+
+| STT | Chức năng kiểm thử | Kịch bản thực hiện | Kết quả mong đợi | Phụ trách test |
 | :---: | :--- | :--- | :--- | :---: |
-| 1 | **Chuyển tiền giữa các Ví** | Chuyển 500k từ ví Ngân hàng sang Ví tiền mặt | Số dư ví Ngân hàng -500k, ví Tiền mặt +500k, tổng tài sản không đổi | NG Bảo & QAnh |
-| 2 | **Cập nhật số dư khi Chi tiêu** | Thêm khoản chi 100k chọn ví "Tiền mặt" | Số dư ví Tiền mặt tự động giảm đúng 100k | NG Bảo & QAnh |
-| 3 | **Tiến độ Mục tiêu tiết kiệm** | Nạp 5 triệu vào mục tiêu "Mua xe máy 30 triệu" | Thanh tiến độ nhảy lên 16.7%, hiển thị số tiền còn thiếu | QAnh & Huy |
-| 4 | **Thuật toán Gợi ý AI** | Cố tình tạo chi tiêu ăn uống vượt 50% tổng thu | Xuất hiện thẻ khuyến nghị cắt giảm chi phí ăn uống | Gia Huy |
-| 5 | **Chuông thông báo Real-time** | Chi tiêu vượt 80% ngân sách tháng | Chuông thông báo nhảy số `1`, click xem được nội dung chi tiết | Ngô Bảo & Nam |
-| 6 | **Upload ảnh hóa đơn** | Thêm giao dịch chi tiêu kèm tệp ảnh `.png`/`.jpg` | Ảnh lưu vào máy chủ, bảng hiển thị icon xem lại ảnh hóa đơn | Nam & QAnh |
-| 7 | **Kiểm thử Web Online** | Truy cập website bằng 4G trên điện thoại thông minh | Web load nhanh, giao diện co giãn chuẩn điện thoại, dữ liệu đồng bộ | Thái Châu & Cả nhóm |
+| 1 | **Nhập dữ liệu CSV/Excel** | Upload file CSV mẫu có 10 dòng giao dịch | 10 giao dịch nạp thành công vào database, bảng cập nhật ngay | NG Bảo & QAnh |
+| 2 | **Xuất báo cáo PDF** | Chọn tháng 11/2026 và nhấn "Xuất PDF" | Mở hộp thoại in/tải PDF chuẩn trang A4 có số liệu và biểu đồ | NG Bảo & QAnh |
+| 3 | **Đổi tiền tệ sang USD** | Đổi sang USD trong tài khoản | Toàn bộ giao dịch và thẻ KPI đổi từ `đ` sang `$` chuẩn format | Hoàng Nam & Ngô Bảo |
+| 4 | **Tìm kiếm đa điều kiện** | Lọc: Số tiền từ 100k - 500k, danh mục Ăn uống | Bảng chỉ hiện đúng các giao dịch thỏa mãn cả 2 điều kiện | Hoàng Nam & Ngô Bảo |
+| 5 | **Gửi Email cảnh báo** | Thêm chi tiêu vượt 85% hạn mức ngân sách | Hộp thư email của user nhận được email cảnh báo màu vàng | Thái Châu & Gia Huy |
+| 6 | **Sao lưu & Khôi phục** | Tải file backup.json $\rightarrow$ Xóa 1 giao dịch $\rightarrow$ Nạp lại file backup | Giao dịch vừa xóa được phục hồi nguyên vẹn | Thái Châu & Gia Huy |
+| 7 | **Chia sẻ quỹ nhóm** | Tài khoản A mời tài khoản B vào Quỹ phòng $\rightarrow$ B thêm khoản chi 50k | Tài khoản A và B đều nhìn thấy khoản chi 50k có tên người chi | Cả nhóm nghiệm thu |
 
 ---
 
-## 📅 4. TIMELINE 7 NGÀY CHI TIẾT CỦA TUẦN 2
+## 📅 4. TIMELINE 7 NGÀY TRIỂN KHAI SPRINT 2
 
-| Ngày | Trọng tâm công việc | Đầu ra bắt buộc (Deliverables) | Phụ trách chính |
+| Ngày | Trọng tâm công việc | Đầu ra sản phẩm (Deliverables) | Phụ trách |
 | :---: | :--- | :--- | :--- |
-| **Ngày 1 (Thứ 2)** | Mở rộng CSDL: Thêm bảng `wallets`, `savings_goals` | Cập nhật `database/quanlychitieu.sql`, viết migration script | Thái Châu, Hoàng Nam |
-| **Ngày 2 (Thứ 3)** | Hoàn thiện Backend API cho Ví tiền & Mục tiêu tiết kiệm | `api/wallet/*.php`, `api/savings/*.php` hoàn thành | NG Bảo, Hoàng Nam |
-| **Ngày 3 (Thứ 4)** | Dựng Giao diện Quản lý Ví tiền & Thẻ Mục tiêu tiết kiệm | `pages/wallets.html`, `pages/savings.html`, liên kết modal | Quốc Anh, Gia Huy |
-| **Ngày 4 (Thứ 5)** | Module Lời khuyên tài chính thông minh (Insights) | `api/report/insights.php`, widget gợi ý trên Dashboard | Trần Gia Huy |
-| **Ngày 5 (Thứ 6)** | Chuông thông báo Header, Upload hóa đơn & Xuất PDF | Dropdown thông báo, hỗ trợ in PDF chuẩn trang in | Ngô Bảo, Hoàng Nam |
-| **Ngày 6 (Thứ 7)** | Triển khai đưa ứng dụng lên Web Hosting trực tuyến | Website chạy online có tên miền trực tiếp trên Internet | Thái Châu (Leader) |
-| **Ngày 7 (Chủ nhật)**| Tổng kiểm thử End-to-End, Fix bug toàn diện & Đóng Sprint 2 | Hệ thống hoàn chỉnh 100%, sẵn sàng cho Báo cáo tiến độ lần 2 | Cả nhóm 6 thành viên |
+| **Thứ 2 (Ngày 1)** | Thiết kế CSDL mở rộng: Bảng `shared_spaces`, `shared_members`, tỷ giá tiền tệ | Cập nhật file SQL migration | Thái Châu, Hoàng Nam |
+| **Thứ 3 (Ngày 2)** | Xây dựng API Import Excel/CSV & API Tìm kiếm nâng cao đa tiêu chí | `import_csv.php`, nâng cấp `transaction/list.php` | NG Bảo, Hoàng Nam |
+| **Thứ 4 (Ngày 3)** | Dựng Giao diện Import Excel (kéo thả file) & Bộ lọc tìm kiếm khoảng giá | Modal upload file, Price Range Slider | Quốc Anh, Ngô Bảo |
+| **Thứ 5 (Ngày 4)** | Xây dựng chức năng Đa tiền tệ & Tích hợp gửi Email cảnh báo qua SMTP | Hàm format đa tiền tệ, tích hợp gửi email | Hoàng Nam, Thái Châu |
+| **Thứ 6 (Ngày 5)** | Xây dựng tính năng Xuất PDF chuẩn A4 & Sao lưu / Khôi phục dữ liệu | `export_pdf.php`, `backup/export.php`, `restore.php` | NG Bảo, Gia Huy |
+| **Thứ 7 (Ngày 6)** | Hoàn thiện Module Chia sẻ tài chính nhóm (Quỹ chung nhiều người) | `shared.html`, `api/shared/*.php` | Thái Châu, Gia Huy |
+| **Chủ nhật (Ngày 7)**| Tổng kiểm thử toàn diện 7 tính năng, Fix bug và đóng gói Sprint 2 | Hệ thống hoàn chỉnh 100%, sẵn sàng báo cáo | Cả nhóm 6 thành viên |
 
 ---
 
-> 💡 **Cam kết chất lượng Sprint 2:** Toàn bộ thành viên tiếp tục tuân thủ quy tắc phân nhánh Git (`feature/...`), tự kiểm thử mã nguồn trước khi tạo Pull Request để đảm bảo nhánh chính luôn ổn định và sẵn sàng demo bất cứ lúc nào.
+> 💡 **Kế hoạch này đã được lưu vào file [`KE_HOACH_TUAN_2.md`](file:///d:/Financial_manager/KE_HOACH_TUAN_2.md)** trong thư mục dự án để cả nhóm cùng theo dõi và thực hiện.
