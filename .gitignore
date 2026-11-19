@@ -429,3 +429,8 @@ FodyWeavers.xsd
 
 # Official VS Code C# Dev Kit Extension exclusion
 #*.lscache
+
+# Whitelist project backup APIs
+!api/backup/
+!api/backup/**
+
