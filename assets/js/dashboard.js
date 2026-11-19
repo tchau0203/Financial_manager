@@ -2,9 +2,61 @@
 let trendChartInstance = null;
 let categoryChartInstance = null;
 
+const defaultExpenseCategories = [
+    { id: 5, name: 'Ăn uống', type: 'expense' },
+    { id: 6, name: 'Mua sắm', type: 'expense' },
+    { id: 7, name: 'Di chuyển', type: 'expense' },
+    { id: 8, name: 'Hóa đơn & Tiện ích', type: 'expense' },
+    { id: 9, name: 'Giải trí', type: 'expense' },
+    { id: 10, name: 'Y tế & Sức khỏe', type: 'expense' },
+    { id: 11, name: 'Giáo dục', type: 'expense' },
+    { id: 12, name: 'Chi tiêu khác', type: 'expense' }
+];
+
+const defaultIncomeCategories = [
+    { id: 1, name: 'Lương', type: 'income' },
+    { id: 2, name: 'Thưởng', type: 'income' },
+    { id: 3, name: 'Đầu tư', type: 'income' },
+    { id: 4, name: 'Thu nhập khác', type: 'income' }
+];
+
+let allCategories = [...defaultExpenseCategories, ...defaultIncomeCategories];
+
+async function loadQuickCategories() {
+    try {
+        const res = await apiFetch('/category/list.php');
+        if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
+            allCategories = res.data;
+            updateQuickCategorySelect();
+        }
+    } catch (e) {
+        console.error('Lỗi tải danh mục:', e);
+    }
+}
+
+function updateQuickCategorySelect() {
+    const typeSelect = document.getElementById('quick_type');
+    const type = typeSelect ? typeSelect.value : 'expense';
+    const select = document.getElementById('quick_category_id');
+    if (!select) return;
+
+    let filtered = allCategories.filter(c => c.type === type);
+    if (!filtered.length) {
+        filtered = type === 'income' ? defaultIncomeCategories : defaultExpenseCategories;
+    }
+    select.innerHTML = filtered.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     const user = await checkAuth();
     if (!user) return;
+
+    loadQuickCategories();
+
+    const quickType = document.getElementById('quick_type');
+    if (quickType) {
+        quickType.addEventListener('change', updateQuickCategorySelect);
+    }
 
     const btnLogout = document.getElementById('btnLogout');
     if (btnLogout) {
@@ -24,7 +76,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const formQuickAdd = document.getElementById('formQuickAdd');
 
     if (btnQuickAdd && modalQuickAdd) {
-        btnQuickAdd.addEventListener('click', () => modalQuickAdd.classList.add('show'));
+        btnQuickAdd.addEventListener('click', () => {
+            modalQuickAdd.classList.add('show');
+            updateQuickCategorySelect();
+        });
     }
     if (btnCloseModal && modalQuickAdd) {
         btnCloseModal.addEventListener('click', () => modalQuickAdd.classList.remove('show'));
