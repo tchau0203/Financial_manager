@@ -9,17 +9,10 @@ COLLATE utf8mb4_unicode_ci;
 
 USE `quanlychitieu`;
 
+-- AN TOÀN: file này KHÔNG xóa dữ liệu cũ, có thể chạy lại nhiều lần.
 -- 1. BẢNG NGƯỜI DÙNG (users)
-DROP TABLE IF EXISTS `shared_transactions`;
-DROP TABLE IF EXISTS `shared_members`;
-DROP TABLE IF EXISTS `shared_spaces`;
-DROP TABLE IF EXISTS `notifications`;
-DROP TABLE IF EXISTS `budgets`;
-DROP TABLE IF EXISTS `transactions`;
-DROP TABLE IF EXISTS `categories`;
-DROP TABLE IF EXISTS `users`;
 
-CREATE TABLE `users` (
+CREATE TABLE IF NOT EXISTS `users` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `username` VARCHAR(100) NOT NULL UNIQUE,
     `email` VARCHAR(255) NOT NULL UNIQUE,
@@ -32,8 +25,14 @@ CREATE TABLE `users` (
     `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+
+-- Nâng cấp DB cũ: thêm cột email_alerts nếu chưa có (không mất dữ liệu)
+SET @col := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'email_alerts');
+SET @sql := IF(@col = 0, 'ALTER TABLE `users` ADD COLUMN `email_alerts` TINYINT(1) NOT NULL DEFAULT 1', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
 -- 2. BẢNG DANH MỤC THU / CHI (categories)
-CREATE TABLE `categories` (
+CREATE TABLE IF NOT EXISTS `categories` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `user_id` INT DEFAULT NULL COMMENT 'NULL là danh mục mặc định của hệ thống',
     `name` VARCHAR(100) NOT NULL,
@@ -46,7 +45,7 @@ CREATE TABLE `categories` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 3. BẢNG GIAO DỊCH THU / CHI (transactions)
-CREATE TABLE `transactions` (
+CREATE TABLE IF NOT EXISTS `transactions` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `user_id` INT NOT NULL,
     `category_id` INT NOT NULL,
@@ -64,7 +63,7 @@ CREATE TABLE `transactions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 4. BẢNG NGÂN SÁCH (budgets)
-CREATE TABLE `budgets` (
+CREATE TABLE IF NOT EXISTS `budgets` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `user_id` INT NOT NULL,
     `category_id` INT NOT NULL,
@@ -82,7 +81,7 @@ CREATE TABLE `budgets` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 5. BẢNG THÔNG BÁO (notifications)
-CREATE TABLE `notifications` (
+CREATE TABLE IF NOT EXISTS `notifications` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `user_id` INT NOT NULL,
     `title` VARCHAR(255) NOT NULL,
@@ -96,7 +95,7 @@ CREATE TABLE `notifications` (
 
 -- ========================================================
 -- 6. QUỸ CHUNG (shared_spaces, shared_members, shared_transactions)
-CREATE TABLE `shared_spaces` (
+CREATE TABLE IF NOT EXISTS `shared_spaces` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `owner_id` INT NOT NULL,
     `name` VARCHAR(100) NOT NULL,
@@ -105,7 +104,7 @@ CREATE TABLE `shared_spaces` (
     FOREIGN KEY (`owner_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE `shared_members` (
+CREATE TABLE IF NOT EXISTS `shared_members` (
     `space_id` INT NOT NULL,
     `user_id` INT NOT NULL,
     `role` ENUM('owner', 'member') DEFAULT 'member',
@@ -115,7 +114,7 @@ CREATE TABLE `shared_members` (
     FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE `shared_transactions` (
+CREATE TABLE IF NOT EXISTS `shared_transactions` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `space_id` INT NOT NULL,
     `user_id` INT NOT NULL COMMENT 'Người thực hiện giao dịch',
@@ -135,11 +134,11 @@ CREATE TABLE `shared_transactions` (
 -- ========================================================
 
 -- Tài khoản demo (Mật khẩu: demo123)
-INSERT INTO `users` (`id`, `username`, `email`, `password`, `full_name`, `phone`, `currency`) VALUES
+INSERT IGNORE INTO `users` (`id`, `username`, `email`, `password`, `full_name`, `phone`, `currency`) VALUES
 (1, 'demo', 'demo@example.com', '$2y$10$auEUlELoaHOSLuGN9Snaeud9.eNlXRxXkDwWkVWbmleBnjUCm5hRy', 'Người dùng Demo', '0901234567', 'VND');
 
 -- Danh mục chuẩn hệ thống (user_id = NULL)
-INSERT INTO `categories` (`id`, `user_id`, `name`, `type`, `icon`, `color`) VALUES
+INSERT IGNORE INTO `categories` (`id`, `user_id`, `name`, `type`, `icon`, `color`) VALUES
 -- Khoản thu
 (1, NULL, 'Lương', 'income', 'fa-money-bill-wave', '#10B981'),
 (2, NULL, 'Thưởng', 'income', 'fa-gift', '#059669'),
@@ -157,14 +156,13 @@ INSERT INTO `categories` (`id`, `user_id`, `name`, `type`, `icon`, `color`) VALU
 (12, NULL, 'Chi tiêu khác', 'expense', 'fa-receipt', '#64748B');
 
 -- Thêm tài khoản thành viên Thái Châu (Mật khẩu: demo123 hoặc pass cá nhân)
-INSERT INTO `users` (`id`, `username`, `email`, `password`, `full_name`, `phone`, `currency`) VALUES
-(2, 'thaichau', 'thaichau020326@gmail.com', '$2y$10$qxqlK3XJ.8KnBrTfuvJ9Zuk9eln.JwOVC27Igl0jEaKDNKwQKQv8O', 'Thái Châu', '0909999999', 'VND')
-ON DUPLICATE KEY UPDATE `full_name` = VALUES(`full_name`);
+INSERT IGNORE INTO `users` (`id`, `username`, `email`, `password`, `full_name`, `phone`, `currency`) VALUES
+(2, 'thaichau', 'thaichau020326@gmail.com', '$2y$10$qxqlK3XJ.8KnBrTfuvJ9Zuk9eln.JwOVC27Igl0jEaKDNKwQKQv8O', 'Thái Châu', '0909999999', 'VND');
 
 -- ========================================================
 -- DỮ LIỆU GIAO DỊCH MẪU (TRANSACTIONS SEED DATA)
 -- ========================================================
-INSERT INTO `transactions` (`id`, `user_id`, `category_id`, `type`, `amount`, `transaction_date`, `payment_method`, `note`) VALUES
+INSERT IGNORE INTO `transactions` (`id`, `user_id`, `category_id`, `type`, `amount`, `transaction_date`, `payment_method`, `note`) VALUES
 -- Thu nhập tài khoản demo (user_id = 1)
 (1, 1, 1, 'income', 15000000.00, '2026-11-05', 'bank_transfer', 'Nhận lương tháng 11/2026'),
 (2, 1, 2, 'income', 2500000.00, '2026-11-10', 'bank_transfer', 'Tiền thưởng hoàn thành dự án'),
@@ -178,23 +176,20 @@ INSERT INTO `transactions` (`id`, `user_id`, `category_id`, `type`, `amount`, `t
 (8, 1, 7, 'expense', 100000.00, '2026-11-15', 'cash', 'Đổ xăng xe máy'),
 (9, 1, 8, 'expense', 550000.00, '2026-11-16', 'e_wallet', 'Thanh toán tiền điện nước internet'),
 (10, 1, 9, 'expense', 200000.00, '2026-11-16', 'e_wallet', 'Vé xem phim cuối tuần'),
-(11, 1, 11, 'expense', 300000.00, '2026-11-17', 'bank_transfer', 'Mua sách chuyên ngành & tài liệu học tập')
-ON DUPLICATE KEY UPDATE `amount` = VALUES(`amount`);
+(11, 1, 11, 'expense', 300000.00, '2026-11-17', 'bank_transfer', 'Mua sách chuyên ngành & tài liệu học tập');
 
 -- ========================================================
 -- DỮ LIỆU NGÂN SÁCH MẪU (BUDGETS SEED DATA)
 -- ========================================================
-INSERT INTO `budgets` (`id`, `user_id`, `category_id`, `amount`, `month`, `year`, `alert_threshold`) VALUES
-(1, 1, 5, 5000000.00, 11, 2026, 80),  -- Ngân sách Ăn uống: 5,000,000 đ
-(2, 1, 6, 2500000.00, 11, 2026, 80),  -- Ngân sách Mua sắm: 2,500,000 đ
-(3, 1, 7, 1000000.00, 11, 2026, 80),  -- Ngân sách Di chuyển: 1,000,000 đ
-(4, 1, 8, 1500000.00, 11, 2026, 80)   -- Ngân sách Hóa đơn: 1,500,000 đ
-ON DUPLICATE KEY UPDATE `amount` = VALUES(`amount`);
+INSERT IGNORE INTO `budgets` (`id`, `user_id`, `category_id`, `amount`, `month`, `year`, `alert_threshold`) VALUES
+(1, 1, 5, 5000000.00, 11, 2026, 80),
+(2, 1, 6, 2500000.00, 11, 2026, 80),
+(3, 1, 7, 1000000.00, 11, 2026, 80),
+(4, 1, 8, 1500000.00, 11, 2026, 80);
 
 -- ========================================================
 -- THÔNG BÁO MẪU (NOTIFICATIONS SEED DATA)
 -- ========================================================
-INSERT INTO `notifications` (`id`, `user_id`, `title`, `message`, `type`, `is_read`, `created_at`) VALUES
+INSERT IGNORE INTO `notifications` (`id`, `user_id`, `title`, `message`, `type`, `is_read`, `created_at`) VALUES
 (1, 1, 'Chào mừng bạn', 'Chào mừng bạn đến với ứng dụng Quản lý Chi tiêu Cá nhân CashManager!', 'info', 1, '2026-11-01 08:00:00'),
-(2, 1, 'Nhắc nhở ngân sách', 'Bạn đã thiết lập thành công hạn mức ngân sách cho tháng 11/2026.', 'success', 0, '2026-11-05 09:30:00')
-ON DUPLICATE KEY UPDATE `title` = VALUES(`title`);
+(2, 1, 'Nhắc nhở ngân sách', 'Bạn đã thiết lập thành công hạn mức ngân sách cho tháng 11/2026.', 'success', 0, '2026-11-05 09:30:00');
