@@ -39,8 +39,14 @@
       return u;
     }
   
-    // ===== Thông tin cá nhân =====
-    initUser().then(u => { $('fullName').value = u.full_name || u.name || ''; $('email').value = u.email || ''; });
+    // ===== Thông tin cá nhân & Tiền tệ =====
+    initUser().then(u => {
+      $('fullName').value = u.full_name || u.name || '';
+      $('email').value = u.email || '';
+      if ($('currencySelect')) {
+        $('currencySelect').value = (u.currency || localStorage.getItem('app_currency') || 'VND').toUpperCase();
+      }
+    });
   
     $('profileForm').onsubmit = async e => {
       e.preventDefault();
@@ -50,6 +56,19 @@
         toast('Đã cập nhật thông tin');
       } catch (err) { toast(err.message, true); }
     };
+
+    // ===== Đa tiền tệ (Ngô Bảo - FE) =====
+    if ($('currencyForm')) {
+      $('currencyForm').onsubmit = async e => {
+        e.preventDefault();
+        const selected = $('currencySelect').value;
+        try {
+          await post('../api/account/currency.php', { currency: selected });
+          localStorage.setItem('app_currency', selected);
+          toast(`Đã đổi đơn vị tiền tệ thành ${selected}`);
+        } catch (err) { toast(err.message, true); }
+      };
+    }
   
     // ===== Đổi mật khẩu =====
     $('pwForm').onsubmit = async e => {
