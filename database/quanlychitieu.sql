@@ -10,6 +10,9 @@ COLLATE utf8mb4_unicode_ci;
 USE `quanlychitieu`;
 
 -- 1. BẢNG NGƯỜI DÙNG (users)
+DROP TABLE IF EXISTS `shared_transactions`;
+DROP TABLE IF EXISTS `shared_members`;
+DROP TABLE IF EXISTS `shared_spaces`;
 DROP TABLE IF EXISTS `notifications`;
 DROP TABLE IF EXISTS `budgets`;
 DROP TABLE IF EXISTS `transactions`;
@@ -24,6 +27,7 @@ CREATE TABLE `users` (
     `full_name` VARCHAR(150) DEFAULT NULL,
     `phone` VARCHAR(20) DEFAULT NULL,
     `currency` VARCHAR(10) DEFAULT 'VND',
+    `email_alerts` TINYINT(1) NOT NULL DEFAULT 1 COMMENT '1 = nhận email cảnh báo ngân sách',
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -88,6 +92,42 @@ CREATE TABLE `notifications` (
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT `fk_notifications_user` FOREIGN KEY (`user_id`) 
         REFERENCES `users`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ========================================================
+-- 6. QUỸ CHUNG (shared_spaces, shared_members, shared_transactions)
+CREATE TABLE `shared_spaces` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `owner_id` INT NOT NULL,
+    `name` VARCHAR(100) NOT NULL,
+    `invite_code` VARCHAR(12) NOT NULL UNIQUE,
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (`owner_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `shared_members` (
+    `space_id` INT NOT NULL,
+    `user_id` INT NOT NULL,
+    `role` ENUM('owner', 'member') DEFAULT 'member',
+    `joined_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`space_id`, `user_id`),
+    FOREIGN KEY (`space_id`) REFERENCES `shared_spaces`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `shared_transactions` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `space_id` INT NOT NULL,
+    `user_id` INT NOT NULL COMMENT 'Người thực hiện giao dịch',
+    `category_id` INT NOT NULL,
+    `type` ENUM('income', 'expense') NOT NULL,
+    `amount` DECIMAL(15, 2) NOT NULL,
+    `transaction_date` DATE NOT NULL,
+    `note` TEXT DEFAULT NULL,
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (`space_id`) REFERENCES `shared_spaces`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ========================================================
