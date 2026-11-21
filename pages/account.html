@@ -81,6 +81,27 @@ td{padding:12px 14px;border-bottom:1px solid var(--line)}
         </form>
       </div>
       <div class="card">
+        <h3><i class="fa-solid fa-coins" style="color:var(--amber)"></i> Cài đặt Đa tiền tệ</h3>
+        <form id="currencyForm">
+          <div class="field">
+            <label for="currencySelect">Đơn vị tiền tệ chính</label>
+            <select id="currencySelect">
+              <option value="VND">VND (đ) - Việt Nam Đồng</option>
+              <option value="USD">USD ($) - Đô la Mỹ</option>
+              <option value="EUR">EUR (€) - Euro (Châu Âu)</option>
+              <option value="JPY">JPY (¥) - Yên Nhật</option>
+            </select>
+          </div>
+          <div style="background:#f1f5f9; border-radius:8px; padding:10px 12px; margin-bottom:14px; font-size:12px; color:var(--muted)">
+            <strong style="color:#0f172a">Tỷ giá tham chiếu:</strong><br>
+            • 1 USD ≈ 25.400 đ<br>
+            • 1 EUR ≈ 27.200 đ<br>
+            • 1 JPY ≈ 165 đ
+          </div>
+          <button type="submit" class="btn" style="background:var(--amber); color:#000"><i class="fa-solid fa-check"></i> Lưu tiền tệ</button>
+        </form>
+      </div>
+      <div class="card">
         <h3>Đổi mật khẩu</h3>
         <form id="pwForm">
           <div class="field"><label for="curPw">Mật khẩu hiện tại</label><input type="password" id="curPw" autocomplete="current-password" required></div>
