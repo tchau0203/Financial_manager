@@ -23,6 +23,38 @@ if (isset($_GET['category_id']) && filter_var($_GET['category_id'], FILTER_VALID
     $conditions[] = 't.category_id = ?';
     $params[] = (int)$_GET['category_id'];
 }
+$minAmount = null;
+$maxAmount = null;
+
+if (isset($_GET['min_amount']) && $_GET['min_amount'] !== '') {
+    $minAmount = filter_var($_GET['min_amount'], FILTER_VALIDATE_FLOAT);
+
+    if ($minAmount === false || !is_finite((float)$minAmount) || $minAmount < 0) {
+        jsonResponse(['success' => false, 'message' => 'Số tiền tối thiểu không hợp lệ'], 400);
+    }
+}
+
+if (isset($_GET['max_amount']) && $_GET['max_amount'] !== '') {
+    $maxAmount = filter_var($_GET['max_amount'], FILTER_VALIDATE_FLOAT);
+
+    if ($maxAmount === false || !is_finite((float)$maxAmount) || $maxAmount < 0) {
+        jsonResponse(['success' => false, 'message' => 'Số tiền tối đa không hợp lệ'], 400);
+    }
+}
+
+if ($minAmount !== null && $maxAmount !== null && $minAmount > $maxAmount) {
+    jsonResponse(['success' => false, 'message' => 'Số tiền tối thiểu không được lớn hơn số tiền tối đa'], 400);
+}
+
+if ($minAmount !== null) {
+    $conditions[] = 't.amount >= ?';
+    $params[] = $minAmount;
+}
+
+if ($maxAmount !== null) {
+    $conditions[] = 't.amount <= ?';
+    $params[] = $maxAmount;
+}
 if (!empty($_GET['from_date'])) {
     $conditions[] = 't.transaction_date >= ?';
     $params[] = $_GET['from_date'];
