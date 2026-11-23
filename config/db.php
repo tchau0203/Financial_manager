@@ -75,6 +75,27 @@ function getJsonInput() {
     return $_POST ?? [];
 }
 
+/**
+ * Gửi email cảnh báo ngân sách nếu user bật email_alerts. Không bao giờ làm hỏng luồng chính.
+ */
+function sendBudgetAlertEmail($pdo, $userId, $catName, $limit, $spent, $pct, $status) {
+    try {
+        require_once __DIR__ . '/mail.php';
+        $col = $pdo->query("SHOW COLUMNS FROM users LIKE 'email_alerts'")->fetch();
+        $sql = $col ? 'SELECT email, full_name, email_alerts FROM users WHERE id = ?'
+                    : 'SELECT email, full_name, 1 AS email_alerts FROM users WHERE id = ?';
+        $st = $pdo->prepare($sql);
+        $st->execute([$userId]);
+        $u = $st->fetch();
+        if (!$u || !(int)$u['email_alerts'] || empty($u['email'])) return false;
+        $subject = ($status === 'exceeded' ? 'Vượt ngân sách: ' : 'Sắp hết ngân sách: ') . $catName;
+        return sendMail($u['email'], $subject, buildBudgetAlertEmail($u['full_name'], $catName, $limit, $spent, $pct, $status));
+    } catch (Throwable $e) {
+        error_log('[budget-mail] ' . $e->getMessage());
+        return false;
+    }
+}
+
 function checkBudgetAlerts($userId, $pdo, $month = null, $year = null) {
     $targetMonth = $month ? (int)$month : (int)date('n');
     $targetYear  = $year ? (int)$year : (int)date('Y');
@@ -112,6 +133,7 @@ function checkBudgetAlerts($userId, $pdo, $month = null, $year = null) {
                 $checkStmt->execute([$userId, $title, "%$catName%"]);
                 if (!$checkStmt->fetch()) {
                     $pdo->prepare('INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, "danger")')->execute([$userId, $title, $msg]);
+                    sendBudgetAlertEmail($pdo, $userId, $catName, $budgetAmount, $spent, $pct, 'exceeded');
                 }
             } elseif ($pct >= $threshold) {
                 $title = "Cảnh báo sắp đạt hạn mức";
@@ -121,6 +143,7 @@ function checkBudgetAlerts($userId, $pdo, $month = null, $year = null) {
                 $checkStmt->execute([$userId, $title, "%$catName%"]);
                 if (!$checkStmt->fetch()) {
                     $pdo->prepare('INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, "warning")')->execute([$userId, $title, $msg]);
+                    sendBudgetAlertEmail($pdo, $userId, $catName, $budgetAmount, $spent, $pct, 'warning');
                 }
             }
         }
