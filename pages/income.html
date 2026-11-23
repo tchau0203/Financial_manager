@@ -99,6 +99,7 @@
                         <div class="card" style="margin-bottom: 1.5rem;">
                             <div class="toolbar">
                                 <h3>Danh sách thu nhập</h3>
+                                <button id="btnImport" class="btn btn-light"><i class="fa-solid fa-file-import"></i> Nhập từ Excel/CSV</button>
                                 <button id="btnAddIncome" class="btn btn-success">
                                     <i class="fa-solid fa-plus"></i> Thêm thu nhập
                                 </button>
@@ -133,10 +134,49 @@
                                     <label class="form-label" for="filter_to">Đến ngày</label>
                                     <input type="date" id="filter_to" class="form-control">
                                 </div>
-                                <div class="form-group">
-                                    <button id="btnResetFilter" class="btn btn-light" style="width: 100%;">
-                                        <i class="fa-solid fa-rotate-left"></i> Đặt lại
+                                <div class="form-group" style="display:flex; gap:0.5rem;">
+                                    <button id="btnToggleAdvancedSearch" type="button" class="btn btn-light" style="flex:1;">
+                                        <i class="fa-solid fa-sliders"></i> Bộ lọc nâng cao
                                     </button>
+                                    <button id="btnResetFilter" type="button" class="btn btn-light" title="Đặt lại bộ lọc">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Drawer / Collapse Bộ lọc nâng cao (Ngô Bảo - FE) -->
+                            <div id="advancedSearchDrawer" class="advanced-drawer" style="display: none;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                                    <strong style="font-size: 0.9rem; color: var(--text-main);"><i class="fa-solid fa-filter-circle-dollar" style="color:var(--success);"></i> Lọc theo khoảng số tiền</strong>
+                                    <span id="filter_price_display" style="font-size: 0.85rem; font-weight: 600; color: var(--success);">Mọi mức giá</span>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+                                    <div>
+                                        <label class="form-label" for="filter_min_amount" style="font-size: 0.8rem;">Số tiền tối thiểu</label>
+                                        <input type="number" id="filter_min_amount" class="form-control" placeholder="0" min="0" step="50000">
+                                    </div>
+                                    <div>
+                                        <label class="form-label" for="filter_max_amount" style="font-size: 0.8rem;">Số tiền tối đa</label>
+                                        <input type="number" id="filter_max_amount" class="form-control" placeholder="Ví dụ: 20000000" min="0" step="50000">
+                                    </div>
+                                </div>
+                                <div style="margin-bottom: 1rem;">
+                                    <input type="range" id="filter_price_slider" class="price-slider" min="0" max="50000000" step="500000" value="0">
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
+                                        <span>0</span>
+                                        <span>25.000.000</span>
+                                        <span>50.000.000+</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="form-label" style="font-size: 0.8rem; margin-bottom: 0.4rem;">Chọn nhanh mốc thời gian:</div>
+                                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                        <button type="button" class="quick-date-btn" data-quick-date="today">Hôm nay</button>
+                                        <button type="button" class="quick-date-btn" data-quick-date="7days">7 ngày qua</button>
+                                        <button type="button" class="quick-date-btn" data-quick-date="this_month">Tháng này</button>
+                                        <button type="button" class="quick-date-btn" data-quick-date="last_month">Tháng trước</button>
+                                        <button type="button" class="quick-date-btn" data-quick-date="this_year">Năm nay</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -226,8 +266,49 @@
             </form>
         </div>
     </div>
-
+    <div id="modalImport" class="modal">
+        <div class="modal-content" style="max-width: 680px;">
+            <div class="modal-header">
+                <h3>Nhập thu nhập từ Excel/CSV</h3>
+                <button type="button" id="btnCloseImport" class="modal-close" aria-label="Đóng">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="impDrop" class="imp-drop" tabindex="0">
+                    <i class="fa-solid fa-cloud-arrow-up" style="font-size:2rem;color:var(--primary)"></i>
+                    <p style="margin:.5rem 0 .2rem">Kéo thả tệp vào đây hoặc bấm để chọn</p>
+                    <small style="color:var(--text-muted)">.csv, .xlsx, .xls - tối đa 5MB</small>
+                    <input type="file" id="impFile" accept=".csv,.txt,.xlsx,.xls" hidden>
+                </div>
+                <div style="margin-top:.75rem">
+                    <button type="button" id="btnTemplate" class="btn btn-light"><i class="fa-solid fa-download"></i> Tải file mẫu CSV</button>
+                </div>
+                <p id="impError" style="color:var(--danger);font-size:.875rem;margin-top:.5rem"></p>
+                <div id="impProgress" style="display:none;margin-top:1rem">
+                    <div style="display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:4px">
+                        <span id="impProgName"></span><span id="impProgPct">0%</span>
+                    </div>
+                    <div class="imp-bar"><i id="impProgFill"></i></div>
+                </div>
+                <div id="impPreview" style="display:none;margin-top:1rem">
+                    <p id="impStats" style="font-size:.9rem;margin-bottom:.5rem"></p>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead><tr><th>Dòng</th><th>Ngày</th><th>Danh mục</th><th style="text-align:right">Số tiền</th><th>Trạng thái</th></tr></thead>
+                            <tbody id="impBody"></tbody>
+                        </table>
+                    </div>
+                    <small id="impMore" style="color:var(--text-muted)"></small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnCancelImport" class="btn btn-light">Hủy</button>
+                <button type="button" id="btnConfirmImport" class="btn btn-success" disabled>Xác nhận nhập</button>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/search.js"></script>
     <script src="../assets/js/income.js"></script>
 </body>
 </html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tài khoản - Quản Lý Chi Tiêu</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+:root{--primary:#4f46e5;--green:#10b981;--amber:#f59e0b;--red:#ef4444;--muted:#64748b;--line:#e2e8f0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{display:flex;min-height:100vh;background:#f8fafc;color:#0f172a;font:14px/1.5 'Inter','Segoe UI',system-ui,sans-serif}
+.sidebar{width:235px;flex-shrink:0;background:#0f172a;position:sticky;top:0;height:100vh}
+.logo{display:flex;align-items:center;gap:10px;padding:20px 22px;border-bottom:1px solid #1e293b;color:#fff;font-size:19px;font-weight:700}
+.logo i{color:#6366f1}
+.nav{padding-top:12px}
+.nav a{display:flex;align-items:center;gap:12px;padding:14px 22px;border-left:3px solid transparent;color:#cbd5e1;font-weight:500;text-decoration:none}
+.nav a i{width:18px;text-align:center}
+.nav a:hover,.nav a.active{background:#1e293b;color:#fff}
+.nav a.active{border-left-color:var(--primary);font-weight:600}
+.main{flex:1;min-width:0}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:18px 28px;background:#fff;border-bottom:1px solid var(--line)}
+.topbar h1{font-size:18px}
+.right{display:flex;align-items:center;gap:14px;font-weight:500}
+.content{display:grid;gap:22px;padding:28px}
+.card{background:#fff;border-radius:12px;padding:22px 24px;box-shadow:0 1px 3px rgba(15,23,42,.08)}
+.card h3{font-size:16px;margin-bottom:14px}
+.head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.head h3{margin:0}
+.grid{display:grid;gap:22px}
+.g2{grid-template-columns:1fr 1fr}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border:0;border-radius:8px;background:var(--primary);color:#fff;font:600 13px 'Inter','Segoe UI',sans-serif;cursor:pointer}
+.btn.out{background:#fee2e2;color:var(--red)}
+.btn.ghost{background:#eef2ff;color:var(--primary)}
+.field{display:grid;gap:6px;margin-bottom:14px}
+.field label{font-weight:600;font-size:13px}
+input,select{width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;font:inherit}
+input:focus,select:focus{outline:2px solid #c7d2fe;border-color:var(--primary)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.act{justify-content:flex-end;margin-top:14px}
+.tag{padding:3px 10px;border-radius:99px;font-size:12px;font-weight:600}
+.tag.ok{background:#d1fae5;color:#047857}.tag.over{background:#fee2e2;color:#b91c1c}
+table{width:100%;border-collapse:collapse}
+th{padding:12px 14px;background:#f1f5f9;color:#475569;font-size:13px;text-align:left}
+td{padding:12px 14px;border-bottom:1px solid var(--line)}
+.empty{padding:24px;text-align:center;color:var(--muted)}
+.modal{display:none;position:fixed;inset:0;z-index:50;align-items:center;justify-content:center;background:rgba(15,23,42,.5)}
+.modal.show{display:flex}
+.box{width:min(440px,92vw);padding:24px;border-radius:14px;background:#fff}
+.box h3{margin-bottom:16px}
+.box .act{margin-top:6px}
+.toast{display:none;position:fixed;right:22px;bottom:22px;z-index:60;padding:12px 18px;border-radius:10px;background:#0f172a;color:#fff}
+.toast.show{display:block}.toast.err{background:var(--red)}
+@media(max-width:900px){.sidebar{display:none}.g2{grid-template-columns:1fr}.content{padding:16px}.topbar{padding:14px 16px}}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="logo"><i class="fa-solid fa-wallet"></i> CashManager</div>
+  <nav class="nav">
+    <a href="dashboard.html"><i class="fa-solid fa-chart-pie"></i> Bảng điều khiển</a>
+    <a href="income.html"><i class="fa-solid fa-arrow-down"></i> Thu nhập</a>
+    <a href="expense.html"><i class="fa-solid fa-arrow-up"></i> Chi tiêu</a>
+    <a href="budget.html"><i class="fa-solid fa-piggy-bank"></i> Ngân sách</a>
+    <a href="report.html"><i class="fa-solid fa-chart-column"></i> Báo cáo</a>
+    <a href="account.html" class="active"><i class="fa-solid fa-gear"></i> Tài khoản</a>
+  </nav>
+</aside>
+<div class="main">
+  <header class="topbar">
+    <h1>Cài đặt tài khoản</h1>
+    <div class="right"><span id="userName"></span><button class="btn out" id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</button></div>
+  </header>
+  <div class="content">
+    <div class="grid g2">
+      <div class="card">
+        <h3>Thông tin cá nhân</h3>
+        <form id="profileForm">
+          <div class="field"><label for="fullName">Họ và tên</label><input id="fullName" required></div>
+          <div class="field"><label for="email">Email</label><input type="email" id="email" required></div>
+          <button type="submit" class="btn">Lưu thay đổi</button>
+        </form>
+      </div>
+      <div class="card">
+        <h3><i class="fa-solid fa-coins" style="color:var(--amber)"></i> Cài đặt Đa tiền tệ</h3>
+        <form id="currencyForm">
+          <div class="field">
+            <label for="currencySelect">Đơn vị tiền tệ chính</label>
+            <select id="currencySelect">
+              <option value="VND">VND (đ) - Việt Nam Đồng</option>
+              <option value="USD">USD ($) - Đô la Mỹ</option>
+              <option value="EUR">EUR (€) - Euro (Châu Âu)</option>
+              <option value="JPY">JPY (¥) - Yên Nhật</option>
+            </select>
+          </div>
+          <div style="background:#f1f5f9; border-radius:8px; padding:10px 12px; margin-bottom:14px; font-size:12px; color:var(--muted)">
+            <strong style="color:#0f172a">Tỷ giá tham chiếu:</strong><br>
+            • 1 USD ≈ 25.400 đ<br>
+            • 1 EUR ≈ 27.200 đ<br>
+            • 1 JPY ≈ 165 đ
+          </div>
+          <button type="submit" class="btn" style="background:var(--amber); color:#000"><i class="fa-solid fa-check"></i> Lưu tiền tệ</button>
+        </form>
+      </div>
+      <div class="card">
+        <h3>Đổi mật khẩu</h3>
+        <form id="pwForm">
+          <div class="field"><label for="curPw">Mật khẩu hiện tại</label><input type="password" id="curPw" autocomplete="current-password" required></div>
+          <div class="field"><label for="newPw">Mật khẩu mới</label><input type="password" id="newPw" autocomplete="new-password" required></div>
+          <div class="field"><label for="cfPw">Nhập lại mật khẩu mới</label><input type="password" id="cfPw" autocomplete="new-password" required></div>
+          <button type="submit" class="btn">Đổi mật khẩu</button>
+        </form>
+      </div>
+    </div>
+    <div class="card">
+      <div class="head"><h3>Danh mục của tôi</h3><button class="btn" id="addCat"><i class="fa-solid fa-plus"></i> Thêm danh mục</button></div>
+      <table>
+        <thead><tr><th>Tên danh mục</th><th>Loại</th><th style="text-align:right">Thao tác</th></tr></thead>
+        <tbody id="catBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modal">
+  <div class="box">
+    <h3 id="mTitle">Thêm danh mục</h3>
+    <form id="catForm">
+      <div class="field"><label for="catName">Tên danh mục</label><input id="catName" maxlength="50" required></div>
+      <div class="field"><label for="catType">Loại</label>
+        <select id="catType"><option value="expense">Chi tiêu</option><option value="income">Thu nhập</option></select></div>
+      <div class="row act"><button type="button" class="btn ghost" id="cancel">Hủy</button><button type="submit" class="btn">Lưu danh mục</button></div>
+    </form>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script src="../assets/js/account.js"></script>
+</body>
+</html>

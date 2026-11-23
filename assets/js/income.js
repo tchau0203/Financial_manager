@@ -204,7 +204,9 @@ function getFilters() {
         category_id: $('filter_category').value,
         payment_method: $('filter_method').value,
         from_date: $('filter_from').value,
-        to_date: $('filter_to').value
+        to_date: $('filter_to').value,
+        min_amount: $('filter_min_amount') ? $('filter_min_amount').value.trim() : '',
+        max_amount: $('filter_max_amount') ? $('filter_max_amount').value.trim() : ''
     };
 }
 
@@ -471,12 +473,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     ['filter_category', 'filter_method', 'filter_from', 'filter_to'].forEach(id =>
         $(id).addEventListener('change', () => loadIncomeList(1)));
+
+    // Tích hợp Tìm kiếm & Bộ lọc nâng cao (Ngô Bảo - FE)
+    if (window.initAdvancedSearch) {
+        window.initAdvancedSearch({
+            onFilterChange: () => {
+                clearTimeout(searchTimer);
+                searchTimer = setTimeout(() => loadIncomeList(1), 300);
+            },
+            onFilterReset: () => {
+                loadIncomeList(1);
+            }
+        });
+    }
+
     $('btnResetFilter').addEventListener('click', () => {
         ['filter_search', 'filter_category', 'filter_method', 'filter_from', 'filter_to'].forEach(id => { $(id).value = ''; });
+        if ($('filter_min_amount')) $('filter_min_amount').value = '';
+        if ($('filter_max_amount')) $('filter_max_amount').value = '';
+        if ($('filter_price_slider')) $('filter_price_slider').value = 0;
         updateCategoryPreview($('filter_category'));
         loadIncomeList(1);
     });
 
     await loadCategories(TX_TYPE);
     refreshAll(1);
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    initImport({ type: TX_TYPE, onDone: () => refreshAll(1) });
 });

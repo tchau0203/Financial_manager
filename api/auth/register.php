@@ -1,35 +1,58 @@
 <?php
-header("Content-Type: application/json");
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST");
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') exit;
+
 require_once '../../config/db.php';
 
-$data = json_decode(file_get_contents("php://input"), true);
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    jsonResponse(['error' => 'Phương thức không hợp lệ'], 405);
+}
 
-$name  = trim($data['name'] ?? '');
-$email = trim($data['email'] ?? '');
-$pass  = $data['password'] ?? '';
+$data      = getJsonInput();
+$username  = trim($data['username'] ?? '');
+$email     = trim($data['email'] ?? '');
+$password  = $data['password'] ?? '';
+$full_name = trim($data['full_name'] ?? '');
 
-if (!$name || !$email || !$pass) {
-    echo json_encode(["error" => "Vui lòng điền đầy đủ thông tin"]);
-    exit;
+// Validate
+if (!$username || !$email || !$password) {
+    jsonResponse(['error' => 'Vui lòng điền đầy đủ thông tin'], 400);
+}
+if (strlen($username) < 3 || strlen($username) > 100) {
+    jsonResponse(['error' => 'Tên đăng nhập phải từ 3-100 ký tự'], 400);
 }
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    echo json_encode(["error" => "Email không hợp lệ"]);
-    exit;
+    jsonResponse(['error' => 'Email không hợp lệ'], 400);
+}
+if (strlen($password) < 6) {
+    jsonResponse(['error' => 'Mật khẩu phải ít nhất 6 ký tự'], 400);
 }
 
-// Kiểm tra email đã tồn tại chưa
-$stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
-$stmt->execute([$email]);
+$pdo = getDbConnection();
+
+// Kiểm tra trùng
+$stmt = $pdo->prepare('SELECT id FROM users WHERE email = ? OR username = ?');
+$stmt->execute([$email, $username]);
 if ($stmt->fetch()) {
-    echo json_encode(["error" => "Email đã được sử dụng"]);
-    exit;
+    jsonResponse(['error' => 'Email hoặc tên đăng nhập đã tồn tại'], 409);
 }
 
-$hashed = password_hash($pass, PASSWORD_DEFAULT);
-$stmt = $pdo->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?)");
-$stmt->execute([$name, $email, $hashed]);
+// Tạo tài khoản
+$hashed = password_hash($password, PASSWORD_BCRYPT);
+$stmt = $pdo->prepare(
+    'INSERT INTO users (username, email, password, full_name) VALUES (?, ?, ?, ?)'
+);
+$stmt->execute([$username, $email, $hashed, $full_name]);
+$userId = (int)$pdo->lastInsertId();
 
-echo json_encode(["success" => true, "message" => "Đăng ký thành công"]);
+$_SESSION['user_id'] = $userId;
+
+jsonResponse([
+    'success' => true,
+    'message' => 'Đăng ký thành công',
+    'user'    => ['id' => $userId, 'username' => $username, 'email' => $email, 'full_name' => $full_name],
+    'data'    => ['id' => $userId, 'username' => $username, 'email' => $email, 'full_name' => $full_name]
+], 201);
 ?>
