@@ -179,3 +179,11 @@
 .price-slider::-webkit-slider-thumb:hover {
     transform: scale(1.15);
 }
+.toolbar #btnImport { margin-left: auto; margin-right: 0.5rem; }
+.imp-drop { border: 2px dashed var(--border-color); border-radius: 12px; padding: 1.5rem; text-align: center; cursor: pointer; transition: .15s; }
+.imp-drop:hover, .imp-drop.over { border-color: var(--primary); background: #eef2ff; }
+.imp-bar { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+.imp-bar i { display: block; height: 100%; width: 0; background: var(--primary); transition: width .15s; }
+.imp-tag { font-size: .75rem; padding: 2px 8px; border-radius: 6px; }
+.imp-tag.ok { background: #d1fae5; color: #065f46; }
+.imp-tag.bad { background: #fee2e2; color: #991b1b; }

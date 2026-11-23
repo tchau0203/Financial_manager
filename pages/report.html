@@ -45,6 +45,23 @@ input:focus,select:focus{outline:2px solid #c7d2fe;border-color:var(--primary)}
 .toast.show{display:block}.toast.err{background:var(--red)}
 @media(max-width:900px){.sidebar{display:none}.g2,.g4{grid-template-columns:1fr}.content{padding:16px}.topbar{padding:14px 16px}}
 </style>
+<style>
+.print-header{display:none}
+.chart-img{display:none}
+@media print{
+  @page{size:A4;margin:14mm}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{display:block;background:#fff}
+  .sidebar,.topbar .right,.toast{display:none!important}
+  .content>.card:first-child{display:none!important}
+  .topbar{border:0;padding:0 0 8px}
+  .content{padding:0}
+  .card{box-shadow:none;border:1px solid #e2e8f0;break-inside:avoid}
+  .print-header{display:block;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #4f46e5}
+  .chart-box canvas{display:none!important}
+  .chart-img{display:block;width:100%;height:100%;object-fit:contain}
+}
+</style>
 </head>
 <body>
 <aside class="sidebar">
@@ -63,6 +80,10 @@ input:focus,select:focus{outline:2px solid #c7d2fe;border-color:var(--primary)}
     <h1>Báo cáo thống kê</h1>
     <div class="right"><span id="userName"></span><button class="btn out" id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</button></div>
   </header>
+    <div class="print-header">
+    <h2>CashManager - Báo cáo tài chính</h2>
+    <p id="printMeta" style="color:#64748b;font-size:13px"></p>
+  </div>
   <div class="content">
     <div class="card">
       <div class="tools">
@@ -77,6 +98,7 @@ input:focus,select:focus{outline:2px solid #c7d2fe;border-color:var(--primary)}
         <div class="field hide" id="toBox"><label for="to">Đến ngày</label><input type="date" id="to"></div>
         <button class="btn" id="apply"><i class="fa-solid fa-rotate"></i> Xem báo cáo</button>
         <button class="btn gr" id="exportBtn"><i class="fa-solid fa-file-csv"></i> Xuất báo cáo CSV</button>
+        <button class="btn" id="pdfBtn"><i class="fa-solid fa-file-pdf"></i> Xuất báo cáo PDF</button>
       </div>
     </div>
     <div class="grid g4">

@@ -499,3 +499,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadCategories(TX_TYPE);
     refreshAll(1);
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+    initImport({ type: TX_TYPE, onDone: () => refreshAll(1) });
+});

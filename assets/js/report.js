@@ -132,3 +132,30 @@
   
     initUser(); load();
   })();
+  (() => {
+  const E = id => document.getElementById(id);
+  const oldTitle = document.title;
+
+  window.addEventListener('beforeprint', () => {
+    document.querySelectorAll('.chart-box').forEach(box => {
+      const cv = box.querySelector('canvas');
+      let img = box.querySelector('.chart-img');
+      if (!cv || cv.classList.contains('hide')) { if (img) img.remove(); return; }
+      if (!img) {
+        img = document.createElement('img');
+        img.className = 'chart-img';
+        img.alt = 'Biểu đồ';
+        box.appendChild(img);
+      }
+      img.src = cv.toDataURL('image/png', 1);
+    });
+    const tf = E('tf');
+    let meta = 'Kỳ: ' + tf.selectedOptions[0].text;
+    if (tf.value === 'custom' && E('from').value && E('to').value) meta += ` (${E('from').value} → ${E('to').value})`;
+    E('printMeta').textContent = meta + ' · Xuất ngày ' + new Date().toLocaleDateString('vi-VN');
+    document.title = 'BaoCao_' + new Date().toISOString().slice(0, 10);
+  });
+
+  window.addEventListener('afterprint', () => { document.title = oldTitle; });
+  E('pdfBtn').addEventListener('click', () => window.print());
+})();
