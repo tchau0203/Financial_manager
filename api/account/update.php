@@ -36,8 +36,15 @@ if ($checkStmt->fetch()) {
 }
 
 // Cập nhật thông tin
-$stmt = $pdo->prepare('UPDATE users SET full_name = ?, email = ?, phone = ?, currency = ? WHERE id = ?');
-$stmt->execute([$fullName, $email, $phone, $currency, $userId]);
+$emailAlerts = isset($data['email_alerts']) ? (int)(bool)$data['email_alerts'] : null;
+
+if ($emailAlerts !== null) {
+    $stmt = $pdo->prepare('UPDATE users SET full_name = ?, email = ?, phone = ?, currency = ?, email_alerts = ? WHERE id = ?');
+    $stmt->execute([$fullName, $email, $phone, $currency, $emailAlerts, $userId]);
+} else {
+    $stmt = $pdo->prepare('UPDATE users SET full_name = ?, email = ?, phone = ?, currency = ? WHERE id = ?');
+    $stmt->execute([$fullName, $email, $phone, $currency, $userId]);
+}
 
 $_SESSION['full_name'] = $fullName;
 
@@ -45,10 +52,11 @@ jsonResponse([
     'success' => true,
     'message' => 'Cập nhật thông tin thành công',
     'user'    => [
-        'id'        => $userId,
-        'full_name' => $fullName,
-        'email'     => $email,
-        'phone'     => $phone,
-        'currency'  => $currency
+        'id'           => $userId,
+        'full_name'    => $fullName,
+        'email'        => $email,
+        'phone'        => $phone,
+        'currency'     => $currency,
+        'email_alerts' => $emailAlerts
     ]
 ]);

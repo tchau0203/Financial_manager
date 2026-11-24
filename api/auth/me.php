@@ -11,7 +11,7 @@ $userId = requireAuth();
 $pdo = getDbConnection();
 
 // Lấy thông tin người dùng
-$stmt = $pdo->prepare('SELECT id, username, email, full_name, phone, currency, created_at FROM users WHERE id = ? LIMIT 1');
+$stmt = $pdo->prepare('SELECT id, username, email, full_name, phone, currency, email_alerts, created_at FROM users WHERE id = ? LIMIT 1');
 $stmt->execute([$userId]);
 $user = $stmt->fetch();
 
@@ -20,6 +20,7 @@ if (!$user) {
     session_destroy();
     jsonResponse(['error' => 'Người dùng không tồn tại'], 404);
 }
+$user['email_alerts'] = (int)($user['email_alerts'] ?? 1);
 
 // Đếm số thông báo chưa đọc
 $notifStmt = $pdo->prepare('SELECT COUNT(*) AS unread_count FROM notifications WHERE user_id = ? AND is_read = 0');

@@ -132,6 +132,31 @@ td{padding:12px 14px;border-bottom:1px solid var(--line)}
         </div>
       </div>
 
+      <!-- Cài đặt Đa tiền tệ (Nhóm 2) -->
+      <div class="card">
+        <h3><i class="fa-solid fa-coins" style="color:var(--amber)"></i> Cài đặt Đa tiền tệ</h3>
+        <form id="currencyForm">
+          <div class="field">
+            <label for="currencySelect">Đơn vị tiền tệ chính</label>
+            <select id="currencySelect">
+              <option value="VND">VND (đ) - Việt Nam Đồng</option>
+              <option value="USD">USD ($) - Đô la Mỹ</option>
+              <option value="EUR">EUR (€) - Euro (Châu Âu)</option>
+              <option value="JPY">JPY (¥) - Yên Nhật</option>
+              <option value="GBP">GBP (£) - Bảng Anh</option>
+            </select>
+          </div>
+          <div style="background:#f1f5f9; border-radius:8px; padding:10px 12px; margin-bottom:14px; font-size:12px; color:var(--muted)">
+            <strong style="color:#0f172a">Tỷ giá tham chiếu:</strong><br>
+            • 1 USD ≈ 25.400 đ<br>
+            • 1 EUR ≈ 27.200 đ<br>
+            • 1 JPY ≈ 170 đ<br>
+            • 1 GBP ≈ 32.500 đ
+          </div>
+          <button type="submit" class="btn" style="background:var(--amber); color:#000"><i class="fa-solid fa-check"></i> Lưu tiền tệ</button>
+        </form>
+      </div>
+
       <div class="card">
         <div class="head"><h3>Danh mục của tôi</h3><button class="btn" id="addCat"><i class="fa-solid fa-plus"></i> Thêm danh mục</button></div>
         <table>
@@ -156,7 +181,7 @@ td{padding:12px 14px;border-bottom:1px solid var(--line)}
           <span class="muted">hoặc bấm để chọn file từ máy</span>
         </label>
         <input type="file" id="restoreFile" accept=".json,application/json" class="hide">
-        <label class="opt"><input type="radio" name="mode" value="keep" checked><span><b>Giữ nguyên dữ liệu cũ</b><small>Chỉ bổ sung dữ liệu có trong file mà hiện chưa có.</small></span></label>
+        <label class="opt"><input type="radio" name="mode" value="merge" checked><span><b>Giữ nguyên dữ liệu cũ</b><small>Chỉ bổ sung dữ liệu có trong file mà hiện chưa có.</small></span></label>
         <label class="opt"><input type="radio" name="mode" value="overwrite"><span><b>Ghi đè dữ liệu hiện tại</b><small>Thay toàn bộ dữ liệu hiện có bằng dữ liệu trong file.</small></span></label>
         <button class="btn" id="restoreBtn" disabled><i class="fa-solid fa-rotate-left"></i> Khôi phục dữ liệu</button>
       </div>

@@ -48,7 +48,23 @@
     $('fullName').value = u.full_name || u.name || '';
     $('email').value = u.email || '';
     $('emailAlert').checked = !!+(u.email_alerts ?? u.email_notifications ?? 0); // [HUY T2]
+    if ($('currencySelect')) {
+      $('currencySelect').value = (u.currency || localStorage.getItem('app_currency') || 'VND').toUpperCase();
+    }
   });
+
+  // ===== Cài đặt Đa tiền tệ (Nhóm 2) =====
+  if ($('currencyForm')) {
+    $('currencyForm').onsubmit = async e => {
+      e.preventDefault();
+      const selected = $('currencySelect').value;
+      try {
+        await post('../api/account/currency.php', { currency: selected });
+        localStorage.setItem('app_currency', selected);
+        toast(`Đã đổi đơn vị tiền tệ thành ${selected}`);
+      } catch (err) { toast(err.message, true); }
+    };
+  }
 
   $('profileForm').onsubmit = async e => {
     e.preventDefault();
