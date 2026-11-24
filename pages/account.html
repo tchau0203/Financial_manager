@@ -31,6 +31,7 @@ body{display:flex;min-height:100vh;background:#f8fafc;color:#0f172a;font:14px/1.
 .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border:0;border-radius:8px;background:var(--primary);color:#fff;font:600 13px 'Inter','Segoe UI',sans-serif;cursor:pointer}
 .btn.out{background:#fee2e2;color:var(--red)}
 .btn.ghost{background:#eef2ff;color:var(--primary)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
 .field{display:grid;gap:6px;margin-bottom:14px}
 .field label{font-weight:600;font-size:13px}
 input,select{width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;font:inherit}
@@ -50,6 +51,27 @@ td{padding:12px 14px;border-bottom:1px solid var(--line)}
 .box .act{margin-top:6px}
 .toast{display:none;position:fixed;right:22px;bottom:22px;z-index:60;padding:12px 18px;border-radius:10px;background:#0f172a;color:#fff}
 .toast.show{display:block}.toast.err{background:var(--red)}
+/* [HUY T2] tab, công tắc, khu vực khôi phục */
+.hide{display:none!important}
+.muted{color:var(--muted);font-size:13px}
+.row h3{margin-bottom:4px}
+.tab{display:grid;gap:22px}
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line)}
+.tabs button{padding:10px 18px;border:0;border-bottom:2px solid transparent;background:none;color:var(--muted);font:600 14px 'Inter','Segoe UI',sans-serif;cursor:pointer}
+.tabs button.on{color:var(--primary);border-bottom-color:var(--primary)}
+.sw{position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0}
+.sw input{position:absolute;opacity:0;width:0;height:0;padding:0;border:0}
+.sw span{position:absolute;inset:0;border-radius:99px;background:#cbd5e1;cursor:pointer;transition:.2s}
+.sw span:before{content:"";position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s}
+.sw input:checked+span{background:var(--primary)}
+.sw input:checked+span:before{transform:translateX(20px)}
+.sw input:focus-visible+span{outline:2px solid #c7d2fe}
+.drop{display:flex;flex-direction:column;align-items:center;gap:6px;margin-bottom:14px;padding:28px 16px;border:2px dashed #cbd5e1;border-radius:12px;text-align:center;color:var(--muted);cursor:pointer}
+.drop i{font-size:28px;color:var(--primary)}
+.drop.over{border-color:var(--primary);background:#eef2ff}
+.opt{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;padding:12px;border:1px solid #cbd5e1;border-radius:8px;cursor:pointer}
+.opt input{width:auto;margin-top:3px;padding:0}
+.opt small{display:block;color:var(--muted)}
 @media(max-width:900px){.sidebar{display:none}.g2{grid-template-columns:1fr}.content{padding:16px}.topbar{padding:14px 16px}}
 </style>
 </head>
@@ -62,6 +84,7 @@ td{padding:12px 14px;border-bottom:1px solid var(--line)}
     <a href="expense.html"><i class="fa-solid fa-arrow-up"></i> Chi tiêu</a>
     <a href="budget.html"><i class="fa-solid fa-piggy-bank"></i> Ngân sách</a>
     <a href="report.html"><i class="fa-solid fa-chart-column"></i> Báo cáo</a>
+    <a href="shared.html"><i class="fa-solid fa-users"></i> Quỹ chung</a>
     <a href="account.html" class="active"><i class="fa-solid fa-gear"></i> Tài khoản</a>
   </nav>
 </aside>
@@ -71,53 +94,73 @@ td{padding:12px 14px;border-bottom:1px solid var(--line)}
     <div class="right"><span id="userName"></span><button class="btn out" id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</button></div>
   </header>
   <div class="content">
-    <div class="grid g2">
-      <div class="card">
-        <h3>Thông tin cá nhân</h3>
-        <form id="profileForm">
-          <div class="field"><label for="fullName">Họ và tên</label><input id="fullName" required></div>
-          <div class="field"><label for="email">Email</label><input type="email" id="email" required></div>
-          <button type="submit" class="btn">Lưu thay đổi</button>
-        </form>
-      </div>
-      <div class="card">
-        <h3><i class="fa-solid fa-coins" style="color:var(--amber)"></i> Cài đặt Đa tiền tệ</h3>
-        <form id="currencyForm">
-          <div class="field">
-            <label for="currencySelect">Đơn vị tiền tệ chính</label>
-            <select id="currencySelect">
-              <option value="VND">VND (đ) - Việt Nam Đồng</option>
-              <option value="USD">USD ($) - Đô la Mỹ</option>
-              <option value="EUR">EUR (€) - Euro (Châu Âu)</option>
-              <option value="JPY">JPY (¥) - Yên Nhật</option>
-            </select>
-          </div>
-          <div style="background:#f1f5f9; border-radius:8px; padding:10px 12px; margin-bottom:14px; font-size:12px; color:var(--muted)">
-            <strong style="color:#0f172a">Tỷ giá tham chiếu:</strong><br>
-            • 1 USD ≈ 25.400 đ<br>
-            • 1 EUR ≈ 27.200 đ<br>
-            • 1 JPY ≈ 165 đ
-          </div>
-          <button type="submit" class="btn" style="background:var(--amber); color:#000"><i class="fa-solid fa-check"></i> Lưu tiền tệ</button>
-        </form>
-      </div>
-      <div class="card">
-        <h3>Đổi mật khẩu</h3>
-        <form id="pwForm">
-          <div class="field"><label for="curPw">Mật khẩu hiện tại</label><input type="password" id="curPw" autocomplete="current-password" required></div>
-          <div class="field"><label for="newPw">Mật khẩu mới</label><input type="password" id="newPw" autocomplete="new-password" required></div>
-          <div class="field"><label for="cfPw">Nhập lại mật khẩu mới</label><input type="password" id="cfPw" autocomplete="new-password" required></div>
-          <button type="submit" class="btn">Đổi mật khẩu</button>
-        </form>
-      </div>
+    <!-- [HUY T2] thanh tab -->
+    <div class="tabs">
+      <button class="on" data-tab="info">Thông tin</button>
+      <button data-tab="backup">Sao lưu &amp; Dữ liệu</button>
     </div>
-    <div class="card">
-      <div class="head"><h3>Danh mục của tôi</h3><button class="btn" id="addCat"><i class="fa-solid fa-plus"></i> Thêm danh mục</button></div>
-      <table>
-        <thead><tr><th>Tên danh mục</th><th>Loại</th><th style="text-align:right">Thao tác</th></tr></thead>
-        <tbody id="catBody"></tbody>
-      </table>
-    </div>
+
+    <section class="tab" id="tab-info">
+      <div class="grid g2">
+        <div class="card">
+          <h3>Thông tin cá nhân</h3>
+          <form id="profileForm">
+            <div class="field"><label for="fullName">Họ và tên</label><input id="fullName" required></div>
+            <div class="field"><label for="email">Email</label><input type="email" id="email" required></div>
+            <button type="submit" class="btn">Lưu thay đổi</button>
+          </form>
+        </div>
+        <div class="card">
+          <h3>Đổi mật khẩu</h3>
+          <form id="pwForm">
+            <div class="field"><label for="curPw">Mật khẩu hiện tại</label><input type="password" id="curPw" autocomplete="current-password" required></div>
+            <div class="field"><label for="newPw">Mật khẩu mới</label><input type="password" id="newPw" autocomplete="new-password" required></div>
+            <div class="field"><label for="cfPw">Nhập lại mật khẩu mới</label><input type="password" id="cfPw" autocomplete="new-password" required></div>
+            <button type="submit" class="btn">Đổi mật khẩu</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- [HUY T2] Chức năng 4: bật/tắt email cảnh báo -->
+      <div class="card">
+        <div class="row">
+          <div>
+            <h3>Nhận email cảnh báo khi ngân sách đạt 80%</h3>
+            <p class="muted">Gửi tới email đăng ký tài khoản khi ngân sách của một danh mục đạt 80% hoặc vượt hạn mức.</p>
+          </div>
+          <label class="sw" title="Bật/tắt email cảnh báo"><input type="checkbox" id="emailAlert"><span></span></label>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="head"><h3>Danh mục của tôi</h3><button class="btn" id="addCat"><i class="fa-solid fa-plus"></i> Thêm danh mục</button></div>
+        <table>
+          <thead><tr><th>Tên danh mục</th><th>Loại</th><th style="text-align:right">Thao tác</th></tr></thead>
+          <tbody id="catBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- [HUY T2] Chức năng 6: tab Sao lưu & Dữ liệu -->
+    <section class="tab hide" id="tab-backup">
+      <div class="card">
+        <h3>Sao lưu dữ liệu</h3>
+        <p class="muted" style="margin-bottom:14px">Tải toàn bộ dữ liệu của bạn (thông tin tài khoản, danh mục riêng, giao dịch, ngân sách) về máy dưới dạng file .json.</p>
+        <button class="btn" id="backupBtn"><i class="fa-solid fa-download"></i> Tải bản sao lưu (.json)</button>
+      </div>
+      <div class="card">
+        <h3>Khôi phục dữ liệu từ file</h3>
+        <label class="drop" id="drop" for="restoreFile">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+          <b id="dropText">Kéo thả file sao lưu (.json) vào đây</b>
+          <span class="muted">hoặc bấm để chọn file từ máy</span>
+        </label>
+        <input type="file" id="restoreFile" accept=".json,application/json" class="hide">
+        <label class="opt"><input type="radio" name="mode" value="keep" checked><span><b>Giữ nguyên dữ liệu cũ</b><small>Chỉ bổ sung dữ liệu có trong file mà hiện chưa có.</small></span></label>
+        <label class="opt"><input type="radio" name="mode" value="overwrite"><span><b>Ghi đè dữ liệu hiện tại</b><small>Thay toàn bộ dữ liệu hiện có bằng dữ liệu trong file.</small></span></label>
+        <button class="btn" id="restoreBtn" disabled><i class="fa-solid fa-rotate-left"></i> Khôi phục dữ liệu</button>
+      </div>
+    </section>
   </div>
 </div>
 
