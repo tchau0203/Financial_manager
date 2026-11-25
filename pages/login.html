@@ -30,17 +30,50 @@
                 <input type="text" id="username" class="form-control" placeholder="Nhập tên đăng nhập hoặc email" autocomplete="username" required>
             </div>
             <div class="form-group">
-                <label class="form-label" for="password">Mật khẩu</label>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                    <label class="form-label" for="password" style="margin-bottom: 0;">Mật khẩu</label>
+                    <a href="javascript:void(0)" id="btnForgotPass" style="font-size: 0.8rem; color: var(--primary); text-decoration: none; font-weight: 500;">Quên mật khẩu?</a>
+                </div>
                 <input type="password" id="password" class="form-control" placeholder="Nhập mật khẩu" required>
             </div>
             <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem;">
                 <i class="fa-solid fa-right-to-bracket"></i> Đăng nhập
             </button>
         </form>
+        <div id="googleLoginWrap" style="margin-top: 1.25rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem; color: var(--text-muted); font-size: 0.8rem; margin-bottom: 1rem;">
+                <span style="flex: 1; height: 1px; background: #e2e8f0;"></span>hoặc<span style="flex: 1; height: 1px; background: #e2e8f0;"></span>
+            </div>
+            <div id="googleBtn" style="display: flex; justify-content: center;"></div>
+        </div>
         <div style="text-align: center; margin-top: 1.5rem; font-size: 0.875rem;">
             Chưa có tài khoản? <a href="register.html" style="color: var(--primary); font-weight: 600;">Đăng ký ngay</a>
         </div>
     </div>
+
+    <!-- Modal Quên mật khẩu -->
+    <div id="modalForgot" class="modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); align-items: center; justify-content: center; z-index: 9999; padding: 1rem;">
+        <div class="modal-content" style="background: #fff; width: 100%; max-width: 400px; border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow-lg); position: relative;">
+            <button type="button" id="btnCloseForgot" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer; line-height: 1;">&times;</button>
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <div style="width: 48px; height: 48px; background: #e0e7ff; color: var(--primary); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.25rem; margin-bottom: 0.75rem;">
+                    <i class="fa-solid fa-key"></i>
+                </div>
+                <h3 style="margin: 0 0 0.5rem; font-size: 1.25rem;">Quên mật khẩu?</h3>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0; line-height: 1.5;">Nhập email tài khoản của bạn để nhận mật khẩu tạm thời mới qua hộp thư.</p>
+            </div>
+            <form id="forgotForm">
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <label class="form-label" for="forgotEmail">Email đã đăng ký</label>
+                    <input type="email" id="forgotEmail" class="form-control" placeholder="vidu@email.com" required>
+                </div>
+                <button type="submit" id="btnSubmitForgot" class="btn btn-primary" style="width: 100%; padding: 0.75rem;">
+                    <i class="fa-solid fa-paper-plane"></i> Gửi mật khẩu mới
+                </button>
+            </form>
+        </div>
+    </div>
+
     <script src="../assets/js/auth.js"></script>
     <script>
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -64,7 +97,49 @@
                 console.error('Lỗi đăng nhập:', error);
             }
         });
+
+        // Xử lý Modal Quên mật khẩu
+        const modalForgot = document.getElementById('modalForgot');
+        document.getElementById('btnForgotPass').addEventListener('click', () => {
+            modalForgot.style.display = 'flex';
+            document.getElementById('forgotEmail').focus();
+        });
+        document.getElementById('btnCloseForgot').addEventListener('click', () => {
+            modalForgot.style.display = 'none';
+        });
+        modalForgot.addEventListener('click', (e) => {
+            if (e.target === modalForgot) modalForgot.style.display = 'none';
+        });
+
+        document.getElementById('forgotForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('forgotEmail').value.trim();
+            const btn = document.getElementById('btnSubmitForgot');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang gửi email...';
+
+            try {
+                const res = await apiFetch('/auth/forgot_password.php', {
+                    method: 'POST',
+                    body: JSON.stringify({ email })
+                });
+
+                if (res && res.success) {
+                    showToast('Thành công', res.message, 'success');
+                    modalForgot.style.display = 'none';
+                    document.getElementById('forgotForm').reset();
+                } else {
+                    showToast('Thất bại', res ? (res.message || res.error) : 'Không thể gửi email', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Gửi mật khẩu mới';
+            }
+        });
     </script>
+    <script src="../assets/js/google-login.js"></script>
     <script src="../assets/js/pwa.js"></script>
 </body>
 </html>

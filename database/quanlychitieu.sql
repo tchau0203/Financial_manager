@@ -42,6 +42,11 @@ SET @col := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA 
 SET @sql := IF(@col = 0, 'ALTER TABLE `users` ADD COLUMN `bank_account_name` VARCHAR(100) DEFAULT NULL', 'SELECT 1');
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
+-- Đăng nhập bằng Google: lưu Google user id (sub)
+SET @col := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'google_id');
+SET @sql := IF(@col = 0, 'ALTER TABLE `users` ADD COLUMN `google_id` VARCHAR(64) DEFAULT NULL, ADD UNIQUE KEY `uk_users_google_id` (`google_id`)', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
 -- 2. BẢNG DANH MỤC THU / CHI (categories)
 CREATE TABLE IF NOT EXISTS `categories` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
