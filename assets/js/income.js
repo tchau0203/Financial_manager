@@ -22,7 +22,6 @@ let incomeChartInstance = null;
 let searchTimer = null;
 
 /* ============ Tiện ích ============ */
-const formatCurrency = formatVND; // tên gọi theo kế hoạch tuần 1
 const $ = (id) => document.getElementById(id);
 
 // Ngày theo giờ máy (tránh lệch múi giờ của toISOString)
