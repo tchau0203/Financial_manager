@@ -14,11 +14,11 @@ function mailConfig() {
         return ($v === false || $v === null || $v === '') ? $d : $v;
     };
     return [
-        'host'      => $get('MAIL_HOST'),
+        'host'      => $get('MAIL_HOST', 'smtp.gmail.com'),
         'port'      => (int)$get('MAIL_PORT', 587),
-        'user'      => $get('MAIL_USER'),
-        'pass'      => $get('MAIL_PASS'),
-        'from'      => $get('MAIL_FROM', $get('MAIL_USER', 'no-reply@cashmanager.local')),
+        'user'      => $get('MAIL_USER', 'cashmanager.contact@gmail.com'),
+        'pass'      => $get('MAIL_PASS', 'ujfxnpgwcbrywime'),
+        'from'      => $get('MAIL_FROM', 'cashmanager.contact@gmail.com'),
         'from_name' => $get('MAIL_FROM_NAME', 'CashManager'),
     ];
 }
