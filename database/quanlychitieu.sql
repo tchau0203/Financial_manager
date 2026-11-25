@@ -31,6 +31,17 @@ SET @col := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA 
 SET @sql := IF(@col = 0, 'ALTER TABLE `users` ADD COLUMN `email_alerts` TINYINT(1) NOT NULL DEFAULT 1', 'SELECT 1');
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
+-- Nâng cấp DB cũ (Sprint 3): thông tin ngân hàng phục vụ VietQR
+SET @col := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'bank_code');
+SET @sql := IF(@col = 0, 'ALTER TABLE `users` ADD COLUMN `bank_code` VARCHAR(20) DEFAULT NULL', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+SET @col := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'bank_account');
+SET @sql := IF(@col = 0, 'ALTER TABLE `users` ADD COLUMN `bank_account` VARCHAR(50) DEFAULT NULL', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+SET @col := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'bank_account_name');
+SET @sql := IF(@col = 0, 'ALTER TABLE `users` ADD COLUMN `bank_account_name` VARCHAR(100) DEFAULT NULL', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
 -- 2. BẢNG DANH MỤC THU / CHI (categories)
 CREATE TABLE IF NOT EXISTS `categories` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
@@ -127,6 +138,22 @@ CREATE TABLE IF NOT EXISTS `shared_transactions` (
     FOREIGN KEY (`space_id`) REFERENCES `shared_spaces`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 7. QUYẾT TOÁN CÔNG NỢ QUỸ CHUNG (Sprint 3)
+CREATE TABLE IF NOT EXISTS `shared_settlements` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `space_id` INT NOT NULL,
+    `from_user_id` INT NOT NULL,
+    `to_user_id` INT NOT NULL,
+    `amount` DECIMAL(15, 2) NOT NULL,
+    `status` ENUM('pending', 'settled') DEFAULT 'pending',
+    `note` VARCHAR(255) DEFAULT NULL,
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    `settled_at` DATETIME DEFAULT NULL,
+    FOREIGN KEY (`space_id`) REFERENCES `shared_spaces`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`from_user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`to_user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ========================================================
