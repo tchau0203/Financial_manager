@@ -78,6 +78,15 @@ $email = strtolower(trim($info['email']));
 $fullName = trim((string)($info['name'] ?? ''));
 if ($fullName === '') $fullName = strstr($email, '@', true);
 
+// Tự động thêm cột google_id nếu database của thành viên chưa có cột này
+try {
+    $pdo->query("SELECT google_id FROM users LIMIT 1");
+} catch (Throwable $e) {
+    try {
+        $pdo->exec("ALTER TABLE users ADD COLUMN google_id VARCHAR(64) DEFAULT NULL, ADD UNIQUE KEY uk_users_google_id (google_id)");
+    } catch (Throwable $ex) {}
+}
+
 // 1. Đã liên kết Google
 $st = $pdo->prepare('SELECT id, username, email, full_name, phone, currency FROM users WHERE google_id = ? LIMIT 1');
 $st->execute([$googleId]);
