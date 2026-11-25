@@ -1,6 +1,23 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+    <style>
+.ai-box{margin-bottom:1.5rem}
+.ai-head{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+.ai-head h3{margin:0}
+.ai-btn{padding:.55rem 1.1rem;border:0;border-radius:999px;background:linear-gradient(135deg,#6366f1,#a855f7);color:#fff;font-weight:600;cursor:pointer}
+.ai-btn:disabled{opacity:.6;cursor:wait}
+#aiResult:not(:empty){margin-top:1rem;padding-top:1rem;border-top:1px dashed #e2e8f0}
+.ai-review{display:flex;gap:1.25rem;align-items:flex-start}
+.ai-grade{flex-shrink:0;width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:2.3rem;font-weight:800;animation:aiPop .6s cubic-bezier(.34,1.56,.64,1) both}
+.ai-grade.A{background:#10b981}.ai-grade.B{background:#3b82f6}.ai-grade.C{background:#f59e0b}.ai-grade.D{background:#ef4444}
+@keyframes aiPop{0%{transform:scale(0) rotate(-120deg)}100%{transform:scale(1) rotate(0)}}
+.ai-text{line-height:1.65;white-space:pre-line}
+.ai-text.typing::after{content:"▍";color:#6366f1;animation:aiBlink .8s steps(1) infinite}
+@keyframes aiBlink{50%{opacity:0}}
+.ai-tips{margin-top:.75rem;padding-left:1.25rem;line-height:1.6}
+@media(max-width:600px){.ai-review{flex-direction:column;align-items:center;text-align:center}}
+</style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bảng Điều Khiển - Quản Lý Chi Tiêu</title>
@@ -76,7 +93,13 @@
                         <div id="budget-progress-bar" class="progress-bar"></div>
                     </div>
                 </div>
-
+                <div class="card ai-box">
+    <div class="ai-head">
+        <h3>🤖 Trợ lý tài chính AI</h3>
+        <button type="button" id="aiAskBtn" class="ai-btn">Hỏi chuyên gia AI</button>
+    </div>
+    <div id="aiResult"></div>
+</div>
                 <!-- 2 Biểu đồ -->
                 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
                     <div class="card">
@@ -183,5 +206,70 @@
     <script>
         document.getElementById('quick_date').valueAsDate = new Date();
     </script>
+    <script>
+(function () {
+    const btn = document.getElementById('aiAskBtn');
+    const box = document.getElementById('aiResult');
+    let run = 0;
+
+    btn.addEventListener('click', async () => {
+        const my = ++run;
+        btn.disabled = true;
+        box.textContent = 'Chuyên gia AI đang phân tích dữ liệu của bạn...';
+        try {
+            const r = await fetch('../api/ai/advice.php', { credentials: 'include' });
+            if (r.status === 401) { location.href = 'login.html'; return; }
+            const j = await r.json();
+            if (j.success === false) throw new Error(j.message || j.error || 'Không thể lấy nhận xét từ AI');
+            if (my !== run) return;
+            const d = j.data || j;
+
+            const grade = String(d.grade || '').toUpperCase().charAt(0);   // A, B, C, D
+            const text = d.summary || d.advice || d.comment || '';
+            const tips = d.actions || d.tips || [];
+
+            box.replaceChildren();
+            const wrap = document.createElement('div');
+            wrap.className = 'ai-review';
+            if ('ABCD'.includes(grade) && grade) {
+                const badge = document.createElement('div');
+                badge.className = 'ai-grade ' + grade;
+                badge.textContent = grade;
+                wrap.appendChild(badge);
+            }
+            const body = document.createElement('div');
+            const p = document.createElement('div');
+            p.className = 'ai-text typing';
+            body.appendChild(p);
+            wrap.appendChild(body);
+            box.appendChild(wrap);
+
+            // Hiệu ứng gõ chữ
+            let i = 0;
+            (function type() {
+                if (my !== run) return;
+                i += 2;
+                p.textContent = text.slice(0, i);
+                if (i < text.length) return setTimeout(type, 20);
+                p.classList.remove('typing');
+                if (tips.length) {
+                    const ul = document.createElement('ul');
+                    ul.className = 'ai-tips';
+                    tips.forEach(t => {
+                        const li = document.createElement('li');
+                        li.textContent = typeof t === 'string' ? t : (t.title || t.text || '');
+                        ul.appendChild(li);
+                    });
+                    body.appendChild(ul);
+                }
+            })();
+        } catch (e) {
+            box.textContent = e.message || 'Không thể kết nối chuyên gia AI.';
+        } finally {
+            btn.disabled = false;
+        }
+    });
+})();
+</script>
 </body>
 </html>
