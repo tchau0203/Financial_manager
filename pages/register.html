@@ -45,6 +45,12 @@
                 <i class="fa-solid fa-user-plus"></i> Đăng ký
             </button>
         </form>
+        <div id="googleLoginWrap" style="margin-top: 1.25rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem; color: var(--text-muted); font-size: 0.8rem; margin-bottom: 1rem;">
+                <span style="flex: 1; height: 1px; background: #e2e8f0;"></span>hoặc<span style="flex: 1; height: 1px; background: #e2e8f0;"></span>
+            </div>
+            <div id="googleBtn" style="display: flex; justify-content: center;"></div>
+        </div>
         <div style="text-align: center; margin-top: 1.5rem; font-size: 0.875rem;">
             Đã có tài khoản? <a href="login.html" style="color: var(--primary); font-weight: 600;">Đăng nhập</a>
         </div>
@@ -77,6 +83,7 @@
             }
         });
     </script>
+    <script src="../assets/js/google-login.js"></script>
     <script src="../assets/js/pwa.js"></script>
 </body>
 </html>
