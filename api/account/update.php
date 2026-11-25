@@ -46,6 +46,31 @@ if ($emailAlerts !== null) {
     $stmt->execute([$fullName, $email, $phone, $currency, $userId]);
 }
 
+// Thông tin tài khoản ngân hàng (phục vụ VietQR) - chỉ cập nhật khi client gửi lên
+$bank = null;
+if (array_key_exists('bank_code', $data) || array_key_exists('bank_account', $data) || array_key_exists('bank_account_name', $data)) {
+    $bankCode = strtoupper(trim((string)($data['bank_code'] ?? '')));
+    $bankAccount = preg_replace('/\s+/', '', (string)($data['bank_account'] ?? ''));
+    $bankName = trim((string)($data['bank_account_name'] ?? ''));
+
+    if ($bankCode !== '' && !preg_match('/^[A-Z0-9]{2,20}$/', $bankCode)) {
+        jsonResponse(['error' => 'Mã ngân hàng không hợp lệ'], 400);
+    }
+    if ($bankAccount !== '' && !preg_match('/^[0-9]{6,20}$/', $bankAccount)) {
+        jsonResponse(['error' => 'Số tài khoản phải gồm 6-20 chữ số'], 400);
+    }
+    if (mb_strlen($bankName) > 100) {
+        jsonResponse(['error' => 'Tên chủ tài khoản quá dài (tối đa 100 ký tự)'], 400);
+    }
+    if (($bankCode === '') !== ($bankAccount === '')) {
+        jsonResponse(['error' => 'Vui lòng nhập đủ cả ngân hàng và số tài khoản'], 400);
+    }
+    $bankName = function_exists('mb_strtoupper') ? mb_strtoupper($bankName, 'UTF-8') : strtoupper($bankName);
+    $pdo->prepare('UPDATE users SET bank_code = ?, bank_account = ?, bank_account_name = ? WHERE id = ?')
+        ->execute([$bankCode ?: null, $bankAccount ?: null, $bankName ?: null, $userId]);
+    $bank = ['bank_code' => $bankCode, 'bank_account' => $bankAccount, 'bank_account_name' => $bankName];
+}
+
 $_SESSION['full_name'] = $fullName;
 
 jsonResponse([
@@ -58,5 +83,5 @@ jsonResponse([
         'phone'        => $phone,
         'currency'     => $currency,
         'email_alerts' => $emailAlerts
-    ]
+    ] + ($bank ?? [])
 ]);
