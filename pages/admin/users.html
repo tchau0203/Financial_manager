@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Tài Khoản - CashManager Admin</title>
+    <!-- Phụ trách: Thái Châu (Lead) -->
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <link rel="stylesheet" href="../../assets/css/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Admin -->
+        <aside class="sidebar" style="background: #0f172a;">
+            <div class="sidebar-brand" style="border-bottom: 1px solid #1e293b; color: #fff;">
+                <i class="fa-solid fa-shield-halved" style="color: #a78bfa; margin-right: 0.5rem;"></i> CashManager <span style="font-size: 0.7rem; background: #7c3aed; color: #fff; padding: 2px 6px; border-radius: 4px; margin-left: 4px;">ADMIN</span>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html" style="color: #94a3b8;"><i class="fa-solid fa-gauge-high"></i> Tổng quan hệ thống</a></li>
+                <li class="active"><a href="users.html" style="background: rgba(124, 58, 237, 0.2); color: #a78bfa; border-left: 3px solid #7c3aed;"><i class="fa-solid fa-users-gear"></i> Quản lý tài khoản</a></li>
+                <li style="margin-top: 1.5rem; border-top: 1px solid #1e293b; padding-top: 0.75rem;">
+                    <a href="../dashboard.html" style="color: #94a3b8;"><i class="fa-solid fa-wallet"></i> Xem trang Người dùng</a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <h2>Quản Lý Tài Khoản Người Dùng</h2>
+                <div style="display: flex; gap: 0.75rem; align-items: center;">
+                    <button class="btn btn-primary" id="btnRefreshUsers"><i class="fa-solid fa-rotate"></i> Làm mới</button>
+                </div>
+            </header>
+
+            <div class="content-body" style="padding: 1.5rem;">
+                <div class="card" style="padding: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+                        <input type="text" id="filterSearch" placeholder="Tìm kiếm theo tên, email..." class="form-control" style="max-width: 280px;">
+                        <select id="filterRole" class="form-control" style="max-width: 160px;">
+                            <option value="">Tất cả vai trò</option>
+                            <option value="user">User (Người dùng)</option>
+                            <option value="admin">Admin (Quản trị)</option>
+                        </select>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Tài khoản</th>
+                                    <th>Email</th>
+                                    <th>Vai trò</th>
+                                    <th>Trạng thái</th>
+                                    <th>Ngày tạo</th>
+                                    <th style="text-align: right;">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTableBody">
+                                <!-- TODO (Thái Châu): Render danh sách tài khoản kèm nút: Đổi vai trò, Khóa/Mở, Đặt lại mật khẩu -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../../assets/js/auth.js"></script>
+    <script>
+        // TODO (Thái Châu): Viết script tải danh sách từ /api/admin/users.php và thực hiện hành động tại /api/admin/actions.php
+    </script>
+</body>
+</html>
