@@ -30,7 +30,38 @@ CREATE TABLE IF NOT EXISTS `users` (
 SET @col := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'email_alerts');
 SET @sql := IF(@col = 0, 'ALTER TABLE `users` ADD COLUMN `email_alerts` TINYINT(1) NOT NULL DEFAULT 1', 'SELECT 1');
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+-- Thêm cấu hình nhắc ghi chép hàng ngày nếu chưa có
+SET @col := (
+    SELECT COUNT(*)
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'users'
+      AND COLUMN_NAME = 'daily_reminder'
+);
+SET @sql := IF(
+    @col = 0,
+    'ALTER TABLE `users` ADD COLUMN `daily_reminder` TINYINT(1) NOT NULL DEFAULT 1',
+    'SELECT 1'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
+SET @col := (
+    SELECT COUNT(*)
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'users'
+      AND COLUMN_NAME = 'reminder_time'
+);
+SET @sql := IF(
+    @col = 0,
+    'ALTER TABLE `users` ADD COLUMN `reminder_time` TIME NOT NULL DEFAULT ''21:00:00''',
+    'SELECT 1'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 -- 2. BẢNG DANH MỤC THU / CHI (categories)
 CREATE TABLE IF NOT EXISTS `categories` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,

@@ -34,7 +34,11 @@ const STATIC_FILES = [
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(STATIC_FILES.map(file => new URL(file, APP_BASE))))
+      .then(cache => Promise.allSettled(
+         STATIC_FILES.map(file => cache.add(new URL(file, APP_BASE)))
+        ))
+
+
       .then(() => self.skipWaiting())
   );
 });
@@ -76,7 +80,7 @@ self.addEventListener('fetch', event => {
         })
         .catch(async () => {
           return (await caches.match(request)) ||
-            (await caches.match(new URL('pages/login.html', APP_BASE));
+            (await caches.match(new URL('pages/login.html', APP_BASE)));
         })
     );
     return;
