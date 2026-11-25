@@ -212,4 +212,78 @@
   };
 
   loadCats();
+
+  // [NGÔ BẢO - FE] Chức năng 3.2: Nhắc nhở ghi chép hàng ngày (Web Push Notification)
+  function updateNotifBadge() {
+    const badge = $('notifStatusBadge');
+    if (!badge) return;
+    if (!('Notification' in window)) {
+      badge.className = 'tag over';
+      badge.textContent = 'Trình duyệt không hỗ trợ';
+      return;
+    }
+    if (Notification.permission === 'granted') {
+      badge.className = 'tag ok';
+      badge.textContent = 'Đã cho phép';
+    } else if (Notification.permission === 'denied') {
+      badge.className = 'tag over';
+      badge.textContent = 'Bị chặn (mở cài đặt để bật)';
+    } else {
+      badge.className = 'tag';
+      badge.textContent = 'Chưa cấp quyền';
+    }
+  }
+
+  const isReminderOn = localStorage.getItem('reminder_enabled') === 'true';
+  const savedTime = localStorage.getItem('reminder_time') || '21:00';
+  if ($('reminderToggle')) $('reminderToggle').checked = isReminderOn;
+  if ($('reminderTime')) $('reminderTime').value = savedTime;
+  updateNotifBadge();
+
+  if ($('reminderToggle')) {
+    $('reminderToggle').onchange = async e => {
+      const on = e.target.checked;
+      if (on) {
+        if ('Notification' in window && Notification.permission !== 'granted') {
+          const perm = await (window.PWA ? window.PWA.requestNotificationPermission() : Notification.requestPermission());
+          updateNotifBadge();
+          if (perm !== 'granted') {
+            e.target.checked = false;
+            return toast('Vui lòng cho phép quyền thông báo trên trình duyệt', true);
+          }
+        }
+      }
+      localStorage.setItem('reminder_enabled', on ? 'true' : 'false');
+      toast(on ? 'Đã bật nhắc nhở ghi chép hàng ngày' : 'Đã tắt nhắc nhở ghi chép');
+      try {
+        await post('../api/notification/settings.php', { reminder_enabled: on ? 1 : 0, reminder_time: $('reminderTime').value });
+      } catch (_) {}
+    };
+  }
+
+  if ($('btnTestNotif')) {
+    $('btnTestNotif').onclick = async () => {
+      if ('Notification' in window && Notification.permission !== 'granted') {
+        const perm = await (window.PWA ? window.PWA.requestNotificationPermission() : Notification.requestPermission());
+        updateNotifBadge();
+        if (perm !== 'granted') return toast('Bạn đã từ chối quyền thông báo', true);
+      }
+      const sent = window.PWA ? window.PWA.sendPushNotification('Nhắc nhở chi tiêu - CashManager', {
+        body: 'Đây là thông báo thử nghiệm! Đừng quên ghi lại các khoản chi hôm nay nhé.'
+      }) : false;
+      if (sent) toast('Đã gửi thông báo thử nghiệm');
+      else toast('Không thể hiển thị thông báo, kiểm tra quyền trình duyệt', true);
+    };
+  }
+
+  if ($('btnSaveReminder')) {
+    $('btnSaveReminder').onclick = async () => {
+      const timeVal = $('reminderTime').value || '21:00';
+      localStorage.setItem('reminder_time', timeVal);
+      toast(`Đã lưu giờ nhắc nhở mỗi tối: ${timeVal}`);
+      try {
+        await post('../api/notification/settings.php', { reminder_enabled: $('reminderToggle').checked ? 1 : 0, reminder_time: timeVal });
+      } catch (_) {}
+    };
+  }
 })();
