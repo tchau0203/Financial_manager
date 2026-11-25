@@ -64,8 +64,10 @@ foreach ($topExpenses as &$item) {
 unset($item);
 
 // Định dạng tiền tệ để gửi prompt AI
-function formatMoneyVND($amount) {
-    return number_format($amount, 0, ',', '.') . ' đ';
+if (!function_exists('formatMoneyVND')) {
+    function formatMoneyVND($amount) {
+        return number_format($amount, 0, ',', '.') . ' đ';
+    }
 }
 
 // 5. Chuẩn bị gọi Gemini API
@@ -133,7 +135,8 @@ if (!empty($apiKey)) {
         CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
         CURLOPT_POSTFIELDS     => json_encode($postData, JSON_UNESCAPED_UNICODE),
         CURLOPT_TIMEOUT        => 15,
-        CURLOPT_SSL_VERIFYPEER => true
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYHOST => false
     ]);
 
     $response = curl_exec($ch);
@@ -145,10 +148,16 @@ if (!empty($apiKey)) {
         $rawText = $resJson['candidates'][0]['content']['parts'][0]['text'] ?? '';
 
         if (!empty($rawText)) {
-            // Loại bỏ bọc markdown ```json ... ``` nếu Gemini trả về
-            $cleanedText = preg_replace('/^```(?:json)?\s*/i', '', trim($rawText));
-            $cleanedText = preg_replace('/\s*```$/', '', $cleanedText);
-            $parsedAi = json_decode(trim($cleanedText), true);
+            // Trích xuất chuỗi JSON chuẩn xác kể cả khi Gemini bọc markdown hoặc kèm văn bản
+            $parsedAi = null;
+            if (preg_match('/\{[\s\S]*\}/', $rawText, $matches)) {
+                $parsedAi = json_decode($matches[0], true);
+            }
+            if (!is_array($parsedAi)) {
+                $cleanedText = preg_replace('/^```(?:json)?\s*/i', '', trim($rawText));
+                $cleanedText = preg_replace('/\s*```$/', '', $cleanedText);
+                $parsedAi = json_decode(trim($cleanedText), true);
+            }
 
             if (is_array($parsedAi) && !empty($parsedAi['status']) && !empty($parsedAi['action_items'])) {
                 $aiAdvice = [
@@ -231,23 +240,41 @@ if ($aiAdvice === null) {
     }
 }
 
-// 7. Trả về phản hồi JSON chuẩn hóa
+// 7. Tính xếp loại tài chính (Grade A, B, C, D) cho giao diện Dashboard & Report
+$grade = 'B';
+if (($aiAdvice['status'] ?? '') === 'Tốt') {
+    $grade = ($savingRate >= 30) ? 'A' : 'B';
+} elseif (($aiAdvice['status'] ?? '') === 'Cần chú ý') {
+    $grade = ($savingRate >= 10) ? 'B' : 'C';
+} else {
+    $grade = 'D';
+}
+
+// 8. Trả về phản hồi JSON chuẩn hóa (tương thích cả Dashboard/Report frontend lẫn AI)
 jsonResponse([
     'success' => true,
     'message' => 'Phân tích tài chính thành công',
     'data'    => [
-        'month'     => $month,
-        'year'      => $year,
-        'currency'  => $currency,
-        'user_name' => $userName,
-        'summary'   => [
+        'month'            => $month,
+        'year'             => $year,
+        'currency'         => $currency,
+        'user_name'        => $userName,
+        'grade'            => $grade,
+        'summary'          => $aiAdvice['overview'] ?? '',
+        'advice'           => $aiAdvice['overview'] ?? '',
+        'comment'          => $aiAdvice['overview'] ?? '',
+        'status'           => $aiAdvice['status'] ?? 'Cần chú ý',
+        'tips'             => $aiAdvice['action_items'] ?? [],
+        'actions'          => $aiAdvice['action_items'] ?? [],
+        'potential_wastes' => $aiAdvice['potential_wastes'] ?? [],
+        'ai_advice'        => $aiAdvice,
+        'metrics'          => [
             'total_income'  => $totalIncome,
             'total_expense' => $totalExpense,
             'net_balance'   => $netBalance,
             'saving_rate'   => $savingRate,
             'top_expenses'  => $topExpenses
         ],
-        'ai_advice' => $aiAdvice,
-        'source'    => $source
+        'source'           => $source
     ]
 ]);

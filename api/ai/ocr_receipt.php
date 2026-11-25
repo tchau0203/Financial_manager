@@ -174,7 +174,8 @@ if (!empty($apiKey)) {
         CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
         CURLOPT_POSTFIELDS     => json_encode($postData, JSON_UNESCAPED_UNICODE),
         CURLOPT_TIMEOUT        => 30,
-        CURLOPT_SSL_VERIFYPEER => true
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYHOST => false
     ]);
 
     $response = curl_exec($ch);
@@ -186,10 +187,16 @@ if (!empty($apiKey)) {
         $rawText = $resJson['candidates'][0]['content']['parts'][0]['text'] ?? '';
 
         if (!empty($rawText)) {
-            // Loại bỏ bọc markdown ```json ... ``` nếu Gemini sinh ra
-            $cleanedText = preg_replace('/^```(?:json)?\s*/i', '', trim($rawText));
-            $cleanedText = preg_replace('/\s*```$/', '', $cleanedText);
-            $parsedAi = json_decode(trim($cleanedText), true);
+            // Trích xuất chuỗi JSON chuẩn xác kể cả khi Gemini bọc markdown hoặc kèm văn bản
+            $parsedAi = null;
+            if (preg_match('/\{[\s\S]*\}/', $rawText, $matches)) {
+                $parsedAi = json_decode($matches[0], true);
+            }
+            if (!is_array($parsedAi)) {
+                $cleanedText = preg_replace('/^```(?:json)?\s*/i', '', trim($rawText));
+                $cleanedText = preg_replace('/\s*```$/', '', $cleanedText);
+                $parsedAi = json_decode(trim($cleanedText), true);
+            }
 
             if (is_array($parsedAi)) {
                 $rawAmount = $parsedAi['amount'] ?? 0;
