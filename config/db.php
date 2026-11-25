@@ -45,6 +45,24 @@ function getDbConnection() {
                     PDO::ATTR_EMULATE_PREPARES   => false,
                 ]
             );
+
+            // Tự động kiểm tra và nâng cấp cột role, đảm bảo tài khoản Admin mặc định
+            static $checkedAdminRole = false;
+            if (!$checkedAdminRole) {
+                $checkedAdminRole = true;
+                try {
+                    $colChk = $pdo->query("SHOW COLUMNS FROM users LIKE 'role'")->fetch();
+                    if (!$colChk) {
+                        $pdo->exec("ALTER TABLE users ADD COLUMN role ENUM('user', 'admin') NOT NULL DEFAULT 'user'");
+                    }
+                    // Đảm bảo có tài khoản Admin mặc định (admin / Admin@123456)
+                    $adminChk = $pdo->query("SELECT id FROM users WHERE username = 'admin' OR role = 'admin' LIMIT 1")->fetch();
+                    if (!$adminChk) {
+                        $hashed = '$2y$10$tq6XvVOf6CfTcheS3md2iuKCziEr6Alx9dhILYYYd4q.6HX4BNDdO'; // Admin@123456
+                        $pdo->exec("INSERT INTO users (username, email, password, full_name, role, currency) VALUES ('admin', 'admin@cashmanager.vn', '$hashed', 'Quản trị viên Hệ thống', 'admin', 'VND')");
+                    }
+                } catch (Throwable $e) {}
+            }
         } catch (PDOException $e) {
             jsonResponse(['error' => 'Kết nối CSDL thất bại: ' . $e->getMessage()], 500);
             exit;
@@ -65,6 +83,22 @@ function requireAuth() {
         jsonResponse(['error' => 'Chưa đăng nhập'], 401);
     }
     return (int)$_SESSION['user_id'];
+}
+
+function requireAdmin() {
+    $userId = requireAuth();
+    $role = $_SESSION['role'] ?? null;
+    if ($role === null) {
+        $pdo = getDbConnection();
+        $st = $pdo->prepare('SELECT role FROM users WHERE id = ? LIMIT 1');
+        $st->execute([$userId]);
+        $role = $st->fetchColumn() ?: 'user';
+        $_SESSION['role'] = $role;
+    }
+    if ($role !== 'admin') {
+        jsonResponse(['error' => 'Bạn không có quyền quản trị viên (Admin)'], 403);
+    }
+    return $userId;
 }
 
 function getJsonInput() {

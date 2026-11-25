@@ -15,7 +15,12 @@
             });
             if (res && res.success) {
                 showToast('Thành công', 'Đăng nhập Google thành công!', 'success');
-                setTimeout(() => window.location.href = 'dashboard.html', 600);
+                const role = (res.user && res.user.role) || (res.data && res.data.role) || 'user';
+                if (role === 'admin') {
+                    setTimeout(() => window.location.href = 'admin/dashboard.html', 600);
+                } else {
+                    setTimeout(() => window.location.href = 'dashboard.html', 600);
+                }
             } else {
                 showToast('Thất bại', (res && (res.message || res.error)) || 'Không đăng nhập được bằng Google', 'error');
             }
