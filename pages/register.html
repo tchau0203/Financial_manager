@@ -22,11 +22,6 @@
             min-height: 100vh;
             font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background-color: #f4f4fe;
-            background-image: url('../assets/images/cashmanager-auth-bg.jpg');
-            background-size: cover;
-            background-position: center center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
             color: #0f172a;
             display: flex;
             flex-direction: column;
@@ -34,6 +29,24 @@
             align-items: center;
             overflow-x: hidden;
             position: relative;
+        }
+
+        /* Lớp nền HD 2K siêu sắc nét, hardware-accelerated không bị mờ do trình duyệt */
+        .auth-bg-fixed {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('../assets/images/cashmanager-auth-bg.png');
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            z-index: 0;
+            pointer-events: none;
+            image-rendering: -webkit-optimize-contrast;
+            transform: translate3d(0, 0, 0);
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
         }
 
         .brand-corner {
@@ -273,6 +286,9 @@
     </style>
 </head>
 <body>
+    <!-- Lớp nền 3D siêu sắc nét 2K -->
+    <div class="auth-bg-fixed" aria-hidden="true"></div>
+
     <!-- Logo CashManager góc trái trên -->
     <a href="../index.html" class="brand-corner">
         <div class="brand-icon-box">
