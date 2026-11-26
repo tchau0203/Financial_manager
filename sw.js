@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cashmanager-static-v2'; // tăng phiên bản để PWA nhận file mới (bản đồ chi tiêu)
+const CACHE_NAME = 'cashmanager-static-v3'; // tăng phiên bản để xóa cache cũ và nhận file mới
 const APP_BASE = new URL('./', self.location.href);
 
 const STATIC_FILES = [
@@ -93,17 +93,18 @@ self.addEventListener('fetch', event => {
     url.pathname.startsWith(`${appPath}assets/`) ||
     url.pathname.endsWith('/manifest.json')
   ) {
+    // Ưu tiên tải bản mới nhất từ máy chủ (luôn thấy code mới sau khi cập nhật);
+    // chỉ dùng bản đã lưu khi mất mạng.
     event.respondWith(
-      caches.match(request).then(cached => {
-        const fresh = fetch(request).then(response => {
+      fetch(request)
+        .then(response => {
           if (response.ok) {
-            caches.open(CACHE_NAME).then(cache => cache.put(request, response.clone()));
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
           }
           return response;
-        });
-
-        return cached || fresh;
-      })
+        })
+        .catch(async () => (await caches.match(request)) || Response.error())
     );
   }
 });

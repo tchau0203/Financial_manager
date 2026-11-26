@@ -55,14 +55,25 @@
         if (marker && map) { map.removeLayer(marker); marker = null; }
     }
 
-    // Gọi Nominatim (OpenStreetMap) để đổi địa chỉ -> tọa độ. Ưu tiên Việt Nam, không có thì tìm toàn cầu.
+    // Gọi Nominatim (OpenStreetMap) để đổi địa chỉ -> tọa độ.
+    // Thử lần lượt: (1) nguyên văn ở Việt Nam, (2) nguyên văn toàn cầu,
+    // (3) bỏ số nhà ở đầu (OSM thường thiếu số nhà nên vẫn trỏ được tới con đường/khu vực).
+    // Nominatim giới hạn ~1 yêu cầu/giây nên giữa các lần thử có nghỉ ngắn.
     async function geocode(query) {
-        const base = 'https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&accept-language=vi&q=' + encodeURIComponent(query);
-        for (const extra of ['&countrycodes=vn', '']) {
-            const res = await fetch(base + extra, { headers: { 'Accept': 'application/json' } });
+        const url = (q, vnOnly) => 'https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&accept-language=vi&q='
+            + encodeURIComponent(q) + (vnOnly ? '&countrycodes=vn' : '');
+        const noNumber = query.replace(/^\s*(số\s*)?[\d\/\-]+[a-zA-Z]?\s*[,\s]\s*/i, '').trim();
+
+        const attempts = [{ q: query, vn: true, approx: false }, { q: query, vn: false, approx: false }];
+        if (noNumber && noNumber !== query) attempts.push({ q: noNumber, vn: true, approx: true });
+
+        for (let i = 0; i < attempts.length; i++) {
+            if (i > 0) await new Promise(r => setTimeout(r, 1100));
+            const a = attempts[i];
+            const res = await fetch(url(a.q, a.vn), { headers: { 'Accept': 'application/json' } });
             if (!res.ok) throw new Error('HTTP ' + res.status);
             const list = await res.json();
-            if (Array.isArray(list) && list.length) return list[0];
+            if (Array.isArray(list) && list.length) return { hit: list[0], approx: a.approx };
         }
         return null;
     }
@@ -81,24 +92,27 @@
         btn.disabled = true;
         setStatus('Đang tìm địa chỉ...');
         try {
-            const hit = await geocode(query);
+            const found = await geocode(query);
             if (seq !== addressSeq) return; // đã có yêu cầu mới hơn hoặc đã xóa vị trí
-            if (!hit) {
+            if (!found) {
                 lastAddressQuery = '';
-                return setStatus('Không tìm thấy địa chỉ này. Hãy thử nhập đầy đủ hơn (số nhà, đường, quận, thành phố) hoặc chọn điểm trên bản đồ.', true);
+                return setStatus('Không tìm thấy địa chỉ này. Hãy thử nhập đầy đủ hơn (đường, quận, thành phố) hoặc chọn điểm trên bản đồ.', true);
             }
+            const hit = found.hit;
             const lat = parseFloat(hit.lat), lng = parseFloat(hit.lon);
             if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
                 lastAddressQuery = '';
                 return setStatus('Kết quả tìm địa chỉ không hợp lệ. Hãy thử lại.', true);
             }
             ensureMap();
-            setPoint(lat, lng, { zoom: 17 });
+            if (map) map.invalidateSize();
+            setPoint(lat, lng, { zoom: found.approx ? 16 : 17 });
             // Nếu chưa đặt tên địa điểm thì gợi ý tên từ kết quả (vẫn sửa được)
             if (!$('tx_location_name').value.trim()) {
                 $('tx_location_name').value = String(hit.name || hit.display_name || query).split(',')[0].trim().slice(0, 255);
             }
-            setStatus('Đã trỏ tới: ' + (hit.display_name || query));
+            setStatus((found.approx ? 'Không thấy đúng số nhà, đã trỏ tới khu vực gần đúng: ' : 'Đã trỏ tới: ') + (hit.display_name || query)
+                + (found.approx ? '. Bạn có thể kéo marker để chỉnh lại.' : ''));
         } catch (err) {
             if (seq !== addressSeq) return;
             lastAddressQuery = '';
