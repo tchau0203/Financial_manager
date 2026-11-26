@@ -191,13 +191,13 @@
                         <div class="card">
                             <div class="table-responsive">
                                 <table class="table">
-                                    <thead>
+                                    <thead id="expense-thead">
                                         <tr>
-                                            <th>Ngày</th>
-                                            <th>Danh mục</th>
+                                            <th data-sort="date">Ngày</th>
+                                            <th data-sort="category">Danh mục</th>
                                             <th>Ghi chú</th>
                                             <th>Phương thức</th>
-                                            <th style="text-align: right;">Số tiền</th>
+                                            <th data-sort="amount" style="text-align: right;">Số tiền</th>
                                             <th style="text-align: right;">Thao tác</th>
                                         </tr>
                                     </thead>
@@ -236,6 +236,14 @@
             <form id="formTx">
                 <div class="modal-body">
                     <input type="hidden" id="tx_id">
+                    <div class="form-group">
+    <button type="button" class="btn btn-light" id="btnScanReceipt">📷 Quét hóa đơn</button>
+    <input type="file" id="scanFile" accept="image/*" hidden>
+    <div id="scanPreview" hidden style="display:flex;gap:.75rem;align-items:center;margin-top:.75rem">
+        <img id="scanImg" alt="Ảnh hóa đơn" style="width:84px;height:84px;object-fit:cover;border-radius:8px;border:1px solid #e2e8f0">
+        <span id="scanStatus" style="font-size:.85rem;color:#64748b"></span>
+    </div>
+</div>
                     <div class="form-group">
                         <label class="form-label" for="tx_category_id">Danh mục</label>
                         <div class="select-with-icon">
@@ -316,6 +324,69 @@
     <script src="../assets/js/auth.js"></script>
     <script src="../assets/js/pwa.js"></script>
     <script src="../assets/js/search.js"></script>
+    <script src="../assets/js/table_sort.js"></script>
     <script src="../assets/js/expense.js"></script>
+    <script>
+(function () {
+    const $ = (id) => document.getElementById(id);
+    let seq = 0, url = null;
+    const norm = (s) => String(s || '').toLowerCase().normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/[^a-z0-9]+/g, ' ').trim();
+
+    $('btnScanReceipt').addEventListener('click', () => $('scanFile').click());
+
+    $('scanFile').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const my = ++seq;
+        if (url) URL.revokeObjectURL(url);
+        url = URL.createObjectURL(file);
+        $('scanImg').src = url;                 // xem trước ảnh
+        $('scanPreview').hidden = false;
+        $('scanStatus').textContent = 'AI đang phân tích hóa đơn...';
+        $('btnScanReceipt').disabled = true;
+
+        try {
+            const fd = new FormData();
+            fd.append('receipt', file);
+            const r = await fetch('../api/ai/ocr_receipt.php', { method: 'POST', body: fd, credentials: 'include' });
+            if (r.status === 401) { location.href = 'login.html'; return; }
+            const j = await r.json();
+            if (j.success === false) throw new Error(j.message || j.error || 'Không thể phân tích hóa đơn');
+            if (my !== seq) return;
+            const d = j.data || j;
+
+            // Tự động điền (vẫn sửa được trước khi lưu)
+            if (d.amount) $('tx_amount').value = String(d.amount).replace(/[^\d]/g, '');
+            if (d.date) {
+                const m = String(d.date).match(/^(\d{4})-(\d{2})-(\d{2})/) || String(d.date).match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})/);
+                if (m) $('tx_date').value = m[1].length === 4 ? `${m[1]}-${m[2]}-${m[3]}` : `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
+            }
+            if (d.category_suggestion) {
+                const want = norm(d.category_suggestion);
+                const opt = [...$('tx_category_id').options].find(o => o.value && (norm(o.textContent) === want || norm(o.textContent).includes(want) || want.includes(norm(o.textContent))));
+                if (opt) {
+                    $('tx_category_id').value = opt.value;
+                    $('tx_category_id').dispatchEvent(new Event('change'));   // cập nhật icon danh mục
+                }
+            }
+            if (d.note) $('tx_note').value = d.note;
+            $('scanStatus').textContent = '✓ AI đã điền xong, hãy kiểm tra lại trước khi lưu.';
+        } catch (err) {
+            if (my === seq) $('scanStatus').textContent = err.message || 'Không thể phân tích hóa đơn.';
+        } finally {
+            $('btnScanReceipt').disabled = false;
+            $('scanFile').value = '';
+        }
+    });
+
+    // Mỗi lần mở modal (openModal gọi form.reset) thì xóa ảnh xem trước cũ
+    $('formTx').addEventListener('reset', () => {
+        seq++;
+        $('scanPreview').hidden = true;
+        $('scanStatus').textContent = '';
+    });
+})();
+</script>
 </body>
 </html>

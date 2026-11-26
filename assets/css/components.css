@@ -304,3 +304,25 @@
 .imp-tag { font-size: .75rem; padding: 2px 8px; border-radius: 6px; }
 .imp-tag.ok { background: #d1fae5; color: #065f46; }
 .imp-tag.bad { background: #fee2e2; color: #991b1b; }
+
+/* =========================================================================
+   Table Sort (Ngô Bảo - Frontend Nhóm 3)
+   ========================================================================= */
+th[data-sort] {
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    transition: color 0.15s ease;
+}
+
+th[data-sort]:hover {
+    color: var(--primary, #4f46e5);
+    background: rgba(79, 70, 229, 0.05);
+}
+
+.sort-icon {
+    font-size: 0.65rem;
+    vertical-align: middle;
+    margin-left: 2px;
+    display: inline-block;
+}

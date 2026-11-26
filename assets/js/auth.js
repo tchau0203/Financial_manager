@@ -104,6 +104,18 @@ async function checkAuth() {
             }
             const userEl = document.getElementById('header-username');
             if (userEl) userEl.textContent = userData.full_name || userData.username || 'Người dùng';
+
+            // Nếu người dùng là Admin, tự động hiển thị lối tắt đến Trang Quản trị trên Sidebar
+            if (userData.role === 'admin') {
+                const menu = document.querySelector('.sidebar-menu');
+                if (menu && !document.getElementById('nav-admin-link')) {
+                    const li = document.createElement('li');
+                    li.id = 'nav-admin-link';
+                    li.innerHTML = `<a href="${APP_BASE_PATH}pages/admin/dashboard.html" style="color: #a855f7; font-weight: 600;"><i class="fa-solid fa-shield-halved"></i> Trang Quản trị</a>`;
+                    menu.appendChild(li);
+                }
+            }
+
             return userData;
         }
         if (res) showToast('Không thể xác thực', res.message || res.error || 'Máy chủ không xác nhận được phiên đăng nhập', 'error');

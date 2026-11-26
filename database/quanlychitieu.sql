@@ -30,6 +30,14 @@ CREATE TABLE IF NOT EXISTS `users` (
 SET @col := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'email_alerts');
 SET @sql := IF(@col = 0, 'ALTER TABLE `users` ADD COLUMN `email_alerts` TINYINT(1) NOT NULL DEFAULT 1', 'SELECT 1');
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+-- Thêm cấu hình nhắc ghi chép hàng ngày nếu chưa có
+SET @col := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'daily_reminder');
+SET @sql := IF(@col = 0, 'ALTER TABLE `users` ADD COLUMN `daily_reminder` TINYINT(1) NOT NULL DEFAULT 1', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @col := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'reminder_time');
+SET @sql := IF(@col = 0, 'ALTER TABLE `users` ADD COLUMN `reminder_time` TIME NOT NULL DEFAULT ''21:00:00''', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
 -- Nâng cấp DB cũ (Sprint 3): thông tin ngân hàng phục vụ VietQR
 SET @col := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'bank_code');
@@ -47,6 +55,15 @@ SET @col := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA 
 SET @sql := IF(@col = 0, 'ALTER TABLE `users` ADD COLUMN `google_id` VARCHAR(64) DEFAULT NULL, ADD UNIQUE KEY `uk_users_google_id` (`google_id`)', 'SELECT 1');
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
+-- Vai trò người dùng (user hoặc admin)
+SET @col := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'role');
+SET @sql := IF(@col = 0, 'ALTER TABLE `users` ADD COLUMN `role` ENUM(''user'', ''admin'') NOT NULL DEFAULT ''user''', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+-- Trạng thái tài khoản (active hoặc banned)
+SET @col := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'status');
+SET @sql := IF(@col = 0, 'ALTER TABLE `users` ADD COLUMN `status` ENUM(''active'', ''banned'') NOT NULL DEFAULT ''active''', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 -- 2. BẢNG DANH MỤC THU / CHI (categories)
 CREATE TABLE IF NOT EXISTS `categories` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
@@ -190,6 +207,10 @@ INSERT IGNORE INTO `categories` (`id`, `user_id`, `name`, `type`, `icon`, `color
 -- Thêm tài khoản thành viên Thái Châu (Mật khẩu: demo123 hoặc pass cá nhân)
 INSERT IGNORE INTO `users` (`id`, `username`, `email`, `password`, `full_name`, `phone`, `currency`) VALUES
 (2, 'thaichau', 'thaichau020326@gmail.com', '$2y$10$qxqlK3XJ.8KnBrTfuvJ9Zuk9eln.JwOVC27Igl0jEaKDNKwQKQv8O', 'Thái Châu', '0909999999', 'VND');
+
+-- Tài khoản Quản trị viên Hệ thống (Admin) mặc định: admin / Admin@123456
+INSERT IGNORE INTO `users` (`id`, `username`, `email`, `password`, `full_name`, `phone`, `currency`, `role`) VALUES
+(999, 'admin', 'admin@cashmanager.vn', '$2y$10$tq6XvVOf6CfTcheS3md2iuKCziEr6Alx9dhILYYYd4q.6HX4BNDdO', 'Quản trị viên Hệ thống', '0900000000', 'VND', 'admin');
 
 -- ========================================================
 -- DỮ LIỆU GIAO DỊCH MẪU (TRANSACTIONS SEED DATA)

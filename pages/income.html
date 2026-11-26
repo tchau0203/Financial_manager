@@ -191,13 +191,13 @@
                         <div class="card">
                             <div class="table-responsive">
                                 <table class="table">
-                                    <thead>
+                                    <thead id="income-thead">
                                         <tr>
-                                            <th>Ngày</th>
-                                            <th>Danh mục</th>
+                                            <th data-sort="date">Ngày</th>
+                                            <th data-sort="category">Danh mục</th>
                                             <th>Ghi chú</th>
                                             <th>Phương thức</th>
-                                            <th style="text-align: right;">Số tiền</th>
+                                            <th data-sort="amount" style="text-align: right;">Số tiền</th>
                                             <th style="text-align: right;">Thao tác</th>
                                         </tr>
                                     </thead>
@@ -316,6 +316,7 @@
     <script src="../assets/js/auth.js"></script>
     <script src="../assets/js/pwa.js"></script>
     <script src="../assets/js/search.js"></script>
+    <script src="../assets/js/table_sort.js"></script>
     <script src="../assets/js/income.js"></script>
 </body>
 </html>

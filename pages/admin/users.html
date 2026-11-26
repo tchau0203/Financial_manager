@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Tài Khoản - CashManager Admin</title>
+    <!-- Phụ trách: Thái Châu (Lead - Cổng Quản trị viên Admin) -->
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <link rel="stylesheet" href="../../assets/css/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --admin-primary: #7c3aed;
+            --admin-hover: #6d28d9;
+        }
+        .admin-sidebar { background: #0f172a; color: #f8fafc; }
+        .admin-sidebar .sidebar-brand { border-bottom: 1px solid #1e293b; color: #fff; }
+        .admin-sidebar .sidebar-menu a { color: #94a3b8; }
+        .admin-sidebar .sidebar-menu a:hover,
+        .admin-sidebar .sidebar-menu li.active a {
+            background: rgba(124, 58, 237, 0.2);
+            color: #a78bfa;
+            border-left: 3px solid #7c3aed;
+        }
+        .admin-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.25rem 0.65rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-admin { background: #ede9fe; color: #6d28d9; border: 1px solid #ddd6fe; }
+        .badge-user { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+        .badge-active { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+        .badge-banned { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            color: #475569;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .action-btn:hover:not(:disabled) {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+        }
+        .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .action-btn.purple:hover:not(:disabled) { background: #ede9fe; color: #6d28d9; border-color: #c4b5fd; }
+        .action-btn.amber:hover:not(:disabled) { background: #fef3c7; color: #d97706; border-color: #fde68a; }
+        .action-btn.red:hover:not(:disabled) { background: #fee2e2; color: #dc2626; border-color: #fecaca; }
+        .action-btn.green:hover:not(:disabled) { background: #dcfce7; color: #16a34a; border-color: #bbf7d0; }
+
+        .filter-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .modal-backdrop.open { display: flex; }
+        .modal-card {
+            background: #fff;
+            width: 100%;
+            max-width: 480px;
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+        }
+        .profile-stat-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 0.85rem 1rem;
+        }
+        .pagination-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.25rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        .page-btns { display: flex; gap: 0.35rem; }
+        .page-btns button {
+            min-width: 32px;
+            height: 32px;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .page-btns button.active {
+            background: #7c3aed;
+            color: #fff;
+            border-color: #7c3aed;
+        }
+        .table th, .table td { vertical-align: middle; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Admin -->
+        <aside class="sidebar admin-sidebar">
+            <div class="sidebar-brand">
+                <i class="fa-solid fa-shield-halved" style="color: #a78bfa; margin-right: 0.5rem;"></i> CashManager
+                <span style="font-size: 0.7rem; background: #7c3aed; color: #fff; padding: 2px 6px; border-radius: 4px; margin-left: 4px;">ADMIN</span>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html"><i class="fa-solid fa-gauge-high"></i> Tổng quan hệ thống</a></li>
+                <li class="active"><a href="users.html"><i class="fa-solid fa-users-gear"></i> Quản lý tài khoản</a></li>
+                <li><a href="categories.html"><i class="fa-solid fa-tags"></i> Danh mục mặc định</a></li>
+                <li><a href="system.html"><i class="fa-solid fa-bullhorn"></i> Thông báo & Hệ thống</a></li>
+                <li style="margin-top: 1.5rem; border-top: 1px solid #1e293b; padding-top: 0.75rem;">
+                    <a href="../dashboard.html"><i class="fa-solid fa-wallet"></i> Xem trang Người dùng</a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div>
+                    <h2 style="font-size: 1.25rem; margin: 0;">Quản Lý Tài Khoản Người Dùng</h2>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <button class="btn btn-outline" id="btnRefresh" style="padding: 0.45rem 0.85rem; font-size: 0.85rem;">
+                        <i class="fa-solid fa-rotate"></i> Làm mới
+                    </button>
+                    <button class="btn btn-primary" id="btnOpenCreate" style="background: #7c3aed; border-color: #7c3aed; padding: 0.45rem 1rem; font-size: 0.85rem;">
+                        <i class="fa-solid fa-user-plus"></i> Tạo tài khoản mới
+                    </button>
+                    <button id="btnLogout" class="btn btn-outline" style="padding: 0.45rem 0.85rem; font-size: 0.85rem; border-color: #cbd5e1;">
+                        <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-body" style="padding: 1.5rem;">
+                <div class="card" style="padding: 1.5rem; background: #fff; border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+                    <!-- Thanh công cụ Tìm kiếm & Lọc -->
+                    <div class="filter-toolbar">
+                        <div class="filter-group">
+                            <div style="position: relative;">
+                                <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 0.85rem;"></i>
+                                <input type="text" id="filterSearch" placeholder="Tìm theo username, email, họ tên..." class="form-control" style="padding-left: 2.1rem; width: 270px; font-size: 0.875rem;">
+                            </div>
+                            <select id="filterRole" class="form-control" style="width: 165px; font-size: 0.875rem;">
+                                <option value="">Tất cả vai trò</option>
+                                <option value="admin">👑 Quản trị (Admin)</option>
+                                <option value="user">👤 Người dùng (User)</option>
+                            </select>
+                            <select id="filterStatus" class="form-control" style="width: 175px; font-size: 0.875rem;">
+                                <option value="">Tất cả trạng thái</option>
+                                <option value="active">✅ Đang hoạt động</option>
+                                <option value="banned">🚫 Đang bị khóa</option>
+                            </select>
+                        </div>
+                        <div id="filterCountText" style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">
+                            Hiển thị 0 tài khoản
+                        </div>
+                    </div>
+
+                    <!-- Bảng dữ liệu người dùng -->
+                    <div class="table-responsive">
+                        <table class="table" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th style="width: 55px;">ID</th>
+                                    <th>Tài khoản & Họ tên</th>
+                                    <th>Email liên hệ</th>
+                                    <th>Vai trò</th>
+                                    <th>Trạng thái</th>
+                                    <th>Hoạt động</th>
+                                    <th>Ngày tham gia</th>
+                                    <th style="text-align: right; width: 185px;">Thao tác quản trị</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTableBody">
+                                <tr>
+                                    <td colspan="8" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+                                        <i class="fa-solid fa-spinner fa-spin"></i> Đang tải danh sách tài khoản...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Phân trang -->
+                    <div class="pagination-bar">
+                        <div id="pageInfoText">Trang 1 / 1</div>
+                        <div class="page-btns" id="pageButtons"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL 1: XEM HỒ SƠ TÀI CHÍNH TÓM TẮT -->
+    <div id="modalProfile" class="modal-backdrop">
+        <div class="modal-card">
+            <button type="button" class="btn-close-modal" data-close="modalProfile" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.4rem; color: #64748b; cursor: pointer;">&times;</button>
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem;">
+                <div id="profAvatar" style="width: 54px; height: 54px; border-radius: 50%; background: #ede9fe; color: #7c3aed; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: bold;">U</div>
+                <div>
+                    <h3 id="profName" style="margin: 0 0 0.25rem; font-size: 1.2rem;">Người dùng</h3>
+                    <div id="profBadges" style="display: flex; gap: 0.4rem;"></div>
+                </div>
+            </div>
+            <div style="font-size: 0.875rem; color: #475569; margin-bottom: 1.25rem; display: grid; gap: 0.4rem;">
+                <div><i class="fa-regular fa-envelope" style="width: 20px; color: #94a3b8;"></i> Email: <strong id="profEmail">-</strong></div>
+                <div><i class="fa-solid fa-phone" style="width: 20px; color: #94a3b8;"></i> Điện thoại: <strong id="profPhone">-</strong></div>
+                <div><i class="fa-regular fa-calendar" style="width: 20px; color: #94a3b8;"></i> Ngày đăng ký: <strong id="profDate">-</strong></div>
+            </div>
+            <h4 style="margin: 0 0 0.75rem; font-size: 0.9rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Tóm tắt hoạt động hệ thống</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.5rem;">
+                <div class="profile-stat-box">
+                    <div style="font-size: 0.78rem; color: #64748b;">Số lượng giao dịch</div>
+                    <div id="profTxCount" style="font-size: 1.25rem; font-weight: 700; color: #0f172a;">0</div>
+                </div>
+                <div class="profile-stat-box">
+                    <div style="font-size: 0.78rem; color: #64748b;">Quỹ chung tham gia</div>
+                    <div id="profSpacesCount" style="font-size: 1.25rem; font-weight: 700; color: #0284c7;">0</div>
+                </div>
+                <div class="profile-stat-box">
+                    <div style="font-size: 0.78rem; color: #64748b;">Tổng thu ghi nhận</div>
+                    <div id="profIncome" style="font-size: 1.05rem; font-weight: 700; color: #16a34a;">0 đ</div>
+                </div>
+                <div class="profile-stat-box">
+                    <div style="font-size: 0.78rem; color: #64748b;">Tổng chi ghi nhận</div>
+                    <div id="profExpense" style="font-size: 1.05rem; font-weight: 700; color: #dc2626;">0 đ</div>
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <button type="button" class="btn btn-outline btn-close-modal" data-close="modalProfile">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: ĐẶT LẠI MẬT KHẨU KHẨN CẤP -->
+    <div id="modalResetPass" class="modal-backdrop">
+        <div class="modal-card">
+            <button type="button" class="btn-close-modal" data-close="modalResetPass" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.4rem; color: #64748b; cursor: pointer;">&times;</button>
+            <h3 style="margin: 0 0 0.5rem; font-size: 1.2rem;"><i class="fa-solid fa-key" style="color: #d97706; margin-right: 0.4rem;"></i> Đặt lại mật khẩu người dùng</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0 0 1.25rem;">
+                Cấp mật khẩu mới cho tài khoản <strong id="resetTargetName" style="color: #0f172a;">@user</strong>
+            </p>
+            <form id="formResetPass">
+                <input type="hidden" id="resetUserId">
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <label class="form-label" for="newPassInput">Mật khẩu mới (tối thiểu 6 ký tự)</label>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="text" id="newPassInput" class="form-control" placeholder="Nhập hoặc bấm tạo ngẫu nhiên" required>
+                        <button type="button" id="btnGenRandomPass" class="btn btn-outline" style="white-space: nowrap; font-size: 0.85rem;">
+                            <i class="fa-solid fa-dice"></i> Ngẫu nhiên
+                        </button>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+                    <button type="button" class="btn btn-outline btn-close-modal" data-close="modalResetPass">Hủy</button>
+                    <button type="submit" id="btnConfirmReset" class="btn btn-primary" style="background: #d97706; border-color: #d97706;">
+                        <i class="fa-solid fa-check"></i> Lưu mật khẩu mới
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 3: TẠO TÀI KHOẢN MỚI -->
+    <div id="modalCreateUser" class="modal-backdrop">
+        <div class="modal-card">
+            <button type="button" class="btn-close-modal" data-close="modalCreateUser" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.4rem; color: #64748b; cursor: pointer;">&times;</button>
+            <h3 style="margin: 0 0 0.35rem; font-size: 1.2rem;"><i class="fa-solid fa-user-plus" style="color: #7c3aed; margin-right: 0.4rem;"></i> Tạo tài khoản mới</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0 0 1.25rem;">Tạo nhanh tài khoản Người dùng hoặc Quản trị viên mới</p>
+            <form id="formCreateUser">
+                <div class="form-group">
+                    <label class="form-label">Tên đăng nhập *</label>
+                    <input type="text" id="createUsername" class="form-control" placeholder="VD: nguyenvana" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email *</label>
+                    <input type="email" id="createEmail" class="form-control" placeholder="vidu@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Họ và tên</label>
+                    <input type="text" id="createFullName" class="form-control" placeholder="Nguyễn Văn A">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                    <div class="form-group">
+                        <label class="form-label">Mật khẩu *</label>
+                        <input type="text" id="createPassword" class="form-control" value="Cash@123456" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Vai trò</label>
+                        <select id="createRole" class="form-control">
+                            <option value="user">Người dùng (User)</option>
+                            <option value="admin">Quản trị viên (Admin)</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.75rem;">
+                    <button type="button" class="btn btn-outline btn-close-modal" data-close="modalCreateUser">Hủy</button>
+                    <button type="submit" class="btn btn-primary" style="background: #7c3aed; border-color: #7c3aed;">
+                        <i class="fa-solid fa-plus"></i> Tạo tài khoản
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../../assets/js/auth.js"></script>
+    <script>
+        let allUsers = [];
+        let filteredUsers = [];
+        let currentAdminId = 0;
+        let currentPage = 1;
+        const pageSize = 8;
+
+        // 1. Khởi tạo và kiểm tra quyền Admin
+        async function initAdminUsersPage() {
+            try {
+                const meRes = await apiFetch('/auth/me.php');
+                if (!meRes || !meRes.success) {
+                    window.location.href = '../login.html';
+                    return;
+                }
+                const user = meRes.user || meRes.data;
+                if (user.role !== 'admin') {
+                    showToast('Từ chối', 'Bạn không có quyền truy cập trang Quản trị!', 'error');
+                    setTimeout(() => window.location.href = '../dashboard.html', 1000);
+                    return;
+                }
+                currentAdminId = Number(user.id);
+                await fetchUsersList();
+            } catch (e) {
+                console.error(e);
+                window.location.href = '../login.html';
+            }
+        }
+
+        // 2. Lấy danh sách tài khoản từ API
+        async function fetchUsersList() {
+            try {
+                const res = await apiFetch('/admin/users.php');
+                if (res && res.success) {
+                    currentAdminId = Number(res.data.current_admin_id || currentAdminId);
+                    allUsers = res.data.users || [];
+                    applyFilters();
+                } else {
+                    showToast('Lỗi', res ? (res.message || res.error) : 'Không thể tải danh sách tài khoản', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // 3. Lọc và Tìm kiếm
+        function applyFilters() {
+            const q = document.getElementById('filterSearch').value.toLowerCase().trim();
+            const role = document.getElementById('filterRole').value;
+            const status = document.getElementById('filterStatus').value;
+
+            filteredUsers = allUsers.filter(u => {
+                const matchSearch = !q ||
+                    (u.username && u.username.toLowerCase().includes(q)) ||
+                    (u.email && u.email.toLowerCase().includes(q)) ||
+                    (u.full_name && u.full_name.toLowerCase().includes(q)) ||
+                    (u.phone && u.phone.toLowerCase().includes(q));
+                const matchRole = !role || u.role === role;
+                const matchStatus = !status || (u.status || 'active') === status;
+                return matchSearch && matchRole && matchStatus;
+            });
+
+            document.getElementById('filterCountText').textContent = `Hiển thị ${filteredUsers.length} / ${allUsers.length} tài khoản`;
+            const totalPages = Math.max(1, Math.ceil(filteredUsers.length / pageSize));
+            if (currentPage > totalPages) currentPage = totalPages;
+            renderTablePage();
+        }
+
+        // 4. Hiển thị bảng theo trang
+        function renderTablePage() {
+            const tbody = document.getElementById('userTableBody');
+            const totalPages = Math.max(1, Math.ceil(filteredUsers.length / pageSize));
+            const startIdx = (currentPage - 1) * pageSize;
+            const pageItems = filteredUsers.slice(startIdx, startIdx + pageSize);
+
+            document.getElementById('pageInfoText').textContent = `Trang ${currentPage} / ${totalPages} (${filteredUsers.length} tài khoản)`;
+
+            // Render nút phân trang
+            const pageBtns = document.getElementById('pageButtons');
+            pageBtns.innerHTML = '';
+            for (let p = 1; p <= totalPages; p++) {
+                const btn = document.createElement('button');
+                btn.textContent = p;
+                if (p === currentPage) btn.className = 'active';
+                btn.addEventListener('click', () => {
+                    currentPage = p;
+                    renderTablePage();
+                });
+                pageBtns.appendChild(btn);
+            }
+
+            if (pageItems.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">Không tìm thấy tài khoản nào phù hợp với bộ lọc</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = pageItems.map(u => {
+                const isSelf = Number(u.id) === currentAdminId;
+                const isAdmin = u.role === 'admin';
+                const isBanned = u.status === 'banned';
+
+                const roleBadge = isAdmin
+                    ? '<span class="admin-badge badge-admin"><i class="fa-solid fa-crown"></i> Admin</span>'
+                    : '<span class="admin-badge badge-user"><i class="fa-solid fa-user"></i> User</span>';
+
+                const statusBadge = isBanned
+                    ? '<span class="admin-badge badge-banned"><i class="fa-solid fa-ban"></i> Đã khóa</span>'
+                    : '<span class="admin-badge badge-active"><i class="fa-solid fa-circle-check"></i> Hoạt động</span>';
+
+                const dateStr = u.created_at ? u.created_at.substring(0, 10) : 'Chưa rõ';
+
+                return `
+                    <tr style="${isBanned ? 'background: #fff5f5;' : ''}">
+                        <td><strong>#${u.id}</strong></td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 0.65rem;">
+                                <div style="width: 34px; height: 34px; border-radius: 50%; background: ${isAdmin ? '#ede9fe' : '#e2e8f0'}; color: ${isAdmin ? '#7c3aed' : '#475569'}; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem;">
+                                    ${(u.username || 'U').charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600; color: #0f172a;">
+                                        ${u.username}
+                                        ${isSelf ? '<span style="font-size: 0.7rem; background: #fef3c7; color: #b45309; padding: 1px 6px; border-radius: 4px; margin-left: 4px;">Bạn</span>' : ''}
+                                    </div>
+                                    <div style="font-size: 0.78rem; color: var(--text-muted);">${u.full_name || 'Chưa cập nhật tên'}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="font-size: 0.875rem;">${u.email}</div>
+                            ${u.phone ? `<div style="font-size: 0.75rem; color: var(--text-muted);"><i class="fa-solid fa-phone" style="font-size: 0.65rem;"></i> ${u.phone}</div>` : ''}
+                        </td>
+                        <td>${roleBadge}</td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            <div style="font-size: 0.82rem;"><strong>${u.tx_count}</strong> giao dịch</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">${u.spaces_count} quỹ chung</div>
+                        </td>
+                        <td style="font-size: 0.85rem; color: var(--text-muted);">${dateStr}</td>
+                        <td style="text-align: right;">
+                            <div style="display: inline-flex; gap: 0.35rem;">
+                                <button type="button" class="action-btn purple" title="Xem hồ sơ tóm tắt" onclick="viewUserProfile(${u.id})">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                                <button type="button" class="action-btn purple" title="${isAdmin ? 'Hạ quyền xuống User' : 'Thăng quyền lên Admin'}" onclick="toggleUserRole(${u.id})" ${isSelf ? 'disabled' : ''}>
+                                    <i class="fa-solid ${isAdmin ? 'fa-user-minus' : 'fa-user-shield'}"></i>
+                                </button>
+                                <button type="button" class="action-btn amber" title="Đặt lại mật khẩu" onclick="openResetPasswordModal(${u.id})">
+                                    <i class="fa-solid fa-key"></i>
+                                </button>
+                                <button type="button" class="action-btn ${isBanned ? 'green' : 'red'}" title="${isBanned ? 'Mở khóa tài khoản' : 'Khóa tài khoản'}" onclick="toggleUserStatus(${u.id})" ${isSelf ? 'disabled' : ''}>
+                                    <i class="fa-solid ${isBanned ? 'fa-lock-open' : 'fa-ban'}"></i>
+                                </button>
+                                <button type="button" class="action-btn red" title="Xóa tài khoản" onclick="deleteUserAccount(${u.id})" ${isSelf ? 'disabled' : ''}>
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // 5. Xem Hồ sơ Tóm tắt
+        window.viewUserProfile = function (userId) {
+            const u = allUsers.find(item => Number(item.id) === Number(userId));
+            if (!u) return;
+
+            document.getElementById('profAvatar').textContent = (u.username || 'U').charAt(0).toUpperCase();
+            document.getElementById('profName').textContent = `${u.full_name || u.username} (@${u.username})`;
+            document.getElementById('profEmail').textContent = u.email || '-';
+            document.getElementById('profPhone').textContent = u.phone || 'Chưa cập nhật';
+            document.getElementById('profDate').textContent = u.created_at || '-';
+            document.getElementById('profTxCount').textContent = u.tx_count || 0;
+            document.getElementById('profSpacesCount').textContent = u.spaces_count || 0;
+            document.getElementById('profIncome').textContent = formatVND(u.total_income || 0);
+            document.getElementById('profExpense').textContent = formatVND(u.total_expense || 0);
+
+            const isAdmin = u.role === 'admin';
+            const isBanned = u.status === 'banned';
+            document.getElementById('profBadges').innerHTML = `
+                <span class="admin-badge ${isAdmin ? 'badge-admin' : 'badge-user'}">${isAdmin ? 'Quản trị viên' : 'Người dùng'}</span>
+                <span class="admin-badge ${isBanned ? 'badge-banned' : 'badge-active'}">${isBanned ? 'Đang bị khóa' : 'Đang hoạt động'}</span>
+            `;
+
+            document.getElementById('modalProfile').classList.add('open');
+        };
+
+        // 6. Thăng cấp / Hạ cấp Vai trò
+        window.toggleUserRole = async function (userId) {
+            const u = allUsers.find(item => Number(item.id) === Number(userId));
+            if (!u) return;
+            const nextRole = u.role === 'admin' ? 'user' : 'admin';
+            const label = nextRole === 'admin' ? 'QUẢN TRỊ VIÊN (ADMIN)' : 'NGƯỜI DÙNG (USER)';
+            if (!confirm(`Bạn có chắc muốn chuyển vai trò của tài khoản @${u.username} sang ${label}?`)) return;
+
+            try {
+                const res = await apiFetch('/admin/actions.php', {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'change_role', user_id: userId, role: nextRole })
+                });
+                if (res && res.success) {
+                    showToast('Thành công', res.message, 'success');
+                    await fetchUsersList();
+                } else {
+                    showToast('Thất bại', res ? (res.message || res.error) : 'Không thể đổi vai trò', 'error');
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        };
+
+        // 7. Khóa / Mở khóa tài khoản
+        window.toggleUserStatus = async function (userId) {
+            const u = allUsers.find(item => Number(item.id) === Number(userId));
+            if (!u) return;
+            const isBanned = u.status === 'banned';
+            const confirmMsg = isBanned
+                ? `Mở khóa cho phép tài khoản @${u.username} đăng nhập trở lại?`
+                : `Khóa tài khoản @${u.username}? Người dùng này sẽ không thể đăng nhập hệ thống.`;
+            if (!confirm(confirmMsg)) return;
+
+            try {
+                const res = await apiFetch('/admin/actions.php', {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'toggle_status', user_id: userId })
+                });
+                if (res && res.success) {
+                    showToast('Thành công', res.message, 'success');
+                    await fetchUsersList();
+                } else {
+                    showToast('Thất bại', res ? (res.message || res.error) : 'Không thể cập nhật trạng thái', 'error');
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        };
+
+        // 8. Đặt lại mật khẩu khẩn cấp
+        window.openResetPasswordModal = function (userId) {
+            const u = allUsers.find(item => Number(item.id) === Number(userId));
+            if (!u) return;
+            document.getElementById('resetUserId').value = u.id;
+            document.getElementById('resetTargetName').textContent = `@${u.username} (${u.email})`;
+            document.getElementById('newPassInput').value = 'Cash@' + Math.floor(100000 + Math.random() * 900000);
+            document.getElementById('modalResetPass').classList.add('open');
+        };
+
+        document.getElementById('btnGenRandomPass').addEventListener('click', () => {
+            document.getElementById('newPassInput').value = 'Cash@' + Math.floor(100000 + Math.random() * 900000);
+        });
+
+        document.getElementById('formResetPass').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const userId = Number(document.getElementById('resetUserId').value);
+            const newPassword = document.getElementById('newPassInput').value.trim();
+
+            try {
+                const res = await apiFetch('/admin/actions.php', {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'reset_password', user_id: userId, new_password: newPassword })
+                });
+                if (res && res.success) {
+                    showToast('Thành công', `${res.message}. Mật khẩu mới: ${res.new_password}`, 'success');
+                    document.getElementById('modalResetPass').classList.remove('open');
+                } else {
+                    showToast('Thất bại', res ? (res.message || res.error) : 'Không thể đặt lại mật khẩu', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        });
+
+        // 9. Xóa tài khoản
+        window.deleteUserAccount = async function (userId) {
+            const u = allUsers.find(item => Number(item.id) === Number(userId));
+            if (!u) return;
+            if (!confirm(`CẢNH BÁO: Bạn có chắc chắn muốn XÓA VĨNH VIỄN tài khoản @${u.username} không? Toàn bộ dữ liệu liên quan sẽ bị xóa.`)) return;
+
+            try {
+                const res = await apiFetch('/admin/actions.php', {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'delete_user', user_id: userId })
+                });
+                if (res && res.success) {
+                    showToast('Đã xóa', res.message, 'success');
+                    await fetchUsersList();
+                } else {
+                    showToast('Thất bại', res ? (res.message || res.error) : 'Không thể xóa tài khoản', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        };
+
+        // 10. Tạo tài khoản mới
+        document.getElementById('btnOpenCreate').addEventListener('click', () => {
+            document.getElementById('formCreateUser').reset();
+            document.getElementById('createPassword').value = 'Cash@123456';
+            document.getElementById('modalCreateUser').classList.add('open');
+        });
+
+        document.getElementById('formCreateUser').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                action: 'create_user',
+                username: document.getElementById('createUsername').value.trim(),
+                email: document.getElementById('createEmail').value.trim(),
+                full_name: document.getElementById('createFullName').value.trim(),
+                password: document.getElementById('createPassword').value,
+                role: document.getElementById('createRole').value
+            };
+
+            try {
+                const res = await apiFetch('/admin/actions.php', {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                if (res && res.success) {
+                    showToast('Thành công', res.message, 'success');
+                    document.getElementById('modalCreateUser').classList.remove('open');
+                    await fetchUsersList();
+                } else {
+                    showToast('Thất bại', res ? (res.message || res.error) : 'Không thể tạo tài khoản', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        });
+
+        // Sự kiện đóng Modal
+        document.querySelectorAll('.btn-close-modal').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const target = btn.getAttribute('data-close');
+                if (target) document.getElementById(target).classList.remove('open');
+            });
+        });
+        document.querySelectorAll('.modal-backdrop').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) modal.classList.remove('open');
+            });
+        });
+
+        // Sự kiện bộ lọc
+        document.getElementById('filterSearch').addEventListener('input', () => { currentPage = 1; applyFilters(); });
+        document.getElementById('filterRole').addEventListener('change', () => { currentPage = 1; applyFilters(); });
+        document.getElementById('filterStatus').addEventListener('change', () => { currentPage = 1; applyFilters(); });
+        document.getElementById('btnRefresh').addEventListener('click', fetchUsersList);
+
+        // Đăng xuất
+        document.getElementById('btnLogout').addEventListener('click', async () => {
+            try { await apiFetch('/auth/logout.php', { method: 'POST' }); } catch (_) {}
+            window.location.href = '../login.html';
+        });
+
+        initAdminUsersPage();
+    </script>
+</body>
+</html>
