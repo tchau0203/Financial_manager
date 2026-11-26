@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bản đồ thu chi - Quản Lý Chi Tiêu</title>
+    <link rel="manifest" href="../manifest.json">
+    <meta name="theme-color" content="#4f46e5">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Leaflet 1.9.4 (bản đồ OpenStreetMap, không cần API key) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <style>
+        .btn-light { background: #f1f5f9; color: var(--text-main); }
+        .btn-light:hover { background: #e2e8f0; }
+        .btn-icon { width: 32px; height: 32px; padding: 0; border-radius: var(--radius-sm); background: #f1f5f9; color: var(--text-muted); }
+        .menu-toggle { display: none; align-items: center; justify-content: center; }
+        .sidebar { transition: transform 0.2s ease; }
+
+        .map-toolbar { display: flex; flex-wrap: wrap; gap: 0.75rem 1rem; align-items: end; margin-bottom: 1rem; }
+        .map-toolbar .form-group { margin-bottom: 0; min-width: 190px; flex: 1 1 190px; max-width: 280px; }
+        .map-summary { margin-left: auto; font-size: 0.9rem; color: var(--text-muted); align-self: center; }
+        .map-summary strong { color: #4F46E5; }
+
+        /* Khung bản đồ bo góc 16px, màu chủ đạo indigo */
+        .map-wrap { position: relative; border-radius: 16px; overflow: hidden; border: 1px solid #e0e7ff; box-shadow: 0 8px 24px rgba(79, 70, 229, 0.10); }
+        #map { height: 68vh; min-height: 380px; width: 100%; z-index: 0; }
+
+        /* Lớp thông báo (không có dữ liệu / lỗi) phủ lên bản đồ */
+        .map-message { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 500;
+            max-width: 88%; padding: 0.9rem 1.25rem; border-radius: 16px; text-align: center; font-size: 0.95rem;
+            background: rgba(255, 255, 255, 0.96); color: #3730a3; border: 1px solid #c7d2fe;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.15); pointer-events: none; }
+        .map-message.error { color: #991b1b; border-color: #fecaca; }
+        .map-message i { display: block; font-size: 1.6rem; margin-bottom: 0.4rem; }
+        .map-loading { position: absolute; right: 12px; top: 12px; z-index: 500; background: #fff; border-radius: 999px;
+            padding: 0.3rem 0.8rem; font-size: 0.8rem; color: #4F46E5; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.15); }
+
+        /* Marker tròn hiển thị tổng tiền rút gọn */
+        .cm-marker { background: transparent; border: 0; }
+        .cm-marker > div { width: 100%; height: 100%; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            background: rgba(79, 70, 229, 0.92); color: #fff; font-weight: 700; border: 3px solid #fff;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.45); transition: transform 0.15s ease; }
+        .cm-marker:hover > div { transform: scale(1.08); }
+        .cm-marker.income > div { background: rgba(16, 185, 129, 0.92); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.45); }
+        .cm-marker.mixed > div { background: linear-gradient(135deg, #10b981 0%, #4F46E5 100%); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.45); }
+
+        .cm-popup strong { display: block; font-size: 1rem; color: #1e1b4b; margin-bottom: 0.25rem; }
+        .cm-popup span { display: block; color: #475569; font-size: 0.875rem; }
+        .cm-popup .cm-total { color: #4F46E5; font-weight: 700; font-size: 1.05rem; margin-top: 0.2rem; }
+        .cm-items { margin-top: 0.6rem; padding-top: 0.5rem; border-top: 1px solid #e0e7ff; max-height: 190px; overflow-y: auto; }
+        .cm-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0; border-bottom: 1px dashed #eef2ff; }
+        .cm-item:last-child { border-bottom: 0; }
+        .cm-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+        .cm-item-info { flex: 1; min-width: 0; }
+        .cm-item-title { font-size: 0.85rem; font-weight: 600; color: #1e1b4b; }
+        .cm-item-sub { font-size: 0.75rem; color: #64748b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .cm-item-amt { font-size: 0.85rem; font-weight: 700; color: #4F46E5; white-space: nowrap; }
+        .cm-popup .cm-more { font-size: 0.75rem; color: #64748b; margin-top: 0.3rem; }
+        .leaflet-popup-content-wrapper { border-radius: 16px; }
+
+        @media (max-width: 768px) {
+            .menu-toggle { display: inline-flex; }
+            .sidebar.open { transform: translateX(0); box-shadow: 0 0 0 100vmax rgba(15, 23, 42, 0.45); }
+            .header { padding: 0 1rem; }
+            .content-body { padding: 1rem; }
+            .map-toolbar .form-group { max-width: none; flex-basis: 100%; }
+            .map-summary { margin-left: 0; width: 100%; }
+            #map { height: 60vh; min-height: 320px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <i class="fa-solid fa-wallet" style="margin-right: 0.5rem; color: var(--primary);"></i> CashManager
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html"><i class="fa-solid fa-chart-pie"></i> Bảng điều khiển</a></li>
+                <li><a href="income.html"><i class="fa-solid fa-arrow-down-long"></i> Thu nhập</a></li>
+                <li><a href="expense.html"><i class="fa-solid fa-arrow-up-long"></i> Chi tiêu</a></li>
+                <li><a href="budget.html"><i class="fa-solid fa-piggy-bank"></i> Ngân sách</a></li>
+                <li><a href="report.html"><i class="fa-solid fa-chart-column"></i> Báo cáo</a></li>
+                <!-- Mục "Bản đồ chi tiêu" được auth.js tự chèn ngay sau "Báo cáo" -->
+                <li><a href="shared.html"><i class="fa-solid fa-users"></i> Quỹ chung</a></li>
+                <li><a href="account.html"><i class="fa-solid fa-gear"></i> Tài khoản</a></li>
+            </ul>
+        </aside>
+
+        <div class="main-content">
+            <header class="header">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <button type="button" id="btnMenu" class="btn btn-icon menu-toggle" aria-label="Mở menu"><i class="fa-solid fa-bars"></i></button>
+                    <div style="font-weight: 700; font-size: 1.25rem;">Bản đồ thu chi</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span id="header-username" style="font-weight: 600;">Đang tải...</span>
+                    <button id="btnLogout" class="btn" style="background: #fee2e2; color: #991b1b; padding: 0.4rem 0.8rem; font-size: 0.85rem;">
+                        <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-body">
+                <div class="card" style="border-radius: 16px;">
+                    <div class="map-toolbar">
+                        <div class="form-group" style="min-width: 150px; max-width: 180px;">
+                            <label class="form-label" for="mapType">Loại giao dịch</label>
+                            <select id="mapType" class="form-control">
+                                <option value="all">Tất cả (Thu & Chi)</option>
+                                <option value="expense">Chi tiêu</option>
+                                <option value="income">Thu nhập</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="mapMonth">Tháng</label>
+                            <input type="month" id="mapMonth" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="mapCategory">Danh mục</label>
+                            <select id="mapCategory" class="form-control"><option value="">Tất cả danh mục</option></select>
+                        </div>
+                        <div class="map-summary" id="mapSummary" aria-live="polite"></div>
+                    </div>
+
+                    <div class="map-wrap">
+                        <div id="map" role="application" aria-label="Bản đồ các khoản thu chi"></div>
+                        <div id="mapLoading" class="map-loading" hidden><i class="fa-solid fa-spinner fa-spin"></i> Đang tải...</div>
+                        <div id="mapMessage" class="map-message" hidden></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/pwa.js"></script>
+    <script src="../assets/js/map.js"></script>
+</body>
+</html>

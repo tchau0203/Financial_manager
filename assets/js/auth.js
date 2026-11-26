@@ -102,6 +102,17 @@ async function checkAuth() {
             if (userData.currency) {
                 setAppCurrency(userData.currency);
             }
+            // Thêm mục "Bản đồ thu chi" vào sidebar (một chỗ duy nhất, áp dụng cho mọi trang có sidebar)
+            const navMenu = document.querySelector('.sidebar-menu');
+            if (navMenu && !document.getElementById('nav-map-link')) {
+                const mapLi = document.createElement('li');
+                mapLi.id = 'nav-map-link';
+                if (/\/map\.html$/.test(window.location.pathname)) mapLi.className = 'active';
+                mapLi.innerHTML = `<a href="${APP_BASE_PATH}pages/map.html"><i class="fa-solid fa-map-location-dot"></i> Bản đồ thu chi</a>`;
+                const reportLink = [...navMenu.querySelectorAll('a')].find(a => /report\.html$/.test(a.getAttribute('href') || ''));
+                if (reportLink && reportLink.closest('li')) reportLink.closest('li').after(mapLi);
+                else navMenu.appendChild(mapLi);
+            }
             const userEl = document.getElementById('header-username');
             if (userEl) userEl.textContent = userData.full_name || userData.username || 'Người dùng';
 

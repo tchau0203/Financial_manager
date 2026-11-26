@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cashmanager-static-v1';
+const CACHE_NAME = 'cashmanager-static-v2'; // tăng phiên bản để PWA nhận file mới (bản đồ chi tiêu)
 const APP_BASE = new URL('./', self.location.href);
 
 const STATIC_FILES = [
@@ -13,6 +13,7 @@ const STATIC_FILES = [
   'pages/report.html',
   'pages/account.html',
   'pages/shared.html',
+  'pages/map.html',
   'assets/css/style.css',
   'assets/css/components.css',
   'assets/js/auth.js',
@@ -21,6 +22,8 @@ const STATIC_FILES = [
   'assets/js/budget.js',
   'assets/js/dashboard.js',
   'assets/js/expense.js',
+  'assets/js/location_picker.js',
+  'assets/js/map.js',
   'assets/js/income.js',
   'assets/js/pwa.js',
   'assets/js/report.js',

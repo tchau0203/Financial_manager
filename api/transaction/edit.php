@@ -25,6 +25,13 @@ if (!$id || !in_array($type, ['income', 'expense'], true) || !$categoryId
     jsonResponse(['success' => false, 'message' => 'Thông tin giao dịch không hợp lệ'], 400);
 }
 
+// Vị trí không bắt buộc
+$hasLocationKeys = array_key_exists('latitude', $data) || array_key_exists('longitude', $data);
+$loc = parseLocationInput($data);
+if (!$loc['ok']) {
+    jsonResponse(['success' => false, 'message' => 'Vị trí không hợp lệ (vĩ độ -90..90, kinh độ -180..180)'], 400);
+}
+
 $pdo = getDbConnection();
 
 // Kiểm tra quyền sở hữu giao dịch
@@ -41,10 +48,19 @@ if (!$stmt->fetch()) {
     jsonResponse(['success' => false, 'message' => 'Danh mục không hợp lệ'], 400);
 }
 
-$stmt = $pdo->prepare(
-    'UPDATE transactions SET type = ?, category_id = ?, amount = ?, transaction_date = ?, payment_method = ?, note = ? WHERE id = ? AND user_id = ?'
-);
-$stmt->execute([$type, $categoryId, $amount, $date, $paymentMethod, $note, $id, $userId]);
+if ($hasLocationKeys) {
+    // Client có gửi vị trí (kể cả null để xóa vị trí cũ) => cập nhật 3 cột vị trí
+    $stmt = $pdo->prepare(
+        'UPDATE transactions SET type = ?, category_id = ?, amount = ?, transaction_date = ?, payment_method = ?, note = ?, latitude = ?, longitude = ?, location_name = ? WHERE id = ? AND user_id = ?'
+    );
+    $stmt->execute([$type, $categoryId, $amount, $date, $paymentMethod, $note, $loc['lat'], $loc['lng'], $loc['name'], $id, $userId]);
+} else {
+    // Client không nhắc tới vị trí (ví dụ trang cũ) => giữ nguyên vị trí hiện có
+    $stmt = $pdo->prepare(
+        'UPDATE transactions SET type = ?, category_id = ?, amount = ?, transaction_date = ?, payment_method = ?, note = ? WHERE id = ? AND user_id = ?'
+    );
+    $stmt->execute([$type, $categoryId, $amount, $date, $paymentMethod, $note, $id, $userId]);
+}
 
 // Kiểm tra ngân sách nếu là chi tiêu
 if ($type === 'expense') {

@@ -13,6 +13,15 @@
     <link rel="stylesheet" href="../assets/css/components.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Leaflet 1.9.4 (bản đồ OpenStreetMap, không cần API key) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <style>
+        .loc-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0.6rem 0; }
+        .loc-map { height: 220px; border-radius: 12px; border: 1px solid var(--border-color); z-index: 0; }
+        .loc-status { display: block; margin-top: 0.4rem; color: var(--text-muted); }
+        .modal-content { max-height: 92vh; overflow-y: auto; }
+    </style>
     <style>
         .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
         .filter-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0.75rem; align-items: end; }
@@ -272,6 +281,19 @@
                         <label class="form-label" for="tx_note">Ghi chú</label>
                         <input type="text" id="tx_note" class="form-control" placeholder="Ghi chú thêm..." maxlength="500">
                     </div>
+                    <!-- Vị trí chi tiêu (không bắt buộc) - hiển thị trên trang Bản đồ chi tiêu -->
+                    <div class="form-group">
+                        <label class="form-label" for="tx_location_name">Vị trí chi tiêu <span style="font-weight:400;color:var(--text-muted)">(không bắt buộc)</span></label>
+                        <input type="text" id="tx_location_name" class="form-control" placeholder="Tên địa điểm, ví dụ: Quán cà phê ABC" maxlength="255">
+                        <input type="hidden" id="tx_lat">
+                        <input type="hidden" id="tx_lng">
+                        <div class="loc-actions">
+                            <button type="button" class="btn btn-light" id="btnGetLocation"><i class="fa-solid fa-location-crosshairs"></i> Lấy vị trí hiện tại</button>
+                            <button type="button" class="btn btn-light" id="btnClearLocation" hidden><i class="fa-solid fa-xmark"></i> Xóa vị trí</button>
+                        </div>
+                        <div id="locMap" class="loc-map"></div>
+                        <small id="locStatus" class="loc-status">Chưa chọn vị trí (không bắt buộc). Bấm lên bản đồ để chọn điểm.</small>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" id="btnCancelTx" class="btn btn-light">Hủy</button>
@@ -325,6 +347,7 @@
     <script src="../assets/js/pwa.js"></script>
     <script src="../assets/js/search.js"></script>
     <script src="../assets/js/table_sort.js"></script>
+    <script src="../assets/js/location_picker.js"></script>
     <script src="../assets/js/expense.js"></script>
     <script>
 (function () {
