@@ -37,7 +37,7 @@
             google.accounts.id.initialize({ client_id: clientId, callback: handleCredential });
             google.accounts.id.renderButton(holder, {
                 theme: 'outline', size: 'large', text: 'continue_with', shape: 'rectangular',
-                width: Math.min(holder.parentElement.clientWidth || 320, 400), locale: 'vi'
+                width: Math.min(holder.parentElement.clientWidth || 360, 360), locale: 'vi'
             });
         };
         s.onerror = hide;
