@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh Mục Mặc Định - CashManager Admin</title>
+    <!-- Phụ trách: Thái Châu (Lead - Quản lý Danh mục mặc định hệ thống) -->
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <link rel="stylesheet" href="../../assets/css/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .admin-sidebar { background: #0f172a; color: #f8fafc; }
+        .admin-sidebar .sidebar-brand { border-bottom: 1px solid #1e293b; color: #fff; }
+        .admin-sidebar .sidebar-menu a { color: #94a3b8; }
+        .admin-sidebar .sidebar-menu a:hover,
+        .admin-sidebar .sidebar-menu li.active a {
+            background: rgba(124, 58, 237, 0.2);
+            color: #a78bfa;
+            border-left: 3px solid #7c3aed;
+        }
+        .type-tabs {
+            display: inline-flex;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 10px;
+            gap: 4px;
+        }
+        .type-tab {
+            padding: 0.45rem 1rem;
+            border-radius: 7px;
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .type-tab.active {
+            background: #fff;
+            color: #0f172a;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .cat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1rem;
+            margin-top: 1.25rem;
+        }
+        .cat-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.15rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            transition: all 0.15s;
+        }
+        .cat-card:hover {
+            border-color: #cbd5e1;
+            box-shadow: var(--shadow-sm);
+            transform: translateY(-2px);
+        }
+        .cat-icon-box {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        .icon-picker-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 0.5rem;
+            max-height: 170px;
+            overflow-y: auto;
+            padding: 0.5rem;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+        }
+        .icon-choice {
+            height: 38px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.05rem;
+            color: #475569;
+            transition: all 0.15s;
+        }
+        .icon-choice:hover { border-color: #7c3aed; color: #7c3aed; }
+        .icon-choice.selected {
+            background: #7c3aed;
+            color: #fff;
+            border-color: #7c3aed;
+        }
+        .color-presets {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .color-dot {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.15s;
+        }
+        .color-dot.selected {
+            transform: scale(1.15);
+            box-shadow: 0 0 0 2px #fff, 0 0 0 4px #0f172a;
+        }
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .modal-backdrop.open { display: flex; }
+        .modal-card {
+            background: #fff;
+            width: 100%;
+            max-width: 460px;
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+        }
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            color: #475569;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .action-btn:hover { background: #f1f5f9; }
+        .action-btn.danger:hover { background: #fee2e2; color: #dc2626; border-color: #fecaca; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Admin -->
+        <aside class="sidebar admin-sidebar">
+            <div class="sidebar-brand">
+                <i class="fa-solid fa-shield-halved" style="color: #a78bfa; margin-right: 0.5rem;"></i> CashManager
+                <span style="font-size: 0.7rem; background: #7c3aed; color: #fff; padding: 2px 6px; border-radius: 4px; margin-left: 4px;">ADMIN</span>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html"><i class="fa-solid fa-gauge-high"></i> Tổng quan hệ thống</a></li>
+                <li><a href="users.html"><i class="fa-solid fa-users-gear"></i> Quản lý tài khoản</a></li>
+                <li class="active"><a href="categories.html"><i class="fa-solid fa-tags"></i> Danh mục mặc định</a></li>
+                <li><a href="system.html"><i class="fa-solid fa-bullhorn"></i> Thông báo & Hệ thống</a></li>
+                <li style="margin-top: 1.5rem; border-top: 1px solid #1e293b; padding-top: 0.75rem;">
+                    <a href="../dashboard.html"><i class="fa-solid fa-wallet"></i> Xem trang Người dùng</a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <h2 style="font-size: 1.25rem; margin: 0;">Quản Lý Danh Mục Mặc Định Hệ Thống</h2>
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <button class="btn btn-primary" id="btnAddCat" style="background: #7c3aed; border-color: #7c3aed; padding: 0.45rem 1rem; font-size: 0.85rem;">
+                        <i class="fa-solid fa-plus"></i> Thêm danh mục mặc định
+                    </button>
+                    <button id="btnLogout" class="btn btn-outline" style="padding: 0.45rem 0.85rem; font-size: 0.85rem; border-color: #cbd5e1;">
+                        <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-body" style="padding: 1.5rem;">
+                <div class="card" style="padding: 1.5rem; background: #fff; border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                        <div class="type-tabs">
+                            <button class="type-tab active" data-type="all">Tất cả (<span id="countAll">0</span>)</button>
+                            <button class="type-tab" data-type="expense"><i class="fa-solid fa-arrow-up-long" style="color: #dc2626;"></i> Khoản Chi (<span id="countExpense">0</span>)</button>
+                            <button class="type-tab" data-type="income"><i class="fa-solid fa-arrow-down-long" style="color: #16a34a;"></i> Khoản Thu (<span id="countIncome">0</span>)</button>
+                        </div>
+                        <div style="color: var(--text-muted); font-size: 0.85rem;">
+                            <i class="fa-solid fa-circle-info"></i> Danh mục mặc định sẽ hiển thị sẵn cho toàn bộ người dùng trong hệ thống.
+                        </div>
+                    </div>
+
+                    <div id="catContainer" class="cat-grid">
+                        <div style="grid-column: 1 / -1; text-align: center; padding: 2.5rem; color: var(--text-muted);">
+                            <i class="fa-solid fa-spinner fa-spin"></i> Đang tải danh mục mặc định...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL THÊM / SỬA DANH MỤC -->
+    <div id="modalCat" class="modal-backdrop">
+        <div class="modal-card">
+            <button type="button" id="btnCloseCatModal" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.4rem; color: #64748b; cursor: pointer;">&times;</button>
+            <h3 id="modalCatTitle" style="margin: 0 0 1.25rem; font-size: 1.2rem;">Thêm danh mục mặc định</h3>
+            <form id="formCat">
+                <input type="hidden" id="catId">
+                <div class="form-group">
+                    <label class="form-label">Tên danh mục *</label>
+                    <input type="text" id="catName" class="form-control" placeholder="VD: Ăn uống, Lương, Đầu tư..." required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phân loại *</label>
+                    <select id="catType" class="form-control">
+                        <option value="expense">Khoản Chi tiêu (Expense)</option>
+                        <option value="income">Khoản Thu nhập (Income)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Chọn biểu tượng (Icon)</label>
+                    <input type="hidden" id="catIcon" value="fa-utensils">
+                    <div class="icon-picker-grid" id="iconGrid"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Màu sắc hiển thị</label>
+                    <div class="color-presets" id="colorPresets"></div>
+                    <input type="color" id="catColor" value="#4F46E5" style="margin-top: 0.5rem; width: 100%; height: 36px; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer;">
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.25rem;">
+                    <button type="button" class="btn btn-outline" id="btnCancelCat">Hủy</button>
+                    <button type="submit" class="btn btn-primary" style="background: #7c3aed; border-color: #7c3aed;">
+                        <i class="fa-solid fa-check"></i> Lưu danh mục
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../../assets/js/auth.js"></script>
+    <script>
+        const ICONS = [
+            'fa-utensils', 'fa-cart-shopping', 'fa-car', 'fa-bolt', 'fa-gamepad', 'fa-heart-pulse',
+            'fa-graduation-cap', 'fa-money-bill-wave', 'fa-gift', 'fa-chart-line', 'fa-wallet', 'fa-receipt',
+            'fa-house', 'fa-plane', 'fa-shirt', 'fa-mug-hot', 'fa-paw', 'fa-piggy-bank',
+            'fa-dumbbell', 'fa-film', 'fa-mobile-screen', 'fa-gas-pump', 'fa-baby', 'fa-coins'
+        ];
+        const COLORS = ['#EF4444', '#F59E0B', '#10B981', '#059669', '#3B82F6', '#6366F1', '#8B5CF6', '#EC4899', '#14B8A6', '#64748B'];
+
+        let allCategories = [];
+        let currentFilter = 'all';
+
+        // Dựng bộ chọn Icon & Màu
+        const iconGrid = document.getElementById('iconGrid');
+        ICONS.forEach(ic => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'icon-choice';
+            btn.dataset.icon = ic;
+            btn.innerHTML = `<i class="fa-solid ${ic}"></i>`;
+            btn.addEventListener('click', () => selectIcon(ic));
+            iconGrid.appendChild(btn);
+        });
+
+        const colorPresets = document.getElementById('colorPresets');
+        COLORS.forEach(col => {
+            const dot = document.createElement('div');
+            dot.className = 'color-dot';
+            dot.style.background = col;
+            dot.dataset.color = col;
+            dot.addEventListener('click', () => selectColor(col));
+            colorPresets.appendChild(dot);
+        });
+
+        function selectIcon(ic) {
+            document.getElementById('catIcon').value = ic;
+            document.querySelectorAll('.icon-choice').forEach(el => {
+                el.classList.toggle('selected', el.dataset.icon === ic);
+            });
+        }
+
+        function selectColor(col) {
+            document.getElementById('catColor').value = col;
+            document.querySelectorAll('.color-dot').forEach(el => {
+                el.classList.toggle('selected', el.dataset.color.toLowerCase() === col.toLowerCase());
+            });
+        }
+
+        async function initPage() {
+            const meRes = await apiFetch('/auth/me.php');
+            if (!meRes || !meRes.success || (meRes.user || meRes.data).role !== 'admin') {
+                window.location.href = '../login.html';
+                return;
+            }
+            await loadCategories();
+        }
+
+        async function loadCategories() {
+            const res = await apiFetch('/admin/categories.php');
+            if (res && res.success) {
+                allCategories = res.data || [];
+                document.getElementById('countAll').textContent = allCategories.length;
+                document.getElementById('countExpense').textContent = allCategories.filter(c => c.type === 'expense').length;
+                document.getElementById('countIncome').textContent = allCategories.filter(c => c.type === 'income').length;
+                renderCategories();
+            }
+        }
+
+        function renderCategories() {
+            const container = document.getElementById('catContainer');
+            const list = currentFilter === 'all'
+                ? allCategories
+                : allCategories.filter(c => c.type === currentFilter);
+
+            if (list.length === 0) {
+                container.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 2.5rem; color: var(--text-muted);">Chưa có danh mục mặc định nào trong nhóm này</div>';
+                return;
+            }
+
+            container.innerHTML = list.map(c => {
+                const isExp = c.type === 'expense';
+                const badge = isExp
+                    ? '<span style="font-size:0.72rem;background:#fee2e2;color:#b91c1c;padding:2px 7px;border-radius:99px;font-weight:600;">Chi tiêu</span>'
+                    : '<span style="font-size:0.72rem;background:#dcfce7;color:#15803d;padding:2px 7px;border-radius:99px;font-weight:600;">Thu nhập</span>';
+
+                return `
+                    <div class="cat-card">
+                        <div style="display: flex; align-items: center; gap: 0.85rem;">
+                            <div class="cat-icon-box" style="background: ${c.color || '#4F46E5'};">
+                                <i class="fa-solid ${c.icon || 'fa-tag'}"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 600; font-size: 0.95rem; color: #0f172a; margin-bottom: 3px;">
+                                    ${c.name}
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    ${badge}
+                                    <span style="font-size: 0.75rem; color: var(--text-muted);">${c.tx_count} giao dịch</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 0.35rem;">
+                            <button type="button" class="action-btn" title="Chỉnh sửa" onclick="openEditCat(${c.id})">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button type="button" class="action-btn danger" title="Xóa danh mục" onclick="deleteCat(${c.id})">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Mở Modal Thêm
+        document.getElementById('btnAddCat').addEventListener('click', () => {
+            document.getElementById('modalCatTitle').textContent = 'Thêm danh mục mặc định mới';
+            document.getElementById('catId').value = '';
+            document.getElementById('catName').value = '';
+            document.getElementById('catType').value = currentFilter === 'income' ? 'income' : 'expense';
+            selectIcon('fa-utensils');
+            selectColor('#4F46E5');
+            document.getElementById('modalCat').classList.add('open');
+        });
+
+        // Mở Modal Sửa
+        window.openEditCat = function (id) {
+            const c = allCategories.find(item => Number(item.id) === Number(id));
+            if (!c) return;
+            document.getElementById('modalCatTitle').textContent = `Chỉnh sửa danh mục: ${c.name}`;
+            document.getElementById('catId').value = c.id;
+            document.getElementById('catName').value = c.name;
+            document.getElementById('catType').value = c.type;
+            selectIcon(c.icon || 'fa-tag');
+            selectColor(c.color || '#4F46E5');
+            document.getElementById('modalCat').classList.add('open');
+        };
+
+        // Xóa danh mục
+        window.deleteCat = async function (id) {
+            const c = allCategories.find(item => Number(item.id) === Number(id));
+            if (!c) return;
+            if (!confirm(`Bạn có chắc muốn xóa danh mục mặc định "${c.name}" không?`)) return;
+
+            const res = await apiFetch('/admin/categories.php', {
+                method: 'POST',
+                body: JSON.stringify({ action: 'delete', id: c.id })
+            });
+            if (res && res.success) {
+                showToast('Đã xóa', res.message, 'success');
+                await loadCategories();
+            } else {
+                showToast('Không thể xóa', res ? (res.message || res.error) : 'Lỗi khi xóa danh mục', 'error');
+            }
+        };
+
+        // Lưu form
+        document.getElementById('formCat').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = Number(document.getElementById('catId').value);
+            const payload = {
+                action: id > 0 ? 'update' : 'create',
+                id: id,
+                name: document.getElementById('catName').value.trim(),
+                type: document.getElementById('catType').value,
+                icon: document.getElementById('catIcon').value,
+                color: document.getElementById('catColor').value
+            };
+
+            const res = await apiFetch('/admin/categories.php', {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+            if (res && res.success) {
+                showToast('Thành công', res.message, 'success');
+                document.getElementById('modalCat').classList.remove('open');
+                await loadCategories();
+            } else {
+                showToast('Thất bại', res ? (res.message || res.error) : 'Không thể lưu danh mục', 'error');
+            }
+        });
+
+        // Chuyển Tab
+        document.querySelectorAll('.type-tab').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.type-tab').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.type;
+                renderCategories();
+            });
+        });
+
+        document.getElementById('btnCloseCatModal').addEventListener('click', () => document.getElementById('modalCat').classList.remove('open'));
+        document.getElementById('btnCancelCat').addEventListener('click', () => document.getElementById('modalCat').classList.remove('open'));
+        document.getElementById('btnLogout').addEventListener('click', async () => {
+            try { await apiFetch('/auth/logout.php', { method: 'POST' }); } catch (_) {}
+            window.location.href = '../login.html';
+        });
+
+        initPage();
+    </script>
+</body>
+</html>

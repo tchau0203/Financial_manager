@@ -59,6 +59,11 @@ PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 SET @col := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'role');
 SET @sql := IF(@col = 0, 'ALTER TABLE `users` ADD COLUMN `role` ENUM(''user'', ''admin'') NOT NULL DEFAULT ''user''', 'SELECT 1');
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+-- Trạng thái tài khoản (active hoặc banned)
+SET @col := (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'status');
+SET @sql := IF(@col = 0, 'ALTER TABLE `users` ADD COLUMN `status` ENUM(''active'', ''banned'') NOT NULL DEFAULT ''active''', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 -- 2. BẢNG DANH MỤC THU / CHI (categories)
 CREATE TABLE IF NOT EXISTS `categories` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,

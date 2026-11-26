@@ -19,7 +19,7 @@ if (empty($loginInput) || empty($password)) {
 }
 
 $pdo = getDbConnection();
-$stmt = $pdo->prepare('SELECT id, username, email, password, full_name, phone, currency, role FROM users WHERE username = ? OR email = ? LIMIT 1');
+$stmt = $pdo->prepare('SELECT id, username, email, password, full_name, phone, currency, role, status FROM users WHERE username = ? OR email = ? LIMIT 1');
 $stmt->execute([$loginInput, $loginInput]);
 $user = $stmt->fetch();
 
@@ -27,11 +27,16 @@ if (!$user || !password_verify($password, $user['password'])) {
     jsonResponse(['error' => 'Tên đăng nhập/email hoặc mật khẩu không chính xác'], 401);
 }
 
+if (($user['status'] ?? 'active') === 'banned') {
+    jsonResponse(['error' => 'Tài khoản của bạn đã bị khóa bởi Quản trị viên. Vui lòng liên hệ bộ phận hỗ trợ.'], 403);
+}
+
 // Thiết lập phiên đăng nhập
 $_SESSION['user_id']   = (int)$user['id'];
 $_SESSION['username']  = $user['username'];
 $_SESSION['full_name'] = $user['full_name'];
 $_SESSION['role']      = $user['role'] ?? 'user';
+$_SESSION['status']    = $user['status'] ?? 'active';
 
 unset($user['password']);
 
