@@ -17,6 +17,9 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <style>
+        .loc-search { display: flex; gap: 0.5rem; margin-bottom: 0.6rem; }
+        .loc-search .form-control { flex: 1; min-width: 0; }
+        .loc-search .btn { white-space: nowrap; }
         .loc-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0.6rem 0; }
         .loc-map { height: 220px; border-radius: 12px; border: 1px solid var(--border-color); z-index: 0; }
         .loc-status { display: block; margin-top: 0.4rem; color: var(--text-muted); }
@@ -273,7 +276,12 @@
                     </div>
                     <!-- Vị trí thu nhập (không bắt buộc) - hiển thị trên trang Bản đồ -->
                     <div class="form-group">
-                        <label class="form-label" for="tx_location_name">Vị trí thu nhập <span style="font-weight:400;color:var(--text-muted)">(không bắt buộc)</span></label>
+                        <label class="form-label" for="tx_address">Vị trí thu nhập <span style="font-weight:400;color:var(--text-muted)">(không bắt buộc)</span></label>
+                        <div class="loc-search">
+                            <input type="text" id="tx_address" class="form-control" placeholder="Nhập địa chỉ rồi nhấn Enter, ví dụ: 12 Nguyễn Huệ, Quận 1, TP.HCM" maxlength="255" autocomplete="off">
+                            <button type="button" class="btn btn-light" id="btnSearchAddress"><i class="fa-solid fa-magnifying-glass-location"></i> Tìm</button>
+                        </div>
+                        <label class="form-label" for="tx_location_name" style="font-size:0.85rem;">Tên địa điểm</label>
                         <input type="text" id="tx_location_name" class="form-control" placeholder="Tên địa điểm, ví dụ: Công ty XYZ, Nhà riêng..." maxlength="255">
                         <input type="hidden" id="tx_lat">
                         <input type="hidden" id="tx_lng">

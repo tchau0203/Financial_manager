@@ -11,6 +11,8 @@
 
     let map = null;
     let marker = null;
+    let lastAddressQuery = '';
+    let addressSeq = 0;
 
     function setStatus(text, isError = false) {
         const el = $('locStatus');
@@ -45,9 +47,66 @@
         $('tx_lat').value = '';
         $('tx_lng').value = '';
         $('tx_location_name').value = '';
+        if ($('tx_address')) $('tx_address').value = '';
+        lastAddressQuery = '';
+        addressSeq++; // hủy tìm kiếm địa chỉ đang chạy dở (nếu có)
         $('btnClearLocation').hidden = true;
         setStatus('Chưa chọn vị trí (không bắt buộc).');
         if (marker && map) { map.removeLayer(marker); marker = null; }
+    }
+
+    // Gọi Nominatim (OpenStreetMap) để đổi địa chỉ -> tọa độ. Ưu tiên Việt Nam, không có thì tìm toàn cầu.
+    async function geocode(query) {
+        const base = 'https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&accept-language=vi&q=' + encodeURIComponent(query);
+        for (const extra of ['&countrycodes=vn', '']) {
+            const res = await fetch(base + extra, { headers: { 'Accept': 'application/json' } });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const list = await res.json();
+            if (Array.isArray(list) && list.length) return list[0];
+        }
+        return null;
+    }
+
+    // Tìm địa chỉ người dùng nhập và trỏ bản đồ tới đó (không bắt buộc)
+    async function searchAddress() {
+        const input = $('tx_address');
+        const query = input.value.trim();
+        if (!query) return;
+        // Tránh gọi lặp khi vừa nhấn Enter vừa rời ô nhập (chính sách Nominatim: tối đa 1 yêu cầu/giây)
+        if (query === lastAddressQuery) return;
+        lastAddressQuery = query;
+
+        const seq = ++addressSeq;
+        const btn = $('btnSearchAddress');
+        btn.disabled = true;
+        setStatus('Đang tìm địa chỉ...');
+        try {
+            const hit = await geocode(query);
+            if (seq !== addressSeq) return; // đã có yêu cầu mới hơn hoặc đã xóa vị trí
+            if (!hit) {
+                lastAddressQuery = '';
+                return setStatus('Không tìm thấy địa chỉ này. Hãy thử nhập đầy đủ hơn (số nhà, đường, quận, thành phố) hoặc chọn điểm trên bản đồ.', true);
+            }
+            const lat = parseFloat(hit.lat), lng = parseFloat(hit.lon);
+            if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+                lastAddressQuery = '';
+                return setStatus('Kết quả tìm địa chỉ không hợp lệ. Hãy thử lại.', true);
+            }
+            ensureMap();
+            setPoint(lat, lng, { zoom: 17 });
+            // Nếu chưa đặt tên địa điểm thì gợi ý tên từ kết quả (vẫn sửa được)
+            if (!$('tx_location_name').value.trim()) {
+                $('tx_location_name').value = String(hit.name || hit.display_name || query).split(',')[0].trim().slice(0, 255);
+            }
+            setStatus('Đã trỏ tới: ' + (hit.display_name || query));
+        } catch (err) {
+            if (seq !== addressSeq) return;
+            lastAddressQuery = '';
+            console.error('Lỗi tìm địa chỉ:', err);
+            setStatus('Không thể tìm địa chỉ lúc này (lỗi kết nối). Bạn có thể thử lại hoặc chọn điểm trực tiếp trên bản đồ.', true);
+        } finally {
+            if (seq === addressSeq) btn.disabled = false;
+        }
     }
 
     // Khởi tạo bản đồ một lần, khi modal đã hiển thị (Leaflet cần container có kích thước)
@@ -131,5 +190,15 @@
         if (!btnGet) return;
         btnGet.addEventListener('click', getCurrentLocation);
         $('btnClearLocation').addEventListener('click', clearPoint);
+
+        // Nhập địa chỉ: Enter / bấm "Tìm" / rời khỏi ô nhập đều trỏ bản đồ tới địa chỉ
+        const addr = $('tx_address');
+        if (addr) {
+            addr.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); searchAddress(); } // không gửi form khi nhấn Enter
+            });
+            addr.addEventListener('change', searchAddress);
+            $('btnSearchAddress').addEventListener('click', searchAddress);
+        }
     });
 })();
