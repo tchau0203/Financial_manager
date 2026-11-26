@@ -45,6 +45,40 @@ function getDbConnection() {
                     PDO::ATTR_EMULATE_PREPARES   => false,
                 ]
             );
+
+            // Tự động kiểm tra và nâng cấp cột role & status, đảm bảo tài khoản Admin mặc định
+            static $checkedAdminRole = false;
+            if (!$checkedAdminRole) {
+                $checkedAdminRole = true;
+                try {
+                    $colChk = $pdo->query("SHOW COLUMNS FROM users LIKE 'role'")->fetch();
+                    if (!$colChk) {
+                        $pdo->exec("ALTER TABLE users ADD COLUMN role ENUM('user', 'admin') NOT NULL DEFAULT 'user'");
+                    }
+                    $statusChk = $pdo->query("SHOW COLUMNS FROM users LIKE 'status'")->fetch();
+                    if (!$statusChk) {
+                        $pdo->exec("ALTER TABLE users ADD COLUMN status ENUM('active', 'banned') NOT NULL DEFAULT 'active'");
+                    }
+                    // Tự động tạo bảng nhật ký hoạt động quản trị (admin_logs)
+                    $pdo->exec("
+                        CREATE TABLE IF NOT EXISTS `admin_logs` (
+                            `id` INT AUTO_INCREMENT PRIMARY KEY,
+                            `admin_id` INT NOT NULL,
+                            `action` VARCHAR(50) NOT NULL,
+                            `target` VARCHAR(255) DEFAULT NULL,
+                            `details` TEXT DEFAULT NULL,
+                            `ip_address` VARCHAR(45) DEFAULT NULL,
+                            `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+                    ");
+                    // Đảm bảo có tài khoản Admin mặc định (admin / Admin@123456)
+                    $adminChk = $pdo->query("SELECT id FROM users WHERE username = 'admin' OR role = 'admin' LIMIT 1")->fetch();
+                    if (!$adminChk) {
+                        $hashed = '$2y$10$tq6XvVOf6CfTcheS3md2iuKCziEr6Alx9dhILYYYd4q.6HX4BNDdO'; // Admin@123456
+                        $pdo->exec("INSERT INTO users (username, email, password, full_name, role, status, currency) VALUES ('admin', 'admin@cashmanager.vn', '$hashed', 'Quản trị viên Hệ thống', 'admin', 'active', 'VND')");
+                    }
+                } catch (Throwable $e) {}
+            }
         } catch (PDOException $e) {
             jsonResponse(['error' => 'Kết nối CSDL thất bại: ' . $e->getMessage()], 500);
             exit;
@@ -65,6 +99,41 @@ function requireAuth() {
         jsonResponse(['error' => 'Chưa đăng nhập'], 401);
     }
     return (int)$_SESSION['user_id'];
+}
+
+function requireAdmin() {
+    $userId = requireAuth();
+    $pdo = getDbConnection();
+    $st = $pdo->prepare('SELECT role, status FROM users WHERE id = ? LIMIT 1');
+    $st->execute([$userId]);
+    $row = $st->fetch();
+    if (!$row) {
+        session_destroy();
+        jsonResponse(['error' => 'Tài khoản không tồn tại'], 401);
+    }
+    if (($row['status'] ?? 'active') === 'banned') {
+        session_destroy();
+        jsonResponse(['error' => 'Tài khoản của bạn đã bị khóa bởi Quản trị viên'], 403);
+    }
+    $role = $row['role'] ?: 'user';
+    $_SESSION['role'] = $role;
+    if ($role !== 'admin') {
+        jsonResponse(['error' => 'Bạn không có quyền quản trị viên (Admin)'], 403);
+    }
+    return $userId;
+}
+
+/**
+ * Ghi nhận nhật ký hoạt động của Quản trị viên (Audit Log)
+ */
+function logAdminAction($pdo, $adminId, $action, $target = null, $details = null) {
+    try {
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        $st = $pdo->prepare('INSERT INTO admin_logs (admin_id, action, target, details, ip_address) VALUES (?, ?, ?, ?, ?)');
+        $st->execute([(int)$adminId, (string)$action, $target, $details, $ip]);
+    } catch (Throwable $e) {
+        error_log('[admin-log] ' . $e->getMessage());
+    }
 }
 
 function getJsonInput() {

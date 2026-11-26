@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông Báo, Nhật Ký & Sao Lưu - CashManager Admin</title>
+    <!-- Phụ trách: Thái Châu (Lead - Phát thông báo hệ thống, Audit Logs & Sao lưu CSDL) -->
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <link rel="stylesheet" href="../../assets/css/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .admin-sidebar { background: #0f172a; color: #f8fafc; }
+        .admin-sidebar .sidebar-brand { border-bottom: 1px solid #1e293b; color: #fff; }
+        .admin-sidebar .sidebar-menu a { color: #94a3b8; }
+        .admin-sidebar .sidebar-menu a:hover,
+        .admin-sidebar .sidebar-menu li.active a {
+            background: rgba(124, 58, 237, 0.2);
+            color: #a78bfa;
+            border-left: 3px solid #7c3aed;
+        }
+        .nav-tabs {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 1.5rem;
+        }
+        .nav-tab {
+            padding: 0.75rem 1.25rem;
+            border: none;
+            background: none;
+            font-weight: 600;
+            font-size: 0.92rem;
+            color: #64748b;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .nav-tab.active {
+            color: #7c3aed;
+            border-bottom-color: #7c3aed;
+        }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
+
+        .broadcast-layout {
+            display: grid;
+            grid-template-columns: 1fr 1.4fr;
+            gap: 1.5rem;
+            align-items: start;
+        }
+        @media (max-width: 992px) {
+            .broadcast-layout { grid-template-columns: 1fr; }
+        }
+        .template-chips {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+        .template-chip {
+            font-size: 0.75rem;
+            padding: 0.3rem 0.65rem;
+            border-radius: 999px;
+            background: #f5f3ff;
+            color: #6d28d9;
+            border: 1px solid #ddd6fe;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .template-chip:hover { background: #ede9fe; }
+        .log-badge {
+            display: inline-block;
+            padding: 0.2rem 0.55rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .backup-hero {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: #fff;
+            border-radius: 14px;
+            padding: 1.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+        .btn-backup {
+            background: #fff;
+            color: #4f46e5;
+            border: none;
+            padding: 0.65rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+        }
+        .btn-backup:hover { background: #f8fafc; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Admin -->
+        <aside class="sidebar admin-sidebar">
+            <div class="sidebar-brand">
+                <i class="fa-solid fa-shield-halved" style="color: #a78bfa; margin-right: 0.5rem;"></i> CashManager
+                <span style="font-size: 0.7rem; background: #7c3aed; color: #fff; padding: 2px 6px; border-radius: 4px; margin-left: 4px;">ADMIN</span>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html"><i class="fa-solid fa-gauge-high"></i> Tổng quan hệ thống</a></li>
+                <li><a href="users.html"><i class="fa-solid fa-users-gear"></i> Quản lý tài khoản</a></li>
+                <li><a href="categories.html"><i class="fa-solid fa-tags"></i> Danh mục mặc định</a></li>
+                <li class="active"><a href="system.html"><i class="fa-solid fa-bullhorn"></i> Thông báo & Hệ thống</a></li>
+                <li style="margin-top: 1.5rem; border-top: 1px solid #1e293b; padding-top: 0.75rem;">
+                    <a href="../dashboard.html"><i class="fa-solid fa-wallet"></i> Xem trang Người dùng</a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <h2 style="font-size: 1.25rem; margin: 0;">Thông Báo Hệ Thống, Nhật Ký & Sao Lưu</h2>
+                <button id="btnLogout" class="btn btn-outline" style="padding: 0.45rem 0.85rem; font-size: 0.85rem; border-color: #cbd5e1;">
+                    <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+                </button>
+            </header>
+
+            <div class="content-body" style="padding: 1.5rem;">
+                <!-- Thanh chuyển 3 Tab tính năng -->
+                <div class="nav-tabs">
+                    <button class="nav-tab active" data-pane="paneBroadcast">
+                        <i class="fa-solid fa-bullhorn"></i> 1. Phát thông báo hệ thống
+                    </button>
+                    <button class="nav-tab" data-pane="paneLogs">
+                        <i class="fa-solid fa-clipboard-list"></i> 2. Nhật ký hoạt động (Audit Logs)
+                    </button>
+                    <button class="nav-tab" data-pane="paneBackup">
+                        <i class="fa-solid fa-database"></i> 3. Sao lưu & CSDL Hệ thống
+                    </button>
+                </div>
+
+                <!-- TAB 1: PHÁT THÔNG BÁO TOÀN HỆ THỐNG -->
+                <div id="paneBroadcast" class="tab-pane active">
+                    <div class="broadcast-layout">
+                        <!-- Form soạn thông báo -->
+                        <div class="card" style="padding: 1.5rem; background: #fff; border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+                            <h3 style="margin: 0 0 0.35rem; font-size: 1.1rem;"><i class="fa-solid fa-paper-plane" style="color: #7c3aed; margin-right: 0.4rem;"></i> Soạn thông báo mới</h3>
+                            <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0 0 1rem;">Gửi thông báo trực tiếp vào hộp thư của người dùng trên hệ thống</p>
+
+                            <div style="font-size: 0.78rem; color: #64748b; margin-bottom: 0.35rem; font-weight: 600;">Mẫu thông báo nhanh:</div>
+                            <div class="template-chips">
+                                <span class="template-chip" onclick="fillTemplate('maint')">🛠️ Bảo trì định kỳ</span>
+                                <span class="template-chip" onclick="fillTemplate('feature')">✨ Tính năng mới</span>
+                                <span class="template-chip" onclick="fillTemplate('tip')">💡 Mẹo tiết kiệm</span>
+                            </div>
+
+                            <form id="formBroadcast">
+                                <div class="form-group">
+                                    <label class="form-label">Đối tượng nhận *</label>
+                                    <select id="bcTarget" class="form-control">
+                                        <option value="all">🌐 Toàn bộ người dùng trong hệ thống</option>
+                                        <option value="active">✅ Tất cả tài khoản đang hoạt động</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Mức độ / Loại thông báo</label>
+                                    <select id="bcType" class="form-control">
+                                        <option value="info">ℹ️ Thông tin chung (Info - Xanh dương)</option>
+                                        <option value="success">🎉 Tin mới / Khuyến khích (Success - Xanh lá)</option>
+                                        <option value="warning">⚠️ Lưu ý / Nhắc nhở (Warning - Vàng cam)</option>
+                                        <option value="danger">🚨 Cảnh báo quan trọng (Danger - Đỏ)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Tiêu đề thông báo *</label>
+                                    <input type="text" id="bcTitle" class="form-control" placeholder="VD: Thông báo nâng cấp hệ thống CashManager" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Nội dung chi tiết *</label>
+                                    <textarea id="bcMessage" rows="4" class="form-control" placeholder="Nhập nội dung thông báo gửi tới người dùng..." required></textarea>
+                                </div>
+                                <button type="submit" id="btnSendBroadcast" class="btn btn-primary" style="width: 100%; background: #7c3aed; border-color: #7c3aed; padding: 0.7rem;">
+                                    <i class="fa-solid fa-bullhorn"></i> Phát thông báo ngay
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Lịch sử thông báo đã phát -->
+                        <div class="card" style="padding: 1.5rem; background: #fff; border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <div>
+                                    <h3 style="margin: 0; font-size: 1.1rem;">Lịch sử thông báo trong hệ thống</h3>
+                                    <p style="margin: 0; font-size: 0.8rem; color: var(--text-muted);">Thống kê số lượng người nhận và tỷ lệ đã đọc</p>
+                                </div>
+                                <button class="btn btn-outline" onclick="loadBroadcastData()" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;">
+                                    <i class="fa-solid fa-rotate"></i> Làm mới
+                                </button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Nội dung thông báo</th>
+                                            <th>Loại</th>
+                                            <th>Người nhận / Đã đọc</th>
+                                            <th>Thời gian</th>
+                                            <th style="text-align: right;">Thu hồi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="bcHistoryBody">
+                                        <tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-muted);">Đang tải...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: NHẬT KÝ HOẠT ĐỘNG QUẢN TRỊ (AUDIT LOGS) -->
+                <div id="paneLogs" class="tab-pane">
+                    <div class="card" style="padding: 1.5rem; background: #fff; border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+                            <div>
+                                <h3 style="margin: 0 0 0.25rem; font-size: 1.15rem;">Nhật ký hoạt động Quản trị viên (Audit Trail)</h3>
+                                <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">Ghi nhận tự động mọi thao tác quản trị để đảm bảo minh bạch và an toàn hệ thống</p>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-outline" onclick="loadSystemData()" style="font-size: 0.85rem;">
+                                    <i class="fa-solid fa-rotate"></i> Tải lại
+                                </button>
+                                <button class="btn btn-outline" onclick="clearAdminLogs()" style="font-size: 0.85rem; color: #dc2626; border-color: #fecaca;">
+                                    <i class="fa-solid fa-trash-can"></i> Dọn nhật ký
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 65px;">Mã</th>
+                                        <th>Thời gian</th>
+                                        <th>Quản trị viên</th>
+                                        <th>Hành động</th>
+                                        <th>Đối tượng</th>
+                                        <th>Chi tiết thao tác</th>
+                                        <th>Địa chỉ IP</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="logsTableBody">
+                                    <tr><td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-muted);">Đang tải nhật ký...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: SAO LƯU & TRẠNG THÁI CƠ SỞ DỮ LIỆU -->
+                <div id="paneBackup" class="tab-pane">
+                    <div class="backup-hero">
+                        <div>
+                            <h3 style="margin: 0 0 0.4rem; font-size: 1.3rem;"><i class="fa-solid fa-cloud-arrow-down"></i> Sao Lưu Toàn Bộ Cơ Sở Dữ Liệu Hệ Thống</h3>
+                            <p style="margin: 0; opacity: 0.9; font-size: 0.9rem; max-width: 620px;">
+                                Xuất toàn bộ cấu trúc bảng và dữ liệu của hệ thống CashManager ra tệp tin `.SQL` tiêu chuẩn (dùng để phục hồi trên phpMyAdmin/MySQL) hoặc tệp `.JSON`.
+                            </p>
+                        </div>
+                        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                            <a href="../../api/admin/system.php?download=sql" class="btn-backup" onclick="setTimeout(loadSystemData, 1500)">
+                                <i class="fa-solid fa-file-code"></i> Tải bản sao lưu (.SQL)
+                            </a>
+                            <a href="../../api/admin/system.php?download=json" class="btn-backup" style="background: rgba(255,255,255,0.18); color: #fff; border: 1px solid rgba(255,255,255,0.4);" onclick="setTimeout(loadSystemData, 1500)">
+                                <i class="fa-solid fa-file-csv"></i> Tải bản sao lưu (.JSON)
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="card" style="padding: 1.5rem; background: #fff; border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+                        <h3 style="margin: 0 0 1rem; font-size: 1.1rem;">Trạng thái các bảng trong Cơ sở dữ liệu MySQL</h3>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Tên bảng (Table)</th>
+                                        <th>Số bản ghi (Rows)</th>
+                                        <th>Dung lượng (KB)</th>
+                                        <th>Engine</th>
+                                        <th>Bảng mã (Collation)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dbTablesBody">
+                                    <tr><td colspan="5" style="text-align: center; padding: 2rem;">Đang tải...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../../assets/js/auth.js"></script>
+    <script>
+        let bcHistory = [];
+
+        // Chuyển Tab
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.pane).classList.add('active');
+            });
+        });
+
+        // Mẫu thông báo nhanh
+        window.fillTemplate = function (key) {
+            const titleEl = document.getElementById('bcTitle');
+            const msgEl = document.getElementById('bcMessage');
+            const typeEl = document.getElementById('bcType');
+            if (key === 'maint') {
+                typeEl.value = 'warning';
+                titleEl.value = 'Thông báo bảo trì định kỳ hệ thống CashManager';
+                msgEl.value = 'Hệ thống sẽ tiến hành nâng cấp máy chủ định kỳ vào 00:00 đêm nay trong khoảng 15 phút để tối ưu tốc độ. Cảm ơn bạn đã đồng hành!';
+            } else if (key === 'feature') {
+                typeEl.value = 'success';
+                titleEl.value = 'Ra mắt tính năng AI Quét hóa đơn & Cố vấn tài chính!';
+                msgEl.value = 'Chào bạn! CashManager vừa cập nhật tính năng quét ảnh hóa đơn tự động bằng AI và Quyết toán quỹ chung VietQR. Hãy trải nghiệm ngay nhé!';
+            } else if (key === 'tip') {
+                typeEl.value = 'info';
+                titleEl.value = 'Mẹo tài chính: Quy tắc 50/30/20 giúp bạn làm chủ đồng tiền';
+                msgEl.value = 'Hãy dành 50% thu nhập cho nhu cầu thiết yếu, 30% cho sở thích cá nhân và trích ngay 20% vào quỹ tiết kiệm mỗi khi nhận lương nhé!';
+            }
+        };
+
+        async function initSystemPage() {
+            const meRes = await apiFetch('/auth/me.php');
+            if (!meRes || !meRes.success || (meRes.user || meRes.data).role !== 'admin') {
+                window.location.href = '../login.html';
+                return;
+            }
+            await Promise.all([loadBroadcastData(), loadSystemData()]);
+        }
+
+        // 1. Tải dữ liệu Broadcast
+        async function loadBroadcastData() {
+            const res = await apiFetch('/admin/broadcast.php');
+            if (!res || !res.success) return;
+
+            // Đổ danh sách user vào select nếu chưa có
+            const select = document.getElementById('bcTarget');
+            if (select.options.length <= 2 && Array.isArray(res.data.users)) {
+                const group = document.createElement('optgroup');
+                group.label = 'Gửi riêng cho từng cá nhân';
+                res.data.users.forEach(u => {
+                    const opt = document.createElement('option');
+                    opt.value = u.id;
+                    opt.textContent = `👤 @${u.username} (${u.full_name || u.email})`;
+                    group.appendChild(opt);
+                });
+                select.appendChild(group);
+            }
+
+            bcHistory = res.data.history || [];
+            const tbody = document.getElementById('bcHistoryBody');
+            if (bcHistory.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-muted);">Chưa có thông báo nào</td></tr>';
+                return;
+            }
+
+            const typeBadgeMap = {
+                info: '<span class="log-badge" style="background:#e0f2fe;color:#0369a1;">Info</span>',
+                success: '<span class="log-badge" style="background:#dcfce7;color:#15803d;">Success</span>',
+                warning: '<span class="log-badge" style="background:#fef3c7;color:#b45309;">Warning</span>',
+                danger: '<span class="log-badge" style="background:#fee2e2;color:#b91c1c;">Danger</span>',
+                daily_reminder: '<span class="log-badge" style="background:#f3e8ff;color:#6d28d9;">Nhắc lịch</span>'
+            };
+
+            tbody.innerHTML = bcHistory.map((h, idx) => `
+                <tr>
+                    <td style="max-width: 280px;">
+                        <div style="font-weight: 600; color: #0f172a;">${h.title}</div>
+                        <div style="font-size: 0.78rem; color: var(--text-muted); white-space: normal;">${h.message}</div>
+                    </td>
+                    <td>${typeBadgeMap[h.type] || `<span class="log-badge">${h.type}</span>`}</td>
+                    <td>
+                        <strong>${h.recipient_count}</strong> người nhận
+                        <div style="font-size: 0.75rem; color: #16a34a;">${h.read_count} đã đọc</div>
+                    </td>
+                    <td style="font-size: 0.8rem; color: var(--text-muted);">${h.sent_at}</td>
+                    <td style="text-align: right;">
+                        <button type="button" class="btn btn-outline" style="padding: 0.25rem 0.55rem; font-size: 0.75rem; color: #dc2626; border-color: #fecaca;" onclick="revokeBroadcast(${idx})" title="Thu hồi thông báo này">
+                            <i class="fa-solid fa-rotate-left"></i> Thu hồi
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Gửi thông báo mới
+        document.getElementById('formBroadcast').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnSendBroadcast');
+            btn.disabled = true;
+
+            try {
+                const payload = {
+                    action: 'send',
+                    target: document.getElementById('bcTarget').value,
+                    type: document.getElementById('bcType').value,
+                    title: document.getElementById('bcTitle').value.trim(),
+                    message: document.getElementById('bcMessage').value.trim()
+                };
+                const res = await apiFetch('/admin/broadcast.php', {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                if (res && res.success) {
+                    showToast('Đã phát thông báo', res.message, 'success');
+                    document.getElementById('bcTitle').value = '';
+                    document.getElementById('bcMessage').value = '';
+                    await Promise.all([loadBroadcastData(), loadSystemData()]);
+                } else {
+                    showToast('Thất bại', res ? (res.message || res.error) : 'Không thể gửi thông báo', 'error');
+                }
+            } finally {
+                btn.disabled = false;
+            }
+        });
+
+        // Thu hồi thông báo
+        window.revokeBroadcast = async function (idx) {
+            const item = bcHistory[idx];
+            if (!item) return;
+            if (!confirm(`Thu hồi và xóa thông báo "${item.title}" khỏi hộp thư của toàn bộ người nhận?`)) return;
+
+            const res = await apiFetch('/admin/broadcast.php', {
+                method: 'POST',
+                body: JSON.stringify({ action: 'revoke', title: item.title, message: item.message })
+            });
+            if (res && res.success) {
+                showToast('Đã thu hồi', res.message, 'success');
+                await Promise.all([loadBroadcastData(), loadSystemData()]);
+            }
+        };
+
+        // 2. Tải Nhật ký hoạt động & Thống kê bảng CSDL
+        async function loadSystemData() {
+            const res = await apiFetch('/admin/system.php');
+            if (!res || !res.success) return;
+
+            const logs = res.data.logs || [];
+            const logsBody = document.getElementById('logsTableBody');
+
+            const actionMap = {
+                create_user: { label: 'Tạo tài khoản', bg: '#dcfce7', color: '#15803d' },
+                ban_user: { label: 'Khóa tài khoản', bg: '#fee2e2', color: '#b91c1c' },
+                unban_user: { label: 'Mở khóa TK', bg: '#e0f2fe', color: '#0369a1' },
+                change_role: { label: 'Đổi vai trò', bg: '#ede9fe', color: '#6d28d9' },
+                reset_password: { label: 'Đặt lại MK', bg: '#fef3c7', color: '#b45309' },
+                delete_user: { label: 'Xóa tài khoản', bg: '#fee2e2', color: '#991b1b' },
+                broadcast_notification: { label: 'Phát thông báo', bg: '#f3e8ff', color: '#7c3aed' },
+                revoke_broadcast: { label: 'Thu hồi TB', bg: '#ffedd5', color: '#c2410c' },
+                create_category: { label: 'Thêm danh mục', bg: '#dcfce7', color: '#15803d' },
+                update_category: { label: 'Sửa danh mục', bg: '#e0f2fe', color: '#0369a1' },
+                delete_category: { label: 'Xóa danh mục', bg: '#fee2e2', color: '#b91c1c' },
+                export_backup: { label: 'Sao lưu CSDL', bg: '#dbeafe', color: '#1d4ed8' }
+            };
+
+            if (logs.length === 0) {
+                logsBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-muted);">Chưa có nhật ký hoạt động nào được ghi nhận</td></tr>';
+            } else {
+                logsBody.innerHTML = logs.map(l => {
+                    const st = actionMap[l.action] || { label: l.action, bg: '#f1f5f9', color: '#475569' };
+                    return `
+                        <tr>
+                            <td><strong>#${l.id}</strong></td>
+                            <td style="font-size: 0.82rem; color: var(--text-muted);">${l.created_at}</td>
+                            <td><strong>@${l.admin_username || 'admin'}</strong></td>
+                            <td><span class="log-badge" style="background:${st.bg};color:${st.color};">${st.label}</span></td>
+                            <td style="font-weight: 500;">${l.target || '-'}</td>
+                            <td style="font-size: 0.85rem; color: #334155; white-space: normal;">${l.details || '-'}</td>
+                            <td style="font-size: 0.8rem; color: var(--text-muted);">${l.ip_address || '127.0.0.1'}</td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            const tables = res.data.tables_info || [];
+            const dbBody = document.getElementById('dbTablesBody');
+            dbBody.innerHTML = tables.map(t => `
+                <tr>
+                    <td><i class="fa-solid fa-table" style="color: #7c3aed; margin-right: 0.4rem;"></i> <strong>${t.name}</strong></td>
+                    <td><strong>${t.rows}</strong> dòng</td>
+                    <td>${t.size_kb} KB</td>
+                    <td><span class="log-badge" style="background:#f1f5f9;color:#475569;">${t.engine}</span></td>
+                    <td style="font-size: 0.82rem; color: var(--text-muted);">${t.collation}</td>
+                </tr>
+            `).join('');
+        }
+
+        window.clearAdminLogs = async function () {
+            if (!confirm('Xóa làm mới danh sách nhật ký hoạt động quản trị?')) return;
+            const res = await apiFetch('/admin/system.php', {
+                method: 'POST',
+                body: JSON.stringify({ action: 'clear_logs' })
+            });
+            if (res && res.success) {
+                showToast('Thành công', res.message, 'success');
+                await loadSystemData();
+            }
+        };
+
+        document.getElementById('btnLogout').addEventListener('click', async () => {
+            try { await apiFetch('/auth/logout.php', { method: 'POST' }); } catch (_) {}
+            window.location.href = '../login.html';
+        });
+
+        initSystemPage();
+    </script>
+</body>
+</html>

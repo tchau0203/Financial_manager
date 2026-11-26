@@ -120,7 +120,7 @@ td{padding:12px 14px;border-bottom:1px solid var(--line)}
     <div class="card">
       <h3 id="tblTitle">Giao dịch gần đây</h3>
       <table>
-        <thead><tr><th>Người chi</th><th>Ngày</th><th>Danh mục</th><th>Ghi chú</th><th style="text-align:right">Số tiền</th></tr></thead>
+        <thead><tr><th>Người chi</th><th>Ngày</th><th>Danh mục</th><th>Ghi chú</th><th data-sort="amount" style="text-align:right">Số tiền</th></tr></thead>
         <tbody id="tbody"></tbody>
       </table>
     </div>
@@ -161,6 +161,7 @@ td{padding:12px 14px;border-bottom:1px solid var(--line)}
 <div class="toast" id="toast"></div>
 
 <script src="../assets/js/pwa.js"></script>
+<script src="../assets/js/table_sort.js"></script>
 <script src="../assets/js/shared.js"></script>
 </body>
 </html>

@@ -197,6 +197,7 @@ async function loadExpenseChart() {
 
 /* ============ Danh sách + lọc + phân trang ============ */
 function getFilters() {
+    const sortState = window._tableSort && window._tableSort.getState ? window._tableSort.getState() : {};
     return {
         search: $('filter_search').value.trim(),
         category_id: $('filter_category').value,
@@ -204,7 +205,9 @@ function getFilters() {
         from_date: $('filter_from').value,
         to_date: $('filter_to').value,
         min_amount: $('filter_min_amount') ? $('filter_min_amount').value.trim() : '',
-        max_amount: $('filter_max_amount') ? $('filter_max_amount').value.trim() : ''
+        max_amount: $('filter_max_amount') ? $('filter_max_amount').value.trim() : '',
+        sort_by: sortState.sort_by || '',
+        order: sortState.order || ''
     };
 }
 
@@ -221,6 +224,8 @@ function renderEmptyRow(tbody, text, isError = false) {
 
 function buildRow(item) {
     const tr = document.createElement('tr');
+    tr.dataset.amount = item.amount ?? 0;
+    tr.dataset.date = String(item.transaction_date || '').slice(0, 10);
 
     const dateTd = document.createElement('td');
     dateTd.textContent = formatDateVN(item.transaction_date);
@@ -311,6 +316,8 @@ async function loadExpenseList(page = 1) {
             tbody.replaceChildren(...items.map(buildRow));
         }
         renderPager(Number(pg.current_page) || page, totalPages, totalRecords);
+        // Tái sắp xếp nếu user đang sort (Ngô Bảo - TableSort)
+        if (window._tableSort) window._tableSort.resort();
     } catch (e) {
         console.error('Lỗi tải danh sách chi tiêu:', e);
         renderEmptyRow(tbody, 'Lỗi tải danh sách chi tiêu.', true);
@@ -490,12 +497,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         if ($('filter_min_amount')) $('filter_min_amount').value = '';
         if ($('filter_max_amount')) $('filter_max_amount').value = '';
         if ($('filter_price_slider')) $('filter_price_slider').value = 0;
+        if (window._tableSort) window._tableSort.reset();
         updateCategoryPreview($('filter_category'));
         loadExpenseList(1);
     });
 
     await loadCategories(TX_TYPE);
     refreshAll(1);
+
+    // Tính năng Sắp xếp cột bảng (Ngô Bảo - FE)
+    if (window.initTableSort) {
+        window._tableSort = window.initTableSort({
+            tbodyId: 'expense-tbody',
+            theadId: 'expense-thead',
+            onSortChange: () => {
+                loadExpenseList(1);
+            }
+        });
+    }
 });
 document.addEventListener('DOMContentLoaded', () => {
     initImport({ type: TX_TYPE, onDone: () => refreshAll(1) });
