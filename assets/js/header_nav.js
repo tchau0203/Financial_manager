@@ -29,25 +29,13 @@
                         <i class="fa-solid fa-caret-down user-profile-caret"></i>
                     </button>
                     <div class="user-dropdown-menu" id="userDropdownMenu">
-                        <a href="javascript:void(0)" class="user-dropdown-item item-upgrade" id="menuItemUpgrade">
-                            <i class="fa-solid fa-star"></i>
-                            <span>Nâng cấp</span>
-                        </a>
                         <a href="${basePath}account.html" class="user-dropdown-item" id="menuItemAccount">
-                            <i class="fa-solid fa-sliders"></i>
-                            <span>Cài đặt</span>
-                        </a>
-                        <a href="${basePath}account.html#avatarSection" class="user-dropdown-item" id="menuItemAvatar">
-                            <i class="fa-regular fa-image"></i>
-                            <span>Đổi ảnh đại diện</span>
+                            <i class="fa-solid fa-user"></i>
+                            <span>Tài khoản</span>
                         </a>
                         <a href="javascript:void(0)" class="user-dropdown-item" id="menuItemHelp">
                             <i class="fa-regular fa-circle-question"></i>
                             <span>Trợ giúp</span>
-                        </a>
-                        <a href="javascript:void(0)" class="user-dropdown-item" id="menuItemPwa">
-                            <i class="fa-solid fa-mobile-screen-button"></i>
-                            <span>Thử ứng dụng di động</span>
                         </a>
                         <a href="javascript:void(0)" class="user-dropdown-item item-logout" id="menuItemLogout">
                             <i class="fa-solid fa-arrow-right-from-bracket"></i>
@@ -320,16 +308,6 @@
         }
 
         // Gắn sự kiện cho các mục trong menu
-        const itemUpgrade = document.getElementById('menuItemUpgrade');
-        if (itemUpgrade && !itemUpgrade.dataset.headerBound) {
-            itemUpgrade.dataset.headerBound = '1';
-            itemUpgrade.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (wrapper) wrapper.classList.remove('active');
-                showUpgradeModal();
-            });
-        }
-
         const itemHelp = document.getElementById('menuItemHelp');
         if (itemHelp && !itemHelp.dataset.headerBound) {
             itemHelp.dataset.headerBound = '1';
@@ -337,16 +315,6 @@
                 e.preventDefault();
                 if (wrapper) wrapper.classList.remove('active');
                 showHelpModal();
-            });
-        }
-
-        const itemPwa = document.getElementById('menuItemPwa');
-        if (itemPwa && !itemPwa.dataset.headerBound) {
-            itemPwa.dataset.headerBound = '1';
-            itemPwa.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (wrapper) wrapper.classList.remove('active');
-                showPwaModal();
             });
         }
 
