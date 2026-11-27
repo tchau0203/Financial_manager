@@ -287,9 +287,34 @@
   $('modal').onclick = e => { if (e.target === $('modal')) closeModal(); };
 
   // ===== [HUY T2] Chuyển tab =====
+  function switchTab(tabKey) {
+    if (tabKey === 'info') tabKey = 'account';
+    document.querySelectorAll('.tabs button').forEach(x => {
+      const match = x.dataset.tab === tabKey;
+      x.classList.toggle('on', match);
+    });
+    document.querySelectorAll('.tab').forEach(t => {
+      t.classList.toggle('hide', t.id !== 'tab-' + tabKey);
+    });
+  }
+
   document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
-    document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('on', x === b));
-    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('hide', t.id !== 'tab-' + b.dataset.tab));
+    switchTab(b.dataset.tab);
+  });
+
+  // Tự động kích hoạt tab dựa theo param ?tab= hoặc #
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    let requestedTab = urlParams.get('tab') || window.location.hash.replace('#', '');
+    if (requestedTab) {
+      switchTab(requestedTab);
+    }
+  } catch (_) {}
+
+  // Lắng nghe sự kiện hashchange nếu người dùng bấm menu dropdown khi đang ở trang account.html
+  window.addEventListener('hashchange', () => {
+    const hashTab = window.location.hash.replace('#', '');
+    if (hashTab) switchTab(hashTab);
   });
 
   // ===== [HUY T2] Chức năng 6: Sao lưu & Khôi phục =====
@@ -414,4 +439,66 @@
       } catch (_) {}
     };
   }
+
+  // ===== [BUDGETBAKERS STYLE] Cài đặt Giao diện (Sáng/Tối, Mật độ) & Ngôn ngữ =====
+  function initAppearanceSettings() {
+    // 1. Chế độ sáng và tối
+    const currentTheme = localStorage.getItem('app_theme') || 'auto';
+    const themeRadios = document.querySelectorAll('input[name="appTheme"]');
+    themeRadios.forEach(r => {
+      if (r.value === currentTheme) {
+        r.checked = true;
+        updateCardHighlight(r);
+      }
+      r.addEventListener('change', () => {
+        const val = r.value;
+        localStorage.setItem('app_theme', val);
+        const isDark = val === 'dark' || (val === 'auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        if (isDark) document.documentElement.classList.add('dark-theme');
+        else document.documentElement.classList.remove('dark-theme');
+        updateCardHighlight(r);
+        toast('Đã áp dụng chế độ giao diện: ' + (val === 'dark' ? 'Tối' : val === 'light' ? 'Sáng' : 'Theo trình duyệt'));
+      });
+    });
+
+    // 2. Mật độ danh sách ghi chép
+    const currentDensity = localStorage.getItem('app_density') || 'low';
+    const densityRadios = document.querySelectorAll('input[name="appDensity"]');
+    densityRadios.forEach(r => {
+      if (r.value === currentDensity) {
+        r.checked = true;
+        updateCardHighlight(r);
+      }
+      r.addEventListener('change', () => {
+        const val = r.value;
+        localStorage.setItem('app_density', val);
+        document.documentElement.setAttribute('data-density', val);
+        document.body.setAttribute('data-density', val);
+        updateCardHighlight(r);
+        toast('Đã đổi mật độ danh sách: ' + (val === 'high' ? 'Cao' : val === 'medium' ? 'Trung bình' : 'Thấp'));
+      });
+    });
+
+    // 3. Ngôn ngữ của trang web
+    const langSelect = document.getElementById('selectAppLanguage');
+    if (langSelect) {
+      langSelect.value = localStorage.getItem('app_language') || 'vi';
+      langSelect.addEventListener('change', () => {
+        localStorage.setItem('app_language', langSelect.value);
+        toast('Đã lưu ngôn ngữ: ' + (langSelect.value === 'vi' ? 'Tiếng Việt' : 'English'));
+      });
+    }
+
+    function updateCardHighlight(radio) {
+      const container = radio.closest('.theme-options-grid, .density-options-grid');
+      if (container) {
+        container.querySelectorAll('.setting-choice-card').forEach(c => c.classList.remove('active'));
+        const card = radio.closest('.setting-choice-card');
+        if (card) card.classList.add('active');
+      }
+    }
+  }
+
+  initAppearanceSettings();
 })();

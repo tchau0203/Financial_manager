@@ -5,6 +5,19 @@
 (function () {
     'use strict';
 
+    // Áp dụng ngay lập tức cấu hình giao diện (Sáng/Tối) & mật độ danh sách toàn hệ thống
+    try {
+        const savedTheme = localStorage.getItem('app_theme') || 'auto';
+        const isDark = savedTheme === 'dark' || (savedTheme === 'auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        if (isDark) document.documentElement.classList.add('dark-theme');
+        else document.documentElement.classList.remove('dark-theme');
+
+        const savedDensity = localStorage.getItem('app_density') || 'low';
+        document.documentElement.setAttribute('data-density', savedDensity);
+        if (document.body) document.body.setAttribute('data-density', savedDensity);
+    } catch (_) {}
+
     // Xác định đường dẫn tương đối tới các trang
     const isPagesDir = window.location.pathname.includes('/pages/');
     const basePath = isPagesDir ? './' : './pages/';
@@ -29,11 +42,11 @@
                         <i class="fa-solid fa-caret-down user-profile-caret"></i>
                     </button>
                     <div class="user-dropdown-menu" id="userDropdownMenu">
-                        <a href="${basePath}account.html" class="user-dropdown-item" id="menuItemAccount">
+                        <a href="${basePath}account.html?tab=account" class="user-dropdown-item" id="menuItemAccount">
                             <i class="fa-solid fa-user"></i>
                             <span>Tài khoản</span>
                         </a>
-                        <a href="${basePath}account.html" class="user-dropdown-item" id="menuItemSettings">
+                        <a href="${basePath}account.html?tab=settings" class="user-dropdown-item" id="menuItemSettings">
                             <i class="fa-solid fa-sliders"></i>
                             <span>Cài đặt</span>
                         </a>
@@ -312,6 +325,34 @@
         }
 
         // Gắn sự kiện cho các mục trong menu
+        const itemAccount = document.getElementById('menuItemAccount');
+        if (itemAccount && !itemAccount.dataset.headerBound) {
+            itemAccount.dataset.headerBound = '1';
+            itemAccount.addEventListener('click', (e) => {
+                if (wrapper) wrapper.classList.remove('active');
+                if (window.location.pathname.includes('account.html')) {
+                    e.preventDefault();
+                    const tabBtn = document.querySelector('.tabs button[data-tab="account"]');
+                    if (tabBtn) tabBtn.click();
+                    history.replaceState(null, '', 'account.html?tab=account');
+                }
+            });
+        }
+
+        const itemSettings = document.getElementById('menuItemSettings');
+        if (itemSettings && !itemSettings.dataset.headerBound) {
+            itemSettings.dataset.headerBound = '1';
+            itemSettings.addEventListener('click', (e) => {
+                if (wrapper) wrapper.classList.remove('active');
+                if (window.location.pathname.includes('account.html')) {
+                    e.preventDefault();
+                    const tabBtn = document.querySelector('.tabs button[data-tab="settings"]');
+                    if (tabBtn) tabBtn.click();
+                    history.replaceState(null, '', 'account.html?tab=settings');
+                }
+            });
+        }
+
         const itemHelp = document.getElementById('menuItemHelp');
         if (itemHelp && !itemHelp.dataset.headerBound) {
             itemHelp.dataset.headerBound = '1';

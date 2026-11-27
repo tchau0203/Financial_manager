@@ -592,3 +592,175 @@ th[data-sort]:hover {
 .quick-tx-btn i {
     font-size: 2rem;
 }
+
+/* ===== BUDGETBAKERS STYLE SETTINGS & APPEARANCE CARDS ===== */
+.setting-choice-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    cursor: pointer;
+    background: #fff;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.setting-choice-card:hover {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+}
+
+.setting-choice-card.active,
+.setting-choice-card:has(input[type="radio"]:checked) {
+    border-color: #059669 !important;
+    background: #f0fdf4 !important;
+}
+
+.setting-choice-card input[type="radio"] {
+    width: 18px !important;
+    height: 18px !important;
+    accent-color: #059669;
+    margin: 0 !important;
+    cursor: pointer;
+}
+
+.lang-select-wrapper {
+    position: relative;
+    max-width: 380px;
+}
+
+.lang-select-wrapper i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: #64748b;
+    pointer-events: none;
+}
+
+.lang-select-wrapper select {
+    padding-left: 38px !important;
+    height: 42px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    background: #fff;
+    cursor: pointer;
+}
+
+/* ===== GLOBAL DARK THEME ===== */
+[data-theme="dark"],
+.dark-theme {
+    --bg-body: #0f172a;
+    --bg-card: #1e293b;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --border-color: #334155;
+    --line: #334155;
+    --muted: #94a3b8;
+    background-color: #0f172a;
+    color: #f8fafc;
+}
+
+[data-theme="dark"] body {
+    background-color: #0f172a !important;
+    color: #f8fafc !important;
+}
+
+[data-theme="dark"] .main-content,
+[data-theme="dark"] .main,
+[data-theme="dark"] .content,
+[data-theme="dark"] .content-body {
+    background-color: #0f172a !important;
+    color: #f8fafc !important;
+}
+
+[data-theme="dark"] .card,
+[data-theme="dark"] .topbar,
+[data-theme="dark"] .header,
+[data-theme="dark"] .modal-content,
+[data-theme="dark"] .box {
+    background-color: #1e293b !important;
+    color: #f8fafc !important;
+    border-color: #334155 !important;
+}
+
+[data-theme="dark"] .setting-choice-card {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    color: #f8fafc !important;
+}
+
+[data-theme="dark"] .setting-choice-card:hover {
+    background: #273549 !important;
+}
+
+[data-theme="dark"] .setting-choice-card.active,
+[data-theme="dark"] .setting-choice-card:has(input[type="radio"]:checked) {
+    border-color: #10b981 !important;
+    background: rgba(16, 185, 129, 0.12) !important;
+}
+
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+    background-color: #0f172a !important;
+    color: #f8fafc !important;
+    border-color: #334155 !important;
+}
+
+[data-theme="dark"] th {
+    background-color: #273549 !important;
+    color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] td {
+    border-bottom-color: #334155 !important;
+    color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .user-dropdown-menu {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6) !important;
+}
+
+[data-theme="dark"] .user-dropdown-item {
+    color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .user-dropdown-item:hover {
+    background-color: #334155 !important;
+}
+
+[data-theme="dark"] .tabs {
+    border-bottom-color: #334155 !important;
+}
+
+[data-theme="dark"] #reminderConfigArea {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+}
+
+/* ===== GLOBAL LIST DENSITY ===== */
+body[data-density="high"] table td,
+body[data-density="high"] table th {
+    padding: 6px 10px !important;
+    font-size: 13px !important;
+}
+
+body[data-density="medium"] table td,
+body[data-density="medium"] table th {
+    padding: 10px 14px !important;
+    font-size: 13.5px !important;
+}
+
+body[data-density="low"] table td,
+body[data-density="low"] table th {
+    padding: 14px 18px !important;
+    font-size: 14px !important;
+}
