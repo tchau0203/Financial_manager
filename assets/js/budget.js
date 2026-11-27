@@ -28,6 +28,7 @@
       try {
         const d = await api('../api/auth/me.php'), u = d.user || d;
         $('userName').textContent = u.full_name || u.name || u.username || '';
+        if (window.HeaderNav) window.HeaderNav.updateUser(u);
       } catch (e) {}
       $('logoutBtn').onclick = async () => {
         try { await api('../api/auth/logout.php', { method: 'POST' }); } catch (e) {}

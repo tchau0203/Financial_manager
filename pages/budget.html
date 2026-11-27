@@ -73,13 +73,41 @@ input:focus,select:focus{outline:2px solid #c7d2fe;border-color:var(--primary)}
     <a href="budget.html" class="active"><i class="fa-solid fa-piggy-bank"></i> Ngân sách</a>
     <a href="report.html"><i class="fa-solid fa-chart-column"></i> Báo cáo</a>
     <a href="shared.html"><i class="fa-solid fa-users"></i> Quỹ chung</a>
-    <a href="account.html"><i class="fa-solid fa-gear"></i> Tài khoản</a>
   </nav>
 </aside>
 <div class="main">
   <header class="topbar">
     <h1>Kế hoạch ngân sách</h1>
-    <div class="right"><span id="userName"></span><button class="btn out" id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</button></div>
+    <div class="header-user-nav" id="headerUserNav">
+        <button type="button" class="btn-quick-tx" id="btnHeaderAddTx" title="Thêm giao dịch mới">
+            <i class="fa-solid fa-plus"></i> Giao dịch
+        </button>
+        <div class="user-dropdown-wrapper" id="userDropdownWrapper">
+            <button type="button" class="user-profile-btn" id="userProfileBtn" aria-expanded="false" title="Tài khoản">
+                <span class="user-avatar-circle" id="headerAvatar">T</span>
+                <span class="user-profile-name" id="headerUserName">Thái Châu</span>
+                <i class="fa-solid fa-caret-down user-profile-caret"></i>
+            </button>
+            <div class="user-dropdown-menu" id="userDropdownMenu">
+                <a href="account.html?tab=account" class="user-dropdown-item" id="menuItemAccount">
+                    <i class="fa-solid fa-user"></i>
+                    <span>Tài khoản</span>
+                </a>
+                <a href="account.html?tab=settings" class="user-dropdown-item" id="menuItemSettings">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Cài đặt</span>
+                </a>
+                <a href="javascript:void(0)" class="user-dropdown-item" id="menuItemHelp">
+                    <i class="fa-regular fa-circle-question"></i>
+                    <span>Trợ giúp</span>
+                </a>
+                <a href="javascript:void(0)" class="user-dropdown-item item-logout" id="menuItemLogout">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <span>Đăng xuất</span>
+                </a>
+            </div>
+        </div>
+    </div>
   </header>
   <div class="content">
     <div class="card">
@@ -110,6 +138,7 @@ input:focus,select:focus{outline:2px solid #c7d2fe;border-color:var(--primary)}
 </div>
 <div class="toast" id="toast"></div>
 <script src="../assets/js/pwa.js"></script>
+<script src="../assets/js/header_nav.js?v=20261127"></script>
 <script src="../assets/js/budget.js"></script>
 </body>
 </html>

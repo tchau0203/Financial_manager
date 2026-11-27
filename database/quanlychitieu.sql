@@ -146,7 +146,25 @@ CREATE TABLE IF NOT EXISTS `shared_members` (
     FOREIGN KEY (`space_id`) REFERENCES `shared_spaces`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS shared_invitations (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    space_id INT NOT NULL,
+    inviter_id INT NOT NULL,
+    invitee_id INT NOT NULL,
+    status ENUM('pending', 'accepted', 'rejected') NOT NULL DEFAULT 'pending',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    responded_at DATETIME DEFAULT NULL,
+    INDEX idx_invitee_status (invitee_id, status),
+    CONSTRAINT fk_shared_invitations_space
+        FOREIGN KEY (space_id) REFERENCES shared_spaces(id) ON DELETE CASCADE,
+    CONSTRAINT fk_shared_invitations_inviter
+        FOREIGN KEY (inviter_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_shared_invitations_invitee
+        FOREIGN KEY (invitee_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+ALTER TABLE notifications
+    ADD COLUMN IF NOT EXISTS shared_invitation_id INT NULL;
 CREATE TABLE IF NOT EXISTS `shared_transactions` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `space_id` INT NOT NULL,

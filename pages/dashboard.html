@@ -1,7 +1,20 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng Điều Khiển - Quản Lý Chi Tiêu</title>
+    <link rel="manifest" href="../manifest.json">
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="CashManager">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+/* ===== Trợ lý AI: đánh giá tự động ===== */
 .ai-box{margin-bottom:1.5rem}
 .ai-head{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
 .ai-head h3{margin:0}
@@ -17,19 +30,29 @@
 @keyframes aiBlink{50%{opacity:0}}
 .ai-tips{margin-top:.75rem;padding-left:1.25rem;line-height:1.6}
 @media(max-width:600px){.ai-review{flex-direction:column;align-items:center;text-align:center}}
-</style>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bảng Điều Khiển - Quản Lý Chi Tiêu</title>
-    <link rel="manifest" href="../manifest.json">
-    <meta name="theme-color" content="#4f46e5">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="CashManager">
-    <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" href="../assets/css/components.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+/* ===== [HUY] Chatbot AI hỏi - đáp ===== */
+.aic{margin-top:1.25rem;padding-top:1.25rem;border-top:1px dashed #e2e8f0}
+.aic-title{margin-bottom:.75rem;font-weight:600}
+.aic-title small{display:block;margin-top:.15rem;color:var(--text-muted,#64748b);font-weight:400}
+.aic-list{display:flex;flex-direction:column;gap:.75rem;min-height:110px;max-height:380px;overflow-y:auto;margin-bottom:1rem;padding:.9rem;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc}
+.aic-msg{display:flex;gap:.6rem;max-width:92%}
+.aic-msg.me{align-self:flex-end;flex-direction:row-reverse}
+.aic-av{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;flex-shrink:0;border-radius:50%;background:linear-gradient(135deg,#6366f1,#a855f7);color:#fff;font-size:.85rem}
+.aic-bub{padding:.6rem .9rem;border:1px solid #e2e8f0;border-radius:14px;background:#fff;line-height:1.6;word-break:break-word}
+.aic-msg.me .aic-bub{border-color:var(--primary,#4f46e5);background:var(--primary,#4f46e5);color:#fff}
+.aic-msg.err .aic-bub{border-color:#fecaca;background:#fef2f2;color:#b91c1c}
+.aic-bub p{margin:0 0 .4rem}.aic-bub p:last-child{margin:0}
+.aic-bub ul,.aic-bub ol{margin:.25rem 0 .4rem 1.25rem}
+.aic-chips{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.75rem}
+.aic-chip{padding:.5rem .9rem;border:1px solid #c7d2fe;border-radius:999px;background:#eef2ff;color:var(--primary,#4f46e5);font-family:inherit;font-size:.85rem;font-weight:500;text-align:left;cursor:pointer}
+.aic-chip:hover{background:#e0e7ff}
+.aic-chip:disabled,.aic-send:disabled{opacity:.55;cursor:not-allowed}
+.aic-form{display:flex;gap:.6rem}
+.aic-form .form-control{flex:1;min-width:0}
+.aic-send{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem 1.2rem;white-space:nowrap}
+@media(max-width:600px){.aic-msg{max-width:100%}.aic-send span{display:none}}
+    </style>
 </head>
 <body>
     <div class="app-container">
@@ -44,21 +67,42 @@
                 <li><a href="budget.html"><i class="fa-solid fa-piggy-bank"></i> Ngân sách</a></li>
                 <li><a href="report.html"><i class="fa-solid fa-chart-column"></i> Báo cáo</a></li>
                 <li><a href="shared.html"><i class="fa-solid fa-users"></i> Quỹ chung</a></li>
-                <li><a href="account.html"><i class="fa-solid fa-gear"></i> Tài khoản</a></li>
             </ul>
         </aside>
 
         <div class="main-content">
             <header class="header">
                 <div style="font-weight: 700; font-size: 1.25rem;">Tổng quan tài chính</div>
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <span id="header-username" style="font-weight: 600;">Đang tải...</span>
-                    <button id="btnQuickAdd" class="btn btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">
-                        <i class="fa-solid fa-plus"></i> Thêm nhanh
+                <div class="header-user-nav" id="headerUserNav">
+                    <button type="button" class="btn-quick-tx" id="btnHeaderAddTx" title="Thêm giao dịch mới">
+                        <i class="fa-solid fa-plus"></i> Giao dịch
                     </button>
-                    <button id="btnLogout" class="btn" style="background: #fee2e2; color: #991b1b; padding: 0.4rem 0.8rem; font-size: 0.85rem;">
-                        <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
-                    </button>
+                    <button id="btnQuickAdd" style="display:none;"></button>
+                    <div class="user-dropdown-wrapper" id="userDropdownWrapper">
+                        <button type="button" class="user-profile-btn" id="userProfileBtn" aria-expanded="false" title="Tài khoản">
+                            <span class="user-avatar-circle" id="headerAvatar">T</span>
+                            <span class="user-profile-name" id="headerUserName">Thái Châu</span>
+                            <i class="fa-solid fa-caret-down user-profile-caret"></i>
+                        </button>
+                        <div class="user-dropdown-menu" id="userDropdownMenu">
+                            <a href="account.html?tab=account" class="user-dropdown-item" id="menuItemAccount">
+                                <i class="fa-solid fa-user"></i>
+                                <span>Tài khoản</span>
+                            </a>
+                            <a href="account.html?tab=settings" class="user-dropdown-item" id="menuItemSettings">
+                                <i class="fa-solid fa-sliders"></i>
+                                <span>Cài đặt</span>
+                            </a>
+                            <a href="javascript:void(0)" class="user-dropdown-item" id="menuItemHelp">
+                                <i class="fa-regular fa-circle-question"></i>
+                                <span>Trợ giúp</span>
+                            </a>
+                            <a href="javascript:void(0)" class="user-dropdown-item item-logout" id="menuItemLogout">
+                                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                                <span>Đăng xuất</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </header>
 
@@ -93,13 +137,34 @@
                         <div id="budget-progress-bar" class="progress-bar"></div>
                     </div>
                 </div>
+
+                <!-- Trợ lý tài chính AI: đánh giá tự động + [HUY] chatbot hỏi - đáp -->
                 <div class="card ai-box">
-    <div class="ai-head">
-        <h3>🤖 Trợ lý tài chính AI</h3>
-        <button type="button" id="aiAskBtn" class="ai-btn">Hỏi chuyên gia AI</button>
-    </div>
-    <div id="aiResult"></div>
-</div>
+                    <div class="ai-head">
+                        <h3>🤖 Trợ lý tài chính AI</h3>
+                        <button type="button" id="aiAskBtn" class="ai-btn">Hỏi chuyên gia AI</button>
+                    </div>
+                    <div id="aiResult"></div>
+
+                    <div class="aic" id="aiChat">
+                        <div class="aic-title">Hỏi đáp trực tiếp với AI
+                            <small>AI trả lời dựa trên số liệu thu chi thật của bạn.</small>
+                        </div>
+                        <div class="aic-list" id="aicList" aria-live="polite"></div>
+                        <div class="aic-chips">
+                            <button type="button" class="aic-chip" data-q="Làm sao để tháng sau tôi tiết kiệm được 2 triệu?">💡 Làm sao để tháng sau tôi tiết kiệm được 2 triệu?</button>
+                            <button type="button" class="aic-chip" data-q="Với thu nhập hiện tại, tôi có nên mua điện thoại mới không?">📱 Với thu nhập hiện tại, tôi có nên mua điện thoại mới không?</button>
+                            <button type="button" class="aic-chip" data-q="Gợi ý cách giảm 30% tiền ăn uống tháng tới?">🥗 Gợi ý cách giảm 30% tiền ăn uống tháng tới?</button>
+                        </div>
+                        <div class="aic-form">
+                            <input type="text" id="aicInput" class="form-control" maxlength="500" autocomplete="off"
+                                   aria-label="Câu hỏi tài chính cho AI"
+                                   placeholder="Nhập câu hỏi tài chính cho AI (VD: Tôi có nên mua xe máy mới lúc này không?)...">
+                            <button type="button" id="aicSend" class="ai-btn aic-send"><i class="fa-solid fa-paper-plane"></i> <span>Gửi</span></button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- 2 Biểu đồ -->
                 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
                     <div class="card">
@@ -201,12 +266,15 @@
     </div>
 
     <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/header_nav.js?v=20261127"></script>
     <script src="../assets/js/pwa.js"></script>
     <script src="../assets/js/table_sort.js"></script>
     <script src="../assets/js/dashboard.js?v=2"></script>
     <script>
         document.getElementById('quick_date').valueAsDate = new Date();
     </script>
+
+    <!-- Nút "Hỏi chuyên gia AI": đánh giá tự động -->
     <script>
 (function () {
     const btn = document.getElementById('aiAskBtn');
@@ -271,6 +339,110 @@
         }
     });
 })();
-</script>
+    </script>
+
+    <!-- [HUY] Chatbot AI hỏi - đáp: gọi api/ai/chat.php -->
+    <script>
+(function () {
+    const list = document.getElementById('aicList');
+    const input = document.getElementById('aicInput');
+    const sendBtn = document.getElementById('aicSend');
+    const chips = document.querySelectorAll('.aic-chip');
+    let busy = false;
+
+    const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+    // Định dạng câu trả lời của AI: **đậm**, danh sách gạch đầu dòng / đánh số, đoạn văn
+    function fmt(text) {
+        const inline = s => s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        const out = [];
+        let ul = false, ol = false;
+        const close = () => {
+            if (ul) { out.push('</ul>'); ul = false; }
+            if (ol) { out.push('</ol>'); ol = false; }
+        };
+        esc(text).split(/\r?\n/).forEach(line => {
+            const l = line.trim();
+            let m;
+            if ((m = l.match(/^[-*•]\s+(.*)/))) {
+                if (!ul) { close(); out.push('<ul>'); ul = true; }
+                out.push('<li>' + inline(m[1]) + '</li>');
+            } else if ((m = l.match(/^\d+[.)]\s+(.*)/))) {
+                if (!ol) { close(); out.push('<ol>'); ol = true; }
+                out.push('<li>' + inline(m[1]) + '</li>');
+            } else if ((m = l.match(/^#{1,6}\s+(.*)/))) {
+                close(); out.push('<p><strong>' + inline(m[1]) + '</strong></p>');
+            } else if (!l) {
+                close();
+            } else {
+                close(); out.push('<p>' + inline(l) + '</p>');
+            }
+        });
+        close();
+        return out.join('');
+    }
+
+    function add(cls, html) {
+        const d = document.createElement('div');
+        d.className = 'aic-msg ' + cls;
+        d.innerHTML = (cls === 'me' ? '' : '<span class="aic-av"><i class="fa-solid fa-robot"></i></span>')
+            + '<div class="aic-bub">' + html + '</div>';
+        list.appendChild(d);
+        list.scrollTop = list.scrollHeight;
+        return d;
+    }
+
+    function setBusy(b) {
+        busy = b;
+        sendBtn.disabled = input.disabled = b;
+        chips.forEach(c => { c.disabled = b; });
+    }
+
+    async function ask(q) {
+        q = String(q || '').trim();
+        if (!q || busy) return;
+        setBusy(true);
+        input.value = '';
+        add('me', esc(q));
+        const wait = add('ai', '<i class="fa-solid fa-spinner fa-spin"></i> AI đang suy nghĩ…');
+        const ctl = new AbortController();
+        const timer = setTimeout(() => ctl.abort(), 40000);
+        try {
+            const r = await fetch('../api/ai/chat.php', {
+                method: 'POST', credentials: 'include', signal: ctl.signal,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question: q })
+            });
+            if (r.status === 401) { location.href = 'login.html'; return; }
+            let j = {};
+            try { j = await r.json(); } catch (e) {}
+            if (!r.ok || j.success === false || j.status === 'error') throw new Error(j.message || j.error || 'Máy chủ chưa phản hồi đúng');
+            const d = j.data !== undefined ? j.data : j;
+            const text = typeof d === 'string' ? d : (d.answer ?? d.reply ?? d.response ?? d.text ?? d.message ?? '');
+            if (!text) throw new Error('AI chưa trả về nội dung');
+            wait.querySelector('.aic-bub').innerHTML = fmt(text);
+        } catch (err) {
+            wait.classList.add('err');
+            wait.querySelector('.aic-bub').textContent = err.name === 'AbortError'
+                ? 'AI phản hồi quá lâu, bạn thử gửi lại nhé.'
+                : 'Chưa nhận được câu trả lời: ' + err.message;
+        } finally {
+            clearTimeout(timer);
+            setBusy(false);
+            list.scrollTop = list.scrollHeight;
+            input.focus();
+        }
+    }
+
+    sendBtn.addEventListener('click', () => ask(input.value));
+    // e.isComposing: không gửi nhầm khi đang gõ dấu tiếng Việt (Telex/VNI)
+    input.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); ask(input.value); }
+    });
+    chips.forEach(c => c.addEventListener('click', () => ask(c.dataset.q)));
+
+    add('ai', fmt('Xin chào! Mình là trợ lý tài chính AI. Bạn cứ hỏi về chi tiêu, tiết kiệm hay kế hoạch mua sắm, mình sẽ trả lời dựa trên số liệu thu chi của bạn nhé.'));
+})();
+    </script>
 </body>
 </html>

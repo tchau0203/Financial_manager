@@ -91,22 +91,82 @@ td{padding:12px 14px;border-bottom:1px solid var(--line)}
     <a href="budget.html"><i class="fa-solid fa-piggy-bank"></i> Ngân sách</a>
     <a href="report.html"><i class="fa-solid fa-chart-column"></i> Báo cáo</a>
     <a href="shared.html"><i class="fa-solid fa-users"></i> Quỹ chung</a>
-    <a href="account.html" class="active"><i class="fa-solid fa-gear"></i> Tài khoản</a>
   </nav>
 </aside>
 <div class="main">
   <header class="topbar">
     <h1>Cài đặt tài khoản</h1>
-    <div class="right"><span id="userName"></span><button class="btn out" id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</button></div>
+    <div class="header-user-nav" id="headerUserNav">
+        <button type="button" class="btn-quick-tx" id="btnHeaderAddTx" title="Thêm giao dịch mới">
+            <i class="fa-solid fa-plus"></i> Giao dịch
+        </button>
+        <div class="user-dropdown-wrapper" id="userDropdownWrapper">
+            <button type="button" class="user-profile-btn" id="userProfileBtn" aria-expanded="false" title="Tài khoản">
+                <span class="user-avatar-circle" id="headerAvatar">T</span>
+                <span class="user-profile-name" id="headerUserName">Thái Châu</span>
+                <i class="fa-solid fa-caret-down user-profile-caret"></i>
+            </button>
+            <div class="user-dropdown-menu" id="userDropdownMenu">
+                <a href="account.html?tab=account" class="user-dropdown-item" id="menuItemAccount">
+                    <i class="fa-solid fa-user"></i>
+                    <span>Tài khoản</span>
+                </a>
+                <a href="account.html?tab=settings" class="user-dropdown-item" id="menuItemSettings">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Cài đặt</span>
+                </a>
+                <a href="javascript:void(0)" class="user-dropdown-item" id="menuItemHelp">
+                    <i class="fa-regular fa-circle-question"></i>
+                    <span>Trợ giúp</span>
+                </a>
+                <a href="javascript:void(0)" class="user-dropdown-item item-logout" id="menuItemLogout">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <span>Đăng xuất</span>
+                </a>
+            </div>
+        </div>
+    </div>
   </header>
   <div class="content">
-    <!-- [HUY T2] thanh tab -->
+    <!-- Thanh Tab điều hướng: Tài khoản | Cài đặt | Sao lưu & Dữ liệu -->
     <div class="tabs">
-      <button class="on" data-tab="info">Thông tin</button>
-      <button data-tab="backup">Sao lưu &amp; Dữ liệu</button>
+      <button class="on" data-tab="account"><i class="fa-solid fa-user"></i> Tài khoản</button>
+      <button data-tab="settings"><i class="fa-solid fa-sliders"></i> Cài đặt</button>
+      <button data-tab="backup"><i class="fa-solid fa-database"></i> Sao lưu &amp; Dữ liệu</button>
     </div>
 
-    <section class="tab" id="tab-info">
+    <!-- TAB 1: TÀI KHOẢN -->
+    <section class="tab" id="tab-account">
+      <!-- [AVATAR] Khối thay đổi ảnh đại diện (Hỗ trợ Google Avatar & Tải ảnh mới) -->
+      <div class="card" id="avatarSection" style="margin-bottom: 16px;">
+        <div style="display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
+          <div style="position:relative; width:80px; height:80px; flex-shrink:0;">
+            <div id="accountAvatarBox" class="user-avatar-circle" style="width:80px; height:80px; font-size:2rem; box-shadow:0 4px 12px rgba(0,0,0,0.12);">
+              T
+            </div>
+            <button type="button" id="btnChangeAvatarCamera" style="position:absolute; bottom:-4px; right:-4px; width:30px; height:30px; border-radius:50%; background:var(--primary, #4f46e5); color:#fff; border:2px solid #fff; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,0.2);" title="Thay đổi ảnh">
+              <i class="fa-solid fa-camera" style="font-size:12px;"></i>
+            </button>
+            <input type="file" id="avatarInputFile" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none;">
+          </div>
+          <div style="flex:1; min-width:240px;">
+            <h3 style="margin-bottom:4px;">Ảnh đại diện</h3>
+            <p class="muted" style="margin-bottom:12px; font-size:13px;">Hỗ trợ ảnh từ tài khoản Google hoặc tải lên ảnh đại diện tùy thích từ máy (JPG, PNG, WEBP tối đa 5MB).</p>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+              <button type="button" class="btn" id="btnUploadAvatarFile" style="padding:7px 14px; font-size:13px;">
+                <i class="fa-solid fa-cloud-arrow-up"></i> Tải ảnh từ máy
+              </button>
+              <button type="button" class="btn ghost" id="btnInputAvatarUrl" style="padding:7px 14px; font-size:13px;">
+                <i class="fa-solid fa-link"></i> Nhập link ảnh
+              </button>
+              <button type="button" class="btn ghost out" id="btnDeleteAvatar" style="padding:7px 14px; font-size:13px; display:none;">
+                <i class="fa-solid fa-trash-can"></i> Xóa ảnh
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="grid g2">
         <div class="card">
           <h3>Thông tin cá nhân</h3>
@@ -125,6 +185,153 @@ td{padding:12px 14px;border-bottom:1px solid var(--line)}
             <button type="submit" class="btn">Đổi mật khẩu</button>
           </form>
         </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: CÀI ĐẶT (CHUNG, GIAO DIỆN, TIỀN TỆ, THÔNG BÁO, VIETQR, DANH MỤC) -->
+    <section class="tab hide" id="tab-settings">
+      <!-- KHỐI 1: NGÔN NGỮ & GIAO DIỆN (CHẾ ĐỘ SÁNG TỐI & MẬT ĐỘ DANH SÁCH GHI CHÉP) -->
+      <div class="card" id="cardAppearanceSettings">
+        <!-- 1. Ngôn ngữ của trang web -->
+        <h3 style="font-size:1.05rem; font-weight:700; margin-bottom:12px; color:var(--text-main);"><i class="fa-solid fa-globe" style="color:var(--primary); margin-right:6px;"></i> Ngôn ngữ của trang web</h3>
+        <div style="max-width: 380px; margin-bottom: 24px;">
+          <div class="lang-select-wrapper">
+            <i class="fa-solid fa-language"></i>
+            <select id="selectAppLanguage">
+              <option value="vi" selected>🇻🇳 Tiếng Việt (Vietnamese)</option>
+              <option value="en">🇬🇧 English (Tiếng Anh)</option>
+              <option value="ja">🇯🇵 日本語 (Japanese - Tiếng Nhật)</option>
+              <option value="ko">🇰🇷 한국어 (Korean - Tiếng Hàn)</option>
+              <option value="zh">🇨🇳 简体中文 (Chinese - Tiếng Trung)</option>
+              <option value="fr">🇫🇷 Français (French - Tiếng Pháp)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 2. Giao diện -->
+        <h3 style="font-size:1.15rem; font-weight:700; margin-top:24px; margin-bottom:16px; color:var(--text-main);"><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--primary); margin-right:6px;"></i> Giao diện</h3>
+
+        <!-- 2.1 Chế độ sáng và tối -->
+        <div style="margin-bottom: 22px;">
+          <label style="display:block; font-weight:600; font-size:14px; margin-bottom:10px; color:var(--text-main);">Chế độ sáng và tối</label>
+          <div class="theme-options-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:12px;">
+            <!-- Theo trình duyệt -->
+            <label class="setting-choice-card" data-theme-val="auto">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <input type="radio" name="appTheme" value="auto" checked>
+                <span style="font-size:13.5px; font-weight:500;">Theo trình duyệt</span>
+              </div>
+              <div class="preview-box auto-preview" style="width:58px; height:38px; border-radius:6px; border:1px solid #cbd5e1; overflow:hidden; position:relative; background:#f8fafc; flex-shrink:0;">
+                <div style="width:50%; height:100%; float:left; padding:5px 4px;">
+                  <div style="width:100%; height:4px; background:#cbd5e1; border-radius:2px; margin-bottom:4px;"></div>
+                  <div style="width:70%; height:4px; background:#cbd5e1; border-radius:2px; margin-bottom:4px;"></div>
+                  <div style="width:85%; height:4px; background:#cbd5e1; border-radius:2px;"></div>
+                </div>
+                <div style="width:50%; height:100%; float:right; background:#0f172a; padding:5px 4px;">
+                  <div style="width:100%; height:4px; background:#334155; border-radius:2px; margin-bottom:4px;"></div>
+                  <div style="width:70%; height:4px; background:#334155; border-radius:2px; margin-bottom:4px;"></div>
+                  <div style="width:85%; height:4px; background:#334155; border-radius:2px;"></div>
+                </div>
+              </div>
+            </label>
+
+            <!-- Sáng -->
+            <label class="setting-choice-card" data-theme-val="light">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <input type="radio" name="appTheme" value="light">
+                <span style="font-size:13.5px; font-weight:500;">Sáng</span>
+              </div>
+              <div class="preview-box light-preview" style="width:58px; height:38px; border-radius:6px; border:1px solid #cbd5e1; background:#f8fafc; padding:6px 6px; flex-shrink:0;">
+                <div style="width:100%; height:4px; background:#cbd5e1; border-radius:2px; margin-bottom:4px;"></div>
+                <div style="width:75%; height:4px; background:#cbd5e1; border-radius:2px; margin-bottom:4px;"></div>
+                <div style="width:90%; height:4px; background:#cbd5e1; border-radius:2px;"></div>
+              </div>
+            </label>
+
+            <!-- Tối -->
+            <label class="setting-choice-card" data-theme-val="dark">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <input type="radio" name="appTheme" value="dark">
+                <span style="font-size:13.5px; font-weight:500;">Tối</span>
+              </div>
+              <div class="preview-box dark-preview" style="width:58px; height:38px; border-radius:6px; border:1px solid #334155; background:#0f172a; padding:6px 6px; flex-shrink:0;">
+                <div style="width:100%; height:4px; background:#334155; border-radius:2px; margin-bottom:4px;"></div>
+                <div style="width:75%; height:4px; background:#334155; border-radius:2px; margin-bottom:4px;"></div>
+                <div style="width:90%; height:4px; background:#334155; border-radius:2px;"></div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- 2.2 Mật độ danh sách ghi chép -->
+        <div>
+          <label style="display:block; font-weight:600; font-size:14px; margin-bottom:10px; color:var(--text-main);">Mật độ danh sách ghi chép</label>
+          <div class="density-options-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:12px;">
+            <!-- Thấp - mặc định -->
+            <label class="setting-choice-card" data-density-val="low">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <input type="radio" name="appDensity" value="low" checked>
+                <span style="font-size:13.5px; font-weight:500;">Thấp <small style="color:#94a3b8; font-weight:normal;">- mặc định</small></span>
+              </div>
+              <div class="preview-box" style="width:58px; height:38px; border-radius:6px; border:1px solid #cbd5e1; background:#fff; padding:7px 6px; display:flex; flex-direction:column; justify-content:space-around; flex-shrink:0;">
+                <div style="display:flex; align-items:center; gap:4px;"><span style="width:6px; height:6px; border-radius:50%; background:#94a3b8;"></span><span style="flex:1; height:4px; background:#cbd5e1; border-radius:2px;"></span></div>
+                <div style="display:flex; align-items:center; gap:4px;"><span style="width:6px; height:6px; border-radius:50%; background:#94a3b8;"></span><span style="flex:1; height:4px; background:#cbd5e1; border-radius:2px;"></span></div>
+              </div>
+            </label>
+
+            <!-- Trung bình -->
+            <label class="setting-choice-card" data-density-val="medium">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <input type="radio" name="appDensity" value="medium">
+                <span style="font-size:13.5px; font-weight:500;">Trung bình</span>
+              </div>
+              <div class="preview-box" style="width:58px; height:38px; border-radius:6px; border:1px solid #cbd5e1; background:#fff; padding:5px 6px; display:flex; flex-direction:column; justify-content:space-between; flex-shrink:0;">
+                <div style="display:flex; align-items:center; gap:4px;"><span style="width:5px; height:5px; border-radius:50%; background:#94a3b8;"></span><span style="flex:1; height:3px; background:#cbd5e1; border-radius:2px;"></span></div>
+                <div style="display:flex; align-items:center; gap:4px;"><span style="width:5px; height:5px; border-radius:50%; background:#94a3b8;"></span><span style="flex:1; height:3px; background:#cbd5e1; border-radius:2px;"></span></div>
+                <div style="display:flex; align-items:center; gap:4px;"><span style="width:5px; height:5px; border-radius:50%; background:#94a3b8;"></span><span style="flex:1; height:3px; background:#cbd5e1; border-radius:2px;"></span></div>
+              </div>
+            </label>
+
+            <!-- Cao -->
+            <label class="setting-choice-card" data-density-val="high">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <input type="radio" name="appDensity" value="high">
+                <span style="font-size:13.5px; font-weight:500;">Cao</span>
+              </div>
+              <div class="preview-box" style="width:58px; height:38px; border-radius:6px; border:1px solid #cbd5e1; background:#fff; padding:4px 6px; display:flex; flex-direction:column; justify-content:space-between; flex-shrink:0;">
+                <div style="display:flex; align-items:center; gap:4px;"><span style="width:4px; height:4px; border-radius:50%; background:#94a3b8;"></span><span style="flex:1; height:2.5px; background:#cbd5e1; border-radius:2px;"></span></div>
+                <div style="display:flex; align-items:center; gap:4px;"><span style="width:4px; height:4px; border-radius:50%; background:#94a3b8;"></span><span style="flex:1; height:2.5px; background:#cbd5e1; border-radius:2px;"></span></div>
+                <div style="display:flex; align-items:center; gap:4px;"><span style="width:4px; height:4px; border-radius:50%; background:#94a3b8;"></span><span style="flex:1; height:2.5px; background:#cbd5e1; border-radius:2px;"></span></div>
+                <div style="display:flex; align-items:center; gap:4px;"><span style="width:4px; height:4px; border-radius:50%; background:#94a3b8;"></span><span style="flex:1; height:2.5px; background:#cbd5e1; border-radius:2px;"></span></div>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cài đặt Đa tiền tệ (Nhóm 2) -->
+      <div class="card">
+        <h3><i class="fa-solid fa-coins" style="color:var(--amber)"></i> Cài đặt Đa tiền tệ</h3>
+        <form id="currencyForm">
+          <div class="field">
+            <label for="currencySelect">Đơn vị tiền tệ chính</label>
+            <select id="currencySelect">
+              <option value="VND">VND (đ) - Việt Nam Đồng</option>
+              <option value="USD">USD ($) - Đô la Mỹ</option>
+              <option value="EUR">EUR (€) - Euro (Châu Âu)</option>
+              <option value="JPY">JPY (¥) - Yên Nhật</option>
+              <option value="GBP">GBP (£) - Bảng Anh</option>
+            </select>
+          </div>
+          <div style="background:#f1f5f9; border-radius:8px; padding:10px 12px; margin-bottom:14px; font-size:12px; color:var(--muted)">
+            <strong style="color:#0f172a">Tỷ giá tham chiếu:</strong><br>
+            • 1 USD ≈ 25.400 đ<br>
+            • 1 EUR ≈ 27.200 đ<br>
+            • 1 JPY ≈ 170 đ<br>
+            • 1 GBP ≈ 32.500 đ
+          </div>
+          <button type="submit" class="btn" style="background:var(--amber); color:#000"><i class="fa-solid fa-check"></i> Lưu tiền tệ</button>
+        </form>
       </div>
 
       <!-- [HUY T2] Chức năng 4: bật/tắt email cảnh báo -->
@@ -161,31 +368,6 @@ td{padding:12px 14px;border-bottom:1px solid var(--line)}
             <button type="button" class="btn" id="btnSaveReminder"><i class="fa-solid fa-check"></i> Lưu cài đặt</button>
           </div>
         </div>
-      </div>
-
-      <!-- Cài đặt Đa tiền tệ (Nhóm 2) -->
-      <div class="card">
-        <h3><i class="fa-solid fa-coins" style="color:var(--amber)"></i> Cài đặt Đa tiền tệ</h3>
-        <form id="currencyForm">
-          <div class="field">
-            <label for="currencySelect">Đơn vị tiền tệ chính</label>
-            <select id="currencySelect">
-              <option value="VND">VND (đ) - Việt Nam Đồng</option>
-              <option value="USD">USD ($) - Đô la Mỹ</option>
-              <option value="EUR">EUR (€) - Euro (Châu Âu)</option>
-              <option value="JPY">JPY (¥) - Yên Nhật</option>
-              <option value="GBP">GBP (£) - Bảng Anh</option>
-            </select>
-          </div>
-          <div style="background:#f1f5f9; border-radius:8px; padding:10px 12px; margin-bottom:14px; font-size:12px; color:var(--muted)">
-            <strong style="color:#0f172a">Tỷ giá tham chiếu:</strong><br>
-            • 1 USD ≈ 25.400 đ<br>
-            • 1 EUR ≈ 27.200 đ<br>
-            • 1 JPY ≈ 170 đ<br>
-            • 1 GBP ≈ 32.500 đ
-          </div>
-          <button type="submit" class="btn" style="background:var(--amber); color:#000"><i class="fa-solid fa-check"></i> Lưu tiền tệ</button>
-        </form>
       </div>
 
       <!-- [HUY T3] Thông tin tài khoản ngân hàng (dùng cho VietQR) -->
@@ -244,8 +426,32 @@ td{padding:12px 14px;border-bottom:1px solid var(--line)}
     </form>
   </div>
 </div>
+<!-- Modal nhập URL ảnh đại diện -->
+<div id="modalAvatarUrl" class="modal">
+  <div class="modal-content" style="max-width: 440px;">
+    <div class="modal-header">
+      <h3 style="margin:0; font-size:1.1rem;"><i class="fa-solid fa-link" style="color:var(--primary)"></i> Nhập liên kết ảnh đại diện</h3>
+      <button type="button" class="modal-close" id="btnCloseAvatarUrlModal">&times;</button>
+    </div>
+    <form id="formAvatarUrl">
+      <div class="modal-body">
+        <div class="field">
+          <label for="inputAvatarUrlVal">Đường dẫn ảnh (URL)</label>
+          <input type="url" id="inputAvatarUrlVal" placeholder="https://example.com/avatar.jpg" required>
+        </div>
+        <small class="muted" style="display:block; margin-top:6px;">Dán đường link ảnh đại diện (hỗ trợ JPG, PNG, WEBP, Google avatar link...)</small>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn ghost" id="btnCancelAvatarUrlModal">Hủy</button>
+        <button type="submit" class="btn">Lưu ảnh đại diện</button>
+      </div>
+    </form>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 <script src="../assets/js/pwa.js"></script>
+<script src="../assets/js/i18n.js?v=20261127"></script>
+<script src="../assets/js/header_nav.js?v=20261127"></script>
 <script src="../assets/js/account.js"></script>
 </body>
 </html>
