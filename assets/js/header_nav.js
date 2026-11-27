@@ -52,7 +52,7 @@
         return `
             <div class="header-user-nav" id="headerUserNav">
                 <button type="button" class="btn-quick-tx" id="btnHeaderAddTx" title="Thêm giao dịch mới">
-                    <i class="fa-solid fa-plus"></i> Giao dịch
+                    <i class="fa-solid fa-plus"></i> <span class="tx-text">Giao dịch</span>
                 </button>
                 <div class="user-dropdown-wrapper" id="userDropdownWrapper">
                     <button type="button" class="user-profile-btn" id="userProfileBtn" aria-expanded="false" title="Tài khoản">
@@ -642,14 +642,240 @@
         }
     }
 
+    // Thiết lập Drawer Sidebar trượt & Thanh điều hướng dưới đáy (Mobile Bottom Navigation Bar)
+    function setupMobileDrawerAndBottomNav() {
+        // 1. Nút Hamburger góc trái Header
+        const header = document.querySelector('.header') || document.querySelector('.topbar');
+        let toggleBtn = header ? header.querySelector('#btnSidebarToggle, #btnMenu, .menu-toggle') : null;
+        if (header && !toggleBtn) {
+            toggleBtn = document.createElement('button');
+            toggleBtn.type = 'button';
+            toggleBtn.id = 'btnSidebarToggle';
+            toggleBtn.className = 'btn-sidebar-toggle';
+            toggleBtn.setAttribute('aria-label', 'Mở menu');
+            toggleBtn.innerHTML = '<i class="fa-solid fa-bars"></i>';
+            header.insertBefore(toggleBtn, header.firstElementChild);
+        }
+
+        // 2. Nút đóng X trong Sidebar Brand
+        const sidebarBrand = document.querySelector('.sidebar .sidebar-brand');
+        let closeBtn = document.getElementById('btnSidebarClose');
+        if (sidebarBrand && !closeBtn) {
+            closeBtn = document.createElement('button');
+            closeBtn.type = 'button';
+            closeBtn.id = 'btnSidebarClose';
+            closeBtn.className = 'btn-sidebar-close';
+            closeBtn.setAttribute('aria-label', 'Đóng menu');
+            closeBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+            sidebarBrand.appendChild(closeBtn);
+        }
+
+        // 3. Lớp phủ mờ Backdrop khi mở menu di động
+        let backdrop = document.getElementById('sidebarBackdrop');
+        if (!backdrop) {
+            backdrop = document.createElement('div');
+            backdrop.id = 'sidebarBackdrop';
+            backdrop.className = 'sidebar-backdrop';
+            document.body.appendChild(backdrop);
+        }
+
+        // 4. Thanh điều hướng dưới đáy (Mobile Bottom Navigation Bar)
+        if (!document.getElementById('mobileBottomNav')) {
+            const currentPath = window.location.pathname.toLowerCase();
+            const isDashboard = currentPath.includes('dashboard') || currentPath.endsWith('/') || currentPath.endsWith('index.html');
+            const isExpense = currentPath.includes('expense') || currentPath.includes('income');
+            const isFeed = currentPath.includes('feed');
+            const isReport = currentPath.includes('report');
+
+            const bottomNav = document.createElement('nav');
+            bottomNav.id = 'mobileBottomNav';
+            bottomNav.className = 'mobile-bottom-nav';
+            bottomNav.innerHTML = `
+                <a href="${basePath}dashboard.html" class="mb-nav-item ${isDashboard ? 'active' : ''}">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Tổng quan</span>
+                </a>
+                <a href="${basePath}expense.html" class="mb-nav-item ${isExpense ? 'active' : ''}">
+                    <i class="fa-solid fa-arrow-trend-down"></i>
+                    <span>Chi tiêu</span>
+                </a>
+                <a href="${basePath}feed.html" class="mb-nav-item ${isFeed ? 'active' : ''}">
+                    <i class="fa-solid fa-camera-retro"></i>
+                    <span>Bảng tin</span>
+                </a>
+                <a href="${basePath}report.html" class="mb-nav-item ${isReport ? 'active' : ''}">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Báo cáo</span>
+                </a>
+                <button type="button" class="mb-nav-item" id="btnBottomNavMenu">
+                    <i class="fa-solid fa-bars"></i>
+                    <span>Menu</span>
+                </button>
+            `;
+            document.body.appendChild(bottomNav);
+        }
+
+        // 5. Gắn sự kiện mở & đóng Sidebar Drawer mượt mà
+        const sidebar = document.querySelector('.sidebar');
+        const bottomNavMenu = document.getElementById('btnBottomNavMenu');
+
+        function openSidebar(e) {
+            if (e) e.preventDefault();
+            if (sidebar) sidebar.classList.add('open');
+            if (backdrop) backdrop.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSidebar(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            if (sidebar) sidebar.classList.remove('open');
+            if (backdrop) backdrop.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        const allToggleBtns = document.querySelectorAll('#btnSidebarToggle, #btnMenu, .menu-toggle, #btnBottomNavMenu');
+        allToggleBtns.forEach(btn => {
+            if (!btn.dataset.drawerBound) {
+                btn.dataset.drawerBound = '1';
+                btn.addEventListener('click', openSidebar);
+            }
+        });
+
+        if (closeBtn && !closeBtn.dataset.bound) {
+            closeBtn.dataset.bound = '1';
+            closeBtn.addEventListener('click', closeSidebar);
+        }
+        if (backdrop && !backdrop.dataset.bound) {
+            backdrop.dataset.bound = '1';
+            backdrop.addEventListener('click', closeSidebar);
+        }
+
+        // Đóng khi click vào bất kỳ link nào trong sidebar
+        if (sidebar && !sidebar.dataset.linksBound) {
+            sidebar.dataset.linksBound = '1';
+            sidebar.querySelectorAll('a').forEach(a => {
+                a.addEventListener('click', () => {
+                    closeSidebar();
+                });
+            });
+        }
+    }
+
+        // 2. Nút đóng X trong Sidebar Brand
+        const sidebarBrand = document.querySelector('.sidebar .sidebar-brand');
+        if (sidebarBrand && !document.getElementById('btnSidebarClose')) {
+            const closeBtn = document.createElement('button');
+            closeBtn.type = 'button';
+            closeBtn.id = 'btnSidebarClose';
+            closeBtn.className = 'btn-sidebar-close';
+            closeBtn.setAttribute('aria-label', 'Đóng menu');
+            closeBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+            sidebarBrand.appendChild(closeBtn);
+        }
+
+        // 3. Lớp phủ mờ Backdrop khi mở menu di động
+        let backdrop = document.getElementById('sidebarBackdrop');
+        if (!backdrop) {
+            backdrop = document.createElement('div');
+            backdrop.id = 'sidebarBackdrop';
+            backdrop.className = 'sidebar-backdrop';
+            document.body.appendChild(backdrop);
+        }
+
+        // 4. Thanh điều hướng dưới đáy (Mobile Bottom Navigation Bar)
+        if (!document.getElementById('mobileBottomNav')) {
+            const currentPath = window.location.pathname.toLowerCase();
+            const isDashboard = currentPath.includes('dashboard') || currentPath.endsWith('/') || currentPath.endsWith('index.html');
+            const isExpense = currentPath.includes('expense') || currentPath.includes('income');
+            const isFeed = currentPath.includes('feed');
+            const isReport = currentPath.includes('report');
+
+            const bottomNav = document.createElement('nav');
+            bottomNav.id = 'mobileBottomNav';
+            bottomNav.className = 'mobile-bottom-nav';
+            bottomNav.innerHTML = `
+                <a href="${basePath}dashboard.html" class="mb-nav-item ${isDashboard ? 'active' : ''}">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Tổng quan</span>
+                </a>
+                <a href="${basePath}expense.html" class="mb-nav-item ${isExpense ? 'active' : ''}">
+                    <i class="fa-solid fa-arrow-trend-down"></i>
+                    <span>Chi tiêu</span>
+                </a>
+                <a href="${basePath}feed.html" class="mb-nav-item ${isFeed ? 'active' : ''}">
+                    <i class="fa-solid fa-camera-retro"></i>
+                    <span>Bảng tin</span>
+                </a>
+                <a href="${basePath}report.html" class="mb-nav-item ${isReport ? 'active' : ''}">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Báo cáo</span>
+                </a>
+                <button type="button" class="mb-nav-item" id="btnBottomNavMenu">
+                    <i class="fa-solid fa-bars"></i>
+                    <span>Menu</span>
+                </button>
+            `;
+            document.body.appendChild(bottomNav);
+        }
+
+        // 5. Gắn sự kiện mở & đóng Sidebar Drawer mượt mà
+        const sidebar = document.querySelector('.sidebar');
+        const toggleBtn = document.getElementById('btnSidebarToggle');
+        const closeBtn = document.getElementById('btnSidebarClose');
+        const bottomNavMenu = document.getElementById('btnBottomNavMenu');
+
+        function openSidebar(e) {
+            if (e) e.preventDefault();
+            if (sidebar) sidebar.classList.add('open');
+            if (backdrop) backdrop.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSidebar(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            if (sidebar) sidebar.classList.remove('open');
+            if (backdrop) backdrop.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        if (toggleBtn && !toggleBtn.dataset.bound) {
+            toggleBtn.dataset.bound = '1';
+            toggleBtn.addEventListener('click', openSidebar);
+        }
+        if (bottomNavMenu && !bottomNavMenu.dataset.bound) {
+            bottomNavMenu.dataset.bound = '1';
+            bottomNavMenu.addEventListener('click', openSidebar);
+        }
+        if (closeBtn && !closeBtn.dataset.bound) {
+            closeBtn.dataset.bound = '1';
+            closeBtn.addEventListener('click', closeSidebar);
+        }
+        if (backdrop && !backdrop.dataset.bound) {
+            backdrop.dataset.bound = '1';
+            backdrop.addEventListener('click', closeSidebar);
+        }
+
+        // Đóng khi click vào bất kỳ link nào trong sidebar
+        if (sidebar && !sidebar.dataset.linksBound) {
+            sidebar.dataset.linksBound = '1';
+            sidebar.querySelectorAll('a').forEach(a => {
+                a.addEventListener('click', () => {
+                    closeSidebar();
+                });
+            });
+        }
+    }
+
     // Khởi chạy khi DOM sẵn sàng
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
             upgradeHeader();
+            setupMobileDrawerAndBottomNav();
             fetchCurrentUser();
         });
     } else {
         upgradeHeader();
+        setupMobileDrawerAndBottomNav();
         fetchCurrentUser();
     }
 
