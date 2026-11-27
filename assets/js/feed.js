@@ -70,7 +70,16 @@
         if (!p) { $('photoCount').textContent = ''; return; }
 
         const img = $('photoImg');
-        img.src = '../' + p.image_path;
+        const rawPath = p.image_path || '';
+        const fileName = rawPath.split('/').pop();
+        img.dataset.fallback = '';
+        img.onerror = function() {
+            if (!this.dataset.fallback && fileName) {
+                this.dataset.fallback = '1';
+                this.src = '../api/posts/view.php?file=' + encodeURIComponent(fileName);
+            }
+        };
+        img.src = '../' + rawPath;
         img.alt = 'Ảnh của ' + p.full_name;
         if (dir) {
             box.classList.remove('slide-up', 'slide-down');
@@ -164,7 +173,7 @@
     function renderGrid() {
         $('gridBody').innerHTML = state.posts.length
             ? state.posts.map((p, i) => '<button type="button" class="g-item" data-i="' + i + '" aria-label="Xem bài ' + (i + 1) + '">' +
-                '<img src="../' + esc(p.image_path) + '" alt="" loading="lazy">' +
+                '<img src="../' + esc(p.image_path) + '" alt="" loading="lazy" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=\'../api/posts/view.php?file=\'+encodeURIComponent(this.src.split(\'/\').pop());}">' +
                 '<span class="g-amt ' + (p.type === 'income' ? 'inc' : 'exp') + '">' + (p.type === 'income' ? '+' : '-') + esc(money(p.amount)) + '</span></button>').join('')
             : '<p class="g-empty">Chưa có bài đăng nào.</p>';
         $('gridMore').classList.toggle('hide', !state.hasMore);
