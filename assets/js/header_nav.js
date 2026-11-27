@@ -727,7 +727,6 @@
         }
 
         function closeSidebar(e) {
-            if (e && e.preventDefault) e.preventDefault();
             if (sidebar) sidebar.classList.remove('open');
             if (backdrop) backdrop.classList.remove('show');
             document.body.style.overflow = '';
@@ -832,7 +831,6 @@
         }
 
         function closeSidebar(e) {
-            if (e && e.preventDefault) e.preventDefault();
             if (sidebar) sidebar.classList.remove('open');
             if (backdrop) backdrop.classList.remove('show');
             document.body.style.overflow = '';
