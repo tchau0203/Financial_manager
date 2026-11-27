@@ -43,14 +43,29 @@
     return u;
   }
 
+  // [HUY T3] Danh sách ngân hàng (mã BIN theo chuẩn VietQR)
+  const BANKS = [['970436', 'Vietcombank (VCB)'], ['970418', 'BIDV'], ['970415', 'VietinBank'], ['970405', 'Agribank'],
+    ['970407', 'Techcombank'], ['970422', 'MB Bank'], ['970416', 'ACB'], ['970432', 'VPBank'], ['970403', 'Sacombank'],
+    ['970423', 'TPBank'], ['970441', 'VIB'], ['970437', 'HDBank'], ['970448', 'OCB'], ['970443', 'SHB'],
+    ['970426', 'MSB'], ['970431', 'Eximbank'], ['970449', 'LPBank'], ['970440', 'SeABank']];
+  if ($('bankCode')) {
+    $('bankCode').innerHTML = '<option value="">-- Chọn ngân hàng --</option>' + BANKS.map(([c, n]) => `<option value="${c}">${n}</option>`).join('');
+  }
+
+  // Dữ liệu gửi lên api/account/update.php: luôn gửi đủ để không làm mất trường khác
+  const payload = () => ({
+    full_name: $('fullName').value.trim(), email: $('email').value.trim(),
+    email_alerts: $('emailAlert').checked ? 1 : 0,
+    bank_code: $('bankCode').value, bank_account: $('bankAcc').value.replace(/\s/g, '')   // [HUY T3]
+  });
+
   // ===== Thông tin cá nhân + công tắc email =====
   initUser().then(u => {
     $('fullName').value = u.full_name || u.name || '';
     $('email').value = u.email || '';
     $('emailAlert').checked = !!+(u.email_alerts ?? u.email_notifications ?? 0); // [HUY T2]
-    if ($('currencySelect')) {
-      $('currencySelect').value = (u.currency || localStorage.getItem('app_currency') || 'VND').toUpperCase();
-    }
+    $('bankCode').value = u.bank_code ?? '';        // [HUY T3]
+    $('bankAcc').value = u.bank_account ?? '';      // [HUY T3]
   });
 
   // ===== Cài đặt Đa tiền tệ (Nhóm 2) =====
@@ -69,10 +84,7 @@
   $('profileForm').onsubmit = async e => {
     e.preventDefault();
     try {
-      await post('../api/account/update.php', {
-        full_name: $('fullName').value.trim(), email: $('email').value.trim(),
-        email_alerts: $('emailAlert').checked ? 1 : 0
-      });
+      await post('../api/account/update.php', payload());
       $('userName').textContent = $('fullName').value.trim();
       toast('Đã cập nhật thông tin');
     } catch (err) { toast(err.message, true); }
@@ -82,12 +94,24 @@
   $('emailAlert').onchange = async e => {
     const on = e.target.checked;
     try {
-      await post('../api/account/update.php', {
-        full_name: $('fullName').value.trim(), email: $('email').value.trim(), email_alerts: on ? 1 : 0
-      });
+      await post('../api/account/update.php', payload());
       toast(on ? 'Đã bật email cảnh báo ngân sách' : 'Đã tắt email cảnh báo ngân sách');
     } catch (err) { e.target.checked = !on; toast(err.message, true); }
   };
+
+  // [HUY T3] Lưu thông tin tài khoản ngân hàng
+  if ($('bankForm')) {
+    $('bankForm').onsubmit = async e => {
+      e.preventDefault();
+      const acc = $('bankAcc').value.replace(/\s/g, '');
+      if (($('bankCode').value || acc) && (!$('bankCode').value || !/^\d{6,20}$/.test(acc)))
+        return toast('Chọn ngân hàng và nhập số tài khoản (6–20 chữ số)', true);
+      try {
+        await post('../api/account/update.php', payload());
+        toast('Đã lưu tài khoản ngân hàng');
+      } catch (err) { toast(err.message, true); }
+    };
+  }
 
   // ===== Đổi mật khẩu =====
   $('pwForm').onsubmit = async e => {

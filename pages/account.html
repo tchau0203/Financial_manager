@@ -188,6 +188,19 @@ td{padding:12px 14px;border-bottom:1px solid var(--line)}
         </form>
       </div>
 
+      <!-- [HUY T3] Thông tin tài khoản ngân hàng (dùng cho VietQR) -->
+      <div class="card">
+        <h3>Thông tin tài khoản ngân hàng</h3>
+        <p class="muted" style="margin-bottom:14px">Dùng để tạo mã VietQR khi thành viên khác chuyển tiền quyết toán cho bạn.</p>
+        <form id="bankForm">
+          <div class="grid g2">
+            <div class="field"><label for="bankCode">Ngân hàng</label><select id="bankCode"></select></div>
+            <div class="field"><label for="bankAcc">Số tài khoản</label><input id="bankAcc" inputmode="numeric" maxlength="20" placeholder="Nhập số tài khoản"></div>
+          </div>
+          <button type="submit" class="btn">Lưu tài khoản ngân hàng</button>
+        </form>
+      </div>
+      
       <div class="card">
         <div class="head"><h3>Danh mục của tôi</h3><button class="btn" id="addCat"><i class="fa-solid fa-plus"></i> Thêm danh mục</button></div>
         <table>
