@@ -65,10 +65,29 @@ function initMap() {
         return false;
     }
     map = L.map('map').setView([16.0544, 108.2022], 5);
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+
+    // Lớp bản đồ Vệ tinh Google Hybrid (Ảnh chụp vệ tinh độ nét cao kèm tên đường & địa danh)
+    const satelliteLayer = L.tileLayer('https://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+        maxZoom: 20,
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+        attribution: '&copy; Google Maps'
+    });
+
+    // Lớp bản đồ Đường phố tiêu chuẩn (OpenStreetMap)
+    const streetLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }).addTo(map);
+    });
+
+    // Mặc định hiển thị chế độ Vệ tinh
+    satelliteLayer.addTo(map);
+
+    // Hộp công cụ chuyển đổi nhanh giữa Vệ tinh và Đường phố
+    L.control.layers({
+        '🛰️ Vệ tinh': satelliteLayer,
+        '🗺️ Đường phố': streetLayer
+    }, null, { position: 'topright' }).addTo(map);
+
     markerLayer = L.layerGroup().addTo(map);
 
     // Tự động tính lại kích thước khi vùng chứa thay đổi
@@ -320,10 +339,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (sidebar.classList.contains('open') && !sidebar.contains(e.target)) sidebar.classList.remove('open');
         });
     }
-    $('btnLogout').addEventListener('click', async () => {
-        try { await apiFetch('/auth/logout.php', { method: 'POST' }); } catch (e) { console.error(e); }
-        window.location.href = 'login.html';
-    });
+    const btnLogout = $('btnLogout');
+    if (btnLogout) {
+        btnLogout.addEventListener('click', async () => {
+            try { await apiFetch('/auth/logout.php', { method: 'POST' }); } catch (e) { console.error(e); }
+            window.location.href = 'login.html';
+        });
+    }
 
     $('mapMonth').value = currentMonthStr();
     if (!initMap()) return;

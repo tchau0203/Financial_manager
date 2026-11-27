@@ -61,15 +61,11 @@
                         <i class="fa-solid fa-caret-down user-profile-caret"></i>
                     </button>
                     <div class="user-dropdown-menu" id="userDropdownMenu">
-                        <a href="${basePath}account.html?tab=account" class="user-dropdown-item" id="menuItemAccount">
-                            <i class="fa-solid fa-user"></i>
-                            <span>Tài khoản</span>
-                        </a>
-                        <a href="${basePath}account.html?tab=settings" class="user-dropdown-item" id="menuItemSettings">
+                        <a href="${basePath}account.html" class="user-dropdown-item" id="menuItemSettings">
                             <i class="fa-solid fa-sliders"></i>
                             <span>Cài đặt</span>
                         </a>
-                        <a href="javascript:void(0)" class="user-dropdown-item" id="menuItemHelp">
+                        <a href="${basePath}help.html" target="_blank" class="user-dropdown-item" id="menuItemHelp">
                             <i class="fa-regular fa-circle-question"></i>
                             <span>Trợ giúp</span>
                         </a>
@@ -167,47 +163,254 @@
         modal.classList.add('show');
     }
 
-    // Modal popup Trợ giúp
+    // Modal popup Trợ giúp & Trung tâm Hướng dẫn toàn diện (Help Center)
     function showHelpModal() {
         let modal = document.getElementById('modalHelpGuide');
         if (!modal) {
             const html = `
                 <div id="modalHelpGuide" class="modal">
-                    <div class="modal-content" style="max-width: 520px; border-radius:16px;">
-                        <div class="modal-header">
-                            <h3 style="margin:0; display:flex; align-items:center; gap:8px;">
-                                <i class="fa-solid fa-circle-question" style="color:var(--primary);"></i> Trung tâm trợ giúp CashManager
-                            </h3>
-                            <button type="button" class="modal-close" id="btnCloseHelpGuide">&times;</button>
-                        </div>
-                        <div class="modal-body" style="font-size:0.92rem; line-height:1.6;">
-                            <div style="margin-bottom:1rem;">
-                                <strong style="color:var(--text-main);">📌 Các tính năng chính:</strong>
-                                <ul style="margin:0.4rem 0 0 1.25rem; padding:0; color:var(--text-muted);">
-                                    <li><strong>Quản lý chi tiêu & thu nhập:</strong> Thêm, sửa, xóa, tìm kiếm, sắp xếp và lọc theo khoảng giá.</li>
-                                    <li><strong>Bản đồ chi tiêu:</strong> Bấm nút định vị hoặc gõ địa chỉ để ghim vị trí giao dịch trên bản đồ Leaflet.</li>
-                                    <li><strong>Quỹ chung:</strong> Tạo nhóm quản lý chi tiêu chung, chia đều hóa đơn và tạo mã VietQR chuyển khoản.</li>
-                                    <li><strong>Cố vấn AI:</strong> Hỏi đáp tài chính trực tiếp với AI được cá nhân hóa theo ví tiền của bạn.</li>
-                                </ul>
+                    <div class="modal-content help-modal-content">
+                        <div class="modal-header help-modal-header">
+                            <div>
+                                <h3 style="margin:0; font-size:1.18rem; display:flex; align-items:center; gap:10px;">
+                                    <i class="fa-solid fa-circle-question" style="color:#fbbf24;"></i> Trung tâm trợ giúp & Hướng dẫn CashManager
+                                </h3>
+                                <p style="margin:4px 0 0 0; color:rgba(255,255,255,0.85); font-size:0.85rem;">Tìm kiếm giải pháp nhanh và hướng dẫn sử dụng các tính năng tài chính</p>
                             </div>
-                            <div style="background:#f1f5f9; padding:0.85rem; border-radius:8px; font-size:0.85rem;">
-                                💡 <strong>Mẹo thao tác nhanh:</strong> Bạn có thể nhấn nút <strong>"+ Giao dịch"</strong> màu xanh lá ở góc trên bên phải ở bất kỳ trang nào để thêm khoản thu/chi nhanh chóng!
+                            <button type="button" class="modal-close" id="btnCloseHelpGuide" style="color:#fff; font-size:1.5rem; opacity:0.9;">&times;</button>
+                        </div>
+                        <div class="modal-body help-modal-body">
+                            <!-- Thanh tìm kiếm câu hỏi tức thì -->
+                            <div class="help-search-wrapper">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="helpSearchInput" class="help-search-input" placeholder="Tìm kiếm hướng dẫn (VD: giao dịch, vietqr, bản đồ, dark mode, sao lưu...)">
+                            </div>
+
+                            <!-- Nhãn phân loại chủ đề -->
+                            <div class="help-category-chips" id="helpCategoryChips">
+                                <span class="help-chip active" data-category="all">Tất cả chủ đề</span>
+                                <span class="help-chip" data-category="tx"><i class="fa-solid fa-receipt"></i> Giao dịch</span>
+                                <span class="help-chip" data-category="map"><i class="fa-solid fa-map-location-dot"></i> Bản đồ GPS</span>
+                                <span class="help-chip" data-category="shared"><i class="fa-solid fa-users"></i> Quỹ VietQR</span>
+                                <span class="help-chip" data-category="ai"><i class="fa-solid fa-robot"></i> Cố vấn AI</span>
+                                <span class="help-chip" data-category="settings"><i class="fa-solid fa-sliders"></i> Cài đặt & Giao diện</span>
+                                <span class="help-chip" data-category="pwa"><i class="fa-solid fa-mobile-screen"></i> Di động (PWA)</span>
+                            </div>
+
+                            <!-- Danh sách câu hỏi dạng Accordion -->
+                            <div class="help-accordion-list" id="helpAccordionList">
+                                <!-- 1. Giao dịch -->
+                                <div class="help-item" data-categories="tx all">
+                                    <div class="help-item-header">
+                                        <span><i class="fa-solid fa-circle-plus" style="color:#10b981; margin-right:8px;"></i> Làm thế nào để thêm nhanh một khoản chi tiêu hoặc thu nhập?</span>
+                                        <i class="fa-solid fa-chevron-down help-caret"></i>
+                                    </div>
+                                    <div class="help-item-content">
+                                        Bạn có thể bấm trực tiếp nút <strong>"+ Giao dịch"</strong> màu xanh lá ở góc trên bên phải trên bất kỳ màn hình nào. Hệ thống sẽ mở hộp thoại cho phép bạn chọn nhanh giữa <strong>"Thêm chi tiêu"</strong> và <strong>"Thêm thu nhập"</strong> ngay tức thì mà không cần quay lại màn hình chính.
+                                    </div>
+                                </div>
+
+                                <div class="help-item" data-categories="tx all">
+                                    <div class="help-item-header">
+                                        <span><i class="fa-solid fa-filter" style="color:#3b82f6; margin-right:8px;"></i> Cách lọc, tìm kiếm và sắp xếp các giao dịch tài chính?</span>
+                                        <i class="fa-solid fa-chevron-down help-caret"></i>
+                                    </div>
+                                    <div class="help-item-content">
+                                        Tại các trang <strong>Thu nhập</strong> và <strong>Chi tiêu</strong>, bạn có thể:
+                                        <ul style="margin:6px 0 0 18px; padding:0;">
+                                            <li>Gõ từ khóa vào ô tìm kiếm để lọc theo ghi chú hoặc tên giao dịch.</li>
+                                            <li>Lọc theo danh mục chi tiêu (Ăn uống, Mua sắm, Di chuyển...).</li>
+                                            <li>Sắp xếp danh sách theo ngày mới nhất hoặc số tiền tăng/giảm dần.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- 2. Bản đồ -->
+                                <div class="help-item" data-categories="map all">
+                                    <div class="help-item-header">
+                                        <span><i class="fa-solid fa-location-dot" style="color:#ef4444; margin-right:8px;"></i> Cách lưu vị trí địa lý của địa điểm chi tiêu?</span>
+                                        <i class="fa-solid fa-chevron-down help-caret"></i>
+                                    </div>
+                                    <div class="help-item-content">
+                                        Khi thêm hoặc sửa một khoản chi tiêu:
+                                        <ul style="margin:6px 0 0 18px; padding:0;">
+                                            <li>Bấm nút <strong>"Lấy vị trí hiện tại"</strong>: Trình duyệt sẽ tự động lấy tọa độ GPS chính xác nơi bạn đang đứng.</li>
+                                            <li>Hoặc nhập địa chỉ vào ô <strong>"Vị trí chi tiêu"</strong> rồi bấm <strong>"Tìm"</strong> để ghim vị trí quán cà phê, nhà hàng hoặc cửa hàng trên bản đồ.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="help-item" data-categories="map all">
+                                    <div class="help-item-header">
+                                        <span><i class="fa-solid fa-map" style="color:#6366f1; margin-right:8px;"></i> Xem lại các địa điểm đã chi tiêu trên bản đồ ở đâu?</span>
+                                        <i class="fa-solid fa-chevron-down help-caret"></i>
+                                    </div>
+                                    <div class="help-item-content">
+                                        Chọn mục <strong>"Bản đồ thu chi"</strong> trên thanh menu bên trái. Hệ thống sẽ hiển thị toàn bộ các điểm giao dịch trên bản đồ nhiệt tương tác Leaflet, giúp bạn phân tích thói quen tiêu dùng theo từng khu vực địa lý.
+                                    </div>
+                                </div>
+
+                                <!-- 3. Quỹ nhóm & VietQR -->
+                                <div class="help-item" data-categories="shared all">
+                                    <div class="help-item-header">
+                                        <span><i class="fa-solid fa-users-viewfinder" style="color:#f59e0b; margin-right:8px;"></i> Quỹ chi tiêu chung hoạt động như thế nào?</span>
+                                        <i class="fa-solid fa-chevron-down help-caret"></i>
+                                    </div>
+                                    <div class="help-item-content">
+                                        Tính năng <strong>Quỹ chung</strong> được thiết kế cho các chuyến du lịch, nhóm bạn hoặc gia đình:
+                                        <ul style="margin:6px 0 0 18px; padding:0;">
+                                            <li>Tạo nhóm và thêm các thành viên tham gia.</li>
+                                            <li>Ghi lại các khoản chi tiêu chung (ai đã trả tiền và chia đều cho những ai).</li>
+                                            <li>Hệ thống tự động tính toán tổng kết sòng phẳng: Ai cần trả cho ai bao nhiêu tiền một cách minh bạch nhất.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="help-item" data-categories="shared all">
+                                    <div class="help-item-header">
+                                        <span><i class="fa-solid fa-qrcode" style="color:#10b981; margin-right:8px;"></i> Quyết toán tiền nợ tự động qua mã VietQR ra sao?</span>
+                                        <i class="fa-solid fa-chevron-down help-caret"></i>
+                                    </div>
+                                    <div class="help-item-content">
+                                        Người nhận chỉ cần lưu số tài khoản ngân hàng trong mục <strong>Cài đặt</strong>. Sau đó trong nhóm Quỹ chung, bấm nút <strong>"Quyết toán"</strong>, CashManager sẽ tự động sinh mã VietQR chứa đúng số tài khoản, ngân hàng và chính xác số tiền cần chuyển để quét app ngân hàng thanh toán ngay lập tức.
+                                    </div>
+                                </div>
+
+                                <!-- 4. Cố vấn AI -->
+                                <div class="help-item" data-categories="ai all">
+                                    <div class="help-item-header">
+                                        <span><i class="fa-solid fa-wand-magic-sparkles" style="color:#8b5cf6; margin-right:8px;"></i> Trợ lý tài chính AI hỗ trợ những gì?</span>
+                                        <i class="fa-solid fa-chevron-down help-caret"></i>
+                                    </div>
+                                    <div class="help-item-content">
+                                        Trợ lý AI phân tích các số liệu thu chi thực tế của bạn để:
+                                        <ul style="margin:6px 0 0 18px; padding:0;">
+                                            <li>Cảnh báo các danh mục chi tiêu vượt định mức.</li>
+                                            <li>Đưa ra lời khuyên cắt giảm chi tiêu theo mô hình tài chính 50/30/20.</li>
+                                            <li>Giải đáp các thắc mắc về lập kế hoạch tiết kiệm tiền và tối ưu dòng tiền cá nhân.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- 5. Cài đặt & Giao diện -->
+                                <div class="help-item" data-categories="settings all">
+                                    <div class="help-item-header">
+                                        <span><i class="fa-solid fa-moon" style="color:#475569; margin-right:8px;"></i> Cách chuyển đổi Dark Mode (chế độ Tối) và đổi ngôn ngữ?</span>
+                                        <i class="fa-solid fa-chevron-down help-caret"></i>
+                                    </div>
+                                    <div class="help-item-content">
+                                        Bấm vào menu người dùng ở góc trên bên phải $\rightarrow$ chọn <strong>Cài đặt</strong>:
+                                        <ul style="margin:6px 0 0 18px; padding:0;">
+                                            <li>Tại phần <strong>Ngôn ngữ của trang web</strong>: Hỗ trợ 6 ngôn ngữ thời gian thực (Tiếng Việt, English, 日本語, 한국어, 简体中文, Français).</li>
+                                            <li>Tại phần <strong>Giao diện</strong>: Bạn có thể chọn giữa chế độ <em>Theo trình duyệt</em>, <em>Sáng</em> hoặc <em>Tối</em> và điều chỉnh <em>Mật độ danh sách ghi chép</em>.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- 6. Di động PWA -->
+                                <div class="help-item" data-categories="pwa all">
+                                    <div class="help-item-header">
+                                        <span><i class="fa-solid fa-mobile-screen-button" style="color:#0284c7; margin-right:8px;"></i> Cách cài CashManager lên điện thoại không cần App Store?</span>
+                                        <i class="fa-solid fa-chevron-down help-caret"></i>
+                                    </div>
+                                    <div class="help-item-content">
+                                        CashManager được xây dựng theo chuẩn <strong>Progressive Web App (PWA)</strong>:
+                                        <ul style="margin:6px 0 0 18px; padding:0;">
+                                            <li><strong>Trên iPhone/iPad (Safari):</strong> Bấm nút <em>Chia sẻ (Share)</em> $\rightarrow$ chọn <em>"Thêm vào Màn hình chính" (Add to Home Screen)</em>.</li>
+                                            <li><strong>Trên Android (Chrome/Cốc Cốc):</strong> Bấm menu 3 chấm (...) $\rightarrow$ chọn <em>"Cài đặt ứng dụng"</em> hoặc <em>"Thêm vào màn hình chính"</em>.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Khối hỗ trợ kỹ thuật -->
+                            <div class="help-support-card">
+                                <div style="display:flex; align-items:center; gap:12px;">
+                                    <div style="width:42px; height:42px; border-radius:50%; background:#e0e7ff; color:#4f46e5; display:flex; align-items:center; justify-content:center; font-size:1.15rem; flex-shrink:0;">
+                                        <i class="fa-solid fa-headset"></i>
+                                    </div>
+                                    <div>
+                                        <strong style="display:block; font-size:13.5px; color:var(--text-main);">Chưa tìm thấy câu trả lời bạn cần?</strong>
+                                        <span style="font-size:12.5px; color:var(--text-muted);">Đội ngũ hỗ trợ CashManager luôn sẵn sàng lắng nghe và giải đáp mọi thắc mắc.</span>
+                                    </div>
+                                </div>
+                                <div style="display:flex; gap:8px;">
+                                    <a href="mailto:support@cashmanager.vn" class="btn btn-primary" style="padding:7px 14px; font-size:13px; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+                                        <i class="fa-solid fa-envelope"></i> Gửi email hỗ trợ
+                                    </a>
+                                </div>
                             </div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-light" id="btnOkHelp">Đóng</button>
+                        <div class="modal-footer" style="padding:12px 24px;">
+                            <button type="button" class="btn btn-light" id="btnOkHelp" style="padding:7px 20px; border-radius:8px;">Đóng</button>
                         </div>
                     </div>
                 </div>
             `;
             document.body.insertAdjacentHTML('beforeend', html);
             modal = document.getElementById('modalHelpGuide');
+
+            // Gắn sự kiện đóng modal
             const closeBtn = document.getElementById('btnCloseHelpGuide');
             const okBtn = document.getElementById('btnOkHelp');
             if (closeBtn) closeBtn.onclick = () => modal.classList.remove('show');
             if (okBtn) okBtn.onclick = () => modal.classList.remove('show');
             modal.onclick = (e) => { if (e.target === modal) modal.classList.remove('show'); };
+
+            // Gắn sự kiện Accordion đóng/mở
+            const accordionHeaders = modal.querySelectorAll('.help-item-header');
+            accordionHeaders.forEach(header => {
+                header.addEventListener('click', () => {
+                    const item = header.parentElement;
+                    const isOpen = item.classList.contains('open');
+                    modal.querySelectorAll('.help-item').forEach(it => it.classList.remove('open'));
+                    if (!isOpen) item.classList.add('open');
+                });
+            });
+
+            // Gắn sự kiện phân loại chủ đề (Category Chips)
+            const chips = modal.querySelectorAll('.help-chip');
+            chips.forEach(chip => {
+                chip.addEventListener('click', () => {
+                    chips.forEach(c => c.classList.remove('active'));
+                    chip.classList.add('active');
+                    const cat = chip.dataset.category;
+                    const items = modal.querySelectorAll('.help-item');
+                    items.forEach(it => {
+                        const cats = (it.dataset.categories || '').split(' ');
+                        const match = cat === 'all' || cats.includes(cat);
+                        it.style.display = match ? 'block' : 'none';
+                    });
+                });
+            });
+
+            // Gắn sự kiện tìm kiếm câu hỏi tức thì
+            const searchInput = document.getElementById('helpSearchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', () => {
+                    const q = searchInput.value.toLowerCase().trim();
+                    const items = modal.querySelectorAll('.help-item');
+                    items.forEach(it => {
+                        const text = it.textContent.toLowerCase();
+                        if (!q || text.includes(q)) {
+                            it.style.display = 'block';
+                            if (q) it.classList.add('open');
+                        } else {
+                            it.style.display = 'none';
+                        }
+                    });
+                });
+            }
         }
+
+        // Tự động dịch nội dung modal theo ngôn ngữ hiện tại
+        if (window.CashManagerI18n && typeof window.CashManagerI18n.applyLanguage === 'function') {
+            const lang = localStorage.getItem('app_language') || 'vi';
+            if (lang !== 'vi') {
+                window.CashManagerI18n.applyLanguage(lang);
+            }
+        }
+
         modal.classList.add('show');
     }
 
@@ -344,31 +547,11 @@
         }
 
         // Gắn sự kiện cho các mục trong menu
-        const itemAccount = document.getElementById('menuItemAccount');
-        if (itemAccount && !itemAccount.dataset.headerBound) {
-            itemAccount.dataset.headerBound = '1';
-            itemAccount.addEventListener('click', (e) => {
-                if (wrapper) wrapper.classList.remove('active');
-                if (window.location.pathname.includes('account.html')) {
-                    e.preventDefault();
-                    const tabBtn = document.querySelector('.tabs button[data-tab="account"]');
-                    if (tabBtn) tabBtn.click();
-                    history.replaceState(null, '', 'account.html?tab=account');
-                }
-            });
-        }
-
         const itemSettings = document.getElementById('menuItemSettings');
         if (itemSettings && !itemSettings.dataset.headerBound) {
             itemSettings.dataset.headerBound = '1';
             itemSettings.addEventListener('click', (e) => {
                 if (wrapper) wrapper.classList.remove('active');
-                if (window.location.pathname.includes('account.html')) {
-                    e.preventDefault();
-                    const tabBtn = document.querySelector('.tabs button[data-tab="settings"]');
-                    if (tabBtn) tabBtn.click();
-                    history.replaceState(null, '', 'account.html?tab=settings');
-                }
             });
         }
 
@@ -376,9 +559,8 @@
         if (itemHelp && !itemHelp.dataset.headerBound) {
             itemHelp.dataset.headerBound = '1';
             itemHelp.addEventListener('click', (e) => {
-                e.preventDefault();
                 if (wrapper) wrapper.classList.remove('active');
-                showHelpModal();
+                // Mở trang Trợ giúp sang thẻ mới (New Tab) không đè lên giao diện
             });
         }
 

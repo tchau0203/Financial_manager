@@ -60,6 +60,7 @@
         .cm-item-amt { font-size: 0.85rem; font-weight: 700; color: #4F46E5; white-space: nowrap; }
         .cm-popup .cm-more { font-size: 0.75rem; color: #64748b; margin-top: 0.3rem; }
         .leaflet-popup-content-wrapper { border-radius: 16px; }
+        .leaflet-control-layers { border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.22); font-weight: 600; font-size: 0.85rem; padding: 6px 10px; }
 
         @media (max-width: 768px) {
             .menu-toggle { display: inline-flex; }
@@ -84,7 +85,7 @@
                 <li><a href="expense.html"><i class="fa-solid fa-arrow-up-long"></i> Chi tiêu</a></li>
                 <li><a href="budget.html"><i class="fa-solid fa-piggy-bank"></i> Ngân sách</a></li>
                 <li><a href="report.html"><i class="fa-solid fa-chart-column"></i> Báo cáo</a></li>
-                <!-- Mục "Bản đồ chi tiêu" được auth.js tự chèn ngay sau "Báo cáo" -->
+                <li class="active"><a href="map.html"><i class="fa-solid fa-map-location-dot"></i> Bản đồ thu chi</a></li>
                 <li><a href="shared.html"><i class="fa-solid fa-users"></i> Quỹ chung</a></li>
             </ul>
         </aside>
@@ -106,15 +107,11 @@
                             <i class="fa-solid fa-caret-down user-profile-caret"></i>
                         </button>
                         <div class="user-dropdown-menu" id="userDropdownMenu">
-                            <a href="account.html?tab=account" class="user-dropdown-item" id="menuItemAccount">
-                                <i class="fa-solid fa-user"></i>
-                                <span>Tài khoản</span>
-                            </a>
-                            <a href="account.html?tab=settings" class="user-dropdown-item" id="menuItemSettings">
+                            <a href="account.html" class="user-dropdown-item" id="menuItemSettings">
                                 <i class="fa-solid fa-sliders"></i>
                                 <span>Cài đặt</span>
                             </a>
-                            <a href="javascript:void(0)" class="user-dropdown-item" id="menuItemHelp">
+                            <a href="help.html" target="_blank" class="user-dropdown-item" id="menuItemHelp">
                                 <i class="fa-regular fa-circle-question"></i>
                                 <span>Trợ giúp</span>
                             </a>
@@ -162,6 +159,6 @@
     <script src="../assets/js/auth.js"></script>
     <script src="../assets/js/header_nav.js?v=20261127"></script>
     <script src="../assets/js/pwa.js"></script>
-    <script src="../assets/js/map.js?v=20261126b"></script>
+    <script src="../assets/js/map.js?v=20261127d"></script>
 </body>
 </html>

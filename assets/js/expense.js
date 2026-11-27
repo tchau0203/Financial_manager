@@ -462,10 +462,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    $('btnLogout').addEventListener('click', async () => {
-        try { await apiFetch('/auth/logout.php', { method: 'POST' }); } catch (e) { console.error(e); }
-        window.location.href = 'login.html';
-    });
+    const btnLogout = $('btnLogout');
+    if (btnLogout) {
+        btnLogout.addEventListener('click', async () => {
+            try { await apiFetch('/auth/logout.php', { method: 'POST' }); } catch (e) { console.error(e); }
+            window.location.href = 'login.html';
+        });
+    }
 
     // Modal
     $('btnAddExpense').addEventListener('click', () => openModal());
