@@ -30,15 +30,15 @@
         s.src = `${jsBasePath}i18n.js?v=20261127`;
         s.onload = () => {
             const lang = localStorage.getItem('app_language') || 'vi';
-            if (lang === 'en' && window.CashManagerI18n) {
-                window.CashManagerI18n.applyLanguage('en');
+            if (lang !== 'vi' && window.CashManagerI18n) {
+                window.CashManagerI18n.applyLanguage(lang);
             }
         };
         document.head.appendChild(s);
     } else {
         const lang = localStorage.getItem('app_language') || 'vi';
-        if (lang === 'en') {
-            window.CashManagerI18n.applyLanguage('en');
+        if (lang !== 'vi') {
+            window.CashManagerI18n.applyLanguage(lang);
         }
     }
 

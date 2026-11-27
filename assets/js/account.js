@@ -491,7 +491,15 @@
         if (window.CashManagerI18n) {
           window.CashManagerI18n.applyLanguage(val);
         }
-        toast(val === 'en' ? 'Language switched to English' : 'Đã đổi ngôn ngữ sang Tiếng Việt');
+        const langNames = {
+          vi: 'Tiếng Việt',
+          en: 'English',
+          ja: '日本語',
+          ko: '한국어',
+          zh: '简体中文',
+          fr: 'Français'
+        };
+        toast('Đã áp dụng ngôn ngữ: ' + (langNames[val] || val));
       });
     }
 
