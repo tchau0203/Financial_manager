@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cashmanager-static-v1';
+const CACHE_NAME = 'cashmanager-static-v4'; // tăng phiên bản để xóa cache cũ và nhận file mới
 const APP_BASE = new URL('./', self.location.href);
 
 const STATIC_FILES = [
@@ -13,6 +13,7 @@ const STATIC_FILES = [
   'pages/report.html',
   'pages/account.html',
   'pages/shared.html',
+  'pages/map.html',
   'assets/css/style.css',
   'assets/css/components.css',
   'assets/js/auth.js',
@@ -21,6 +22,8 @@ const STATIC_FILES = [
   'assets/js/budget.js',
   'assets/js/dashboard.js',
   'assets/js/expense.js',
+  'assets/js/location_picker.js',
+  'assets/js/map.js',
   'assets/js/income.js',
   'assets/js/pwa.js',
   'assets/js/report.js',
@@ -90,17 +93,18 @@ self.addEventListener('fetch', event => {
     url.pathname.startsWith(`${appPath}assets/`) ||
     url.pathname.endsWith('/manifest.json')
   ) {
+    // Ưu tiên tải bản mới nhất từ máy chủ (luôn thấy code mới sau khi cập nhật);
+    // chỉ dùng bản đã lưu khi mất mạng.
     event.respondWith(
-      caches.match(request).then(cached => {
-        const fresh = fetch(request).then(response => {
+      fetch(request)
+        .then(response => {
           if (response.ok) {
-            caches.open(CACHE_NAME).then(cache => cache.put(request, response.clone()));
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
           }
           return response;
-        });
-
-        return cached || fresh;
-      })
+        })
+        .catch(async () => (await caches.match(request)) || Response.error())
     );
   }
 });

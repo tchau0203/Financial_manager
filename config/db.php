@@ -78,6 +78,19 @@ function getDbConnection() {
                         $pdo->exec("INSERT INTO users (username, email, password, full_name, role, status, currency) VALUES ('admin', 'admin@cashmanager.vn', '$hashed', 'Quản trị viên Hệ thống', 'admin', 'active', 'VND')");
                     }
                 } catch (Throwable $e) {}
+
+                // Tự động thêm cột vị trí cho bản đồ chi tiêu (tương đương database/migration_sprint4_map.sql)
+                try {
+                    $geoChk = $pdo->query("SHOW COLUMNS FROM transactions LIKE 'latitude'")->fetch();
+                    if (!$geoChk) {
+                        $pdo->exec("ALTER TABLE transactions
+                            ADD COLUMN latitude DECIMAL(9,6) DEFAULT NULL,
+                            ADD COLUMN longitude DECIMAL(9,6) DEFAULT NULL,
+                            ADD COLUMN location_name VARCHAR(255) DEFAULT NULL");
+                    }
+                } catch (Throwable $e) {
+                    error_log('[geo-migration] ' . $e->getMessage());
+                }
             }
         } catch (PDOException $e) {
             jsonResponse(['error' => 'Kết nối CSDL thất bại: ' . $e->getMessage()], 500);
@@ -142,6 +155,39 @@ function getJsonInput() {
         return json_decode($raw, true) ?? [];
     }
     return $_POST ?? [];
+}
+
+/**
+ * Đọc & kiểm tra vị trí (không bắt buộc) từ payload thêm/sửa giao dịch.
+ * Trả về ['ok' => bool, 'lat' => ?float, 'lng' => ?float, 'name' => ?string].
+ * - Không gửi tọa độ (null/rỗng) => hợp lệ, lưu NULL.
+ * - Chỉ có 1 trong 2 tọa độ, sai kiểu hoặc ngoài phạm vi => ok = false.
+ */
+function parseLocationInput(array $data): array {
+    $latRaw = $data['latitude'] ?? null;
+    $lngRaw = $data['longitude'] ?? null;
+    $hasLat = $latRaw !== null && $latRaw !== '';
+    $hasLng = $lngRaw !== null && $lngRaw !== '';
+
+    if (!$hasLat && !$hasLng) {
+        return ['ok' => true, 'lat' => null, 'lng' => null, 'name' => null];
+    }
+    if ($hasLat !== $hasLng || !is_numeric($latRaw) || !is_numeric($lngRaw)) {
+        return ['ok' => false, 'lat' => null, 'lng' => null, 'name' => null];
+    }
+
+    $lat = (float)$latRaw;
+    $lng = (float)$lngRaw;
+    if (!is_finite($lat) || !is_finite($lng) || $lat < -90 || $lat > 90 || $lng < -180 || $lng > 180) {
+        return ['ok' => false, 'lat' => null, 'lng' => null, 'name' => null];
+    }
+
+    $name = is_string($data['location_name'] ?? null) ? trim($data['location_name']) : '';
+    if (mb_strlen($name) > 255) {
+        return ['ok' => false, 'lat' => null, 'lng' => null, 'name' => null];
+    }
+
+    return ['ok' => true, 'lat' => round($lat, 6), 'lng' => round($lng, 6), 'name' => $name !== '' ? $name : null];
 }
 
 /**

@@ -21,6 +21,12 @@ if (!in_array($type, ['income', 'expense'], true) || !$categoryId || !is_numeric
     jsonResponse(['success' => false, 'message' => 'Thông tin giao dịch không hợp lệ'], 400);
 }
 
+// Vị trí không bắt buộc: không có tọa độ thì lưu NULL
+$loc = parseLocationInput($data);
+if (!$loc['ok']) {
+    jsonResponse(['success' => false, 'message' => 'Vị trí không hợp lệ (vĩ độ -90..90, kinh độ -180..180)'], 400);
+}
+
 $pdo = getDbConnection();
 
 $stmt = $pdo->prepare('SELECT id FROM categories WHERE id = ? AND type = ? AND (user_id IS NULL OR user_id = ?)');
@@ -29,7 +35,7 @@ if (!$stmt->fetch()) {
     jsonResponse(['success' => false, 'message' => 'Danh mục không hợp lệ'], 400);
 }
 
-$stmt = $pdo->prepare('INSERT INTO transactions (user_id, category_id, type, amount, transaction_date, payment_method, note) VALUES (?, ?, ?, ?, ?, ?, ?)');
+$stmt = $pdo->prepare('INSERT INTO transactions (user_id, category_id, type, amount, transaction_date, payment_method, note, latitude, longitude, location_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
 $stmt->execute([
     $userId,
     $categoryId,
@@ -37,7 +43,10 @@ $stmt->execute([
     $amount,
     $date,
     $paymentMethod,
-    $note
+    $note,
+    $loc['lat'],
+    $loc['lng'],
+    $loc['name']
 ]);
 
 // Nếu là giao dịch chi tiêu, kích hoạt cảnh báo ngân sách

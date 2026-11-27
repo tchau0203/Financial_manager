@@ -86,6 +86,7 @@ $totalRecords = (int)$countStmt->fetchColumn();
 
 $listStmt = $pdo->prepare(
     "SELECT t.id, t.type, t.category_id, t.amount, t.transaction_date, t.payment_method, t.note,
+            t.latitude, t.longitude, t.location_name,
             c.name AS category_name, c.icon, c.color
      FROM transactions t
      JOIN categories c ON c.id = t.category_id

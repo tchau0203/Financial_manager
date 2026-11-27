@@ -373,6 +373,8 @@ function openModal(item = null) {
         $('tx_date').value = toDateStr(new Date());
     }
     $('modalTx').classList.add('show');
+    // Nạp vị trí của khoản thu (nếu có) vào bộ chọn bản đồ - gọi SAU khi modal đã hiển thị
+    if (window.LocationPicker) window.LocationPicker.open(item);
     $('tx_category_id').focus();
 }
 
@@ -397,6 +399,8 @@ async function saveIncome(e) {
         payment_method: $('tx_method').value,
         note: $('tx_note').value.trim()
     };
+    // Vị trí không bắt buộc: gửi null khi chưa chọn (khi sửa, null sẽ xóa vị trí cũ)
+    if (window.LocationPicker) Object.assign(payload, window.LocationPicker.get());
     if (id) payload.id = parseInt(id, 10);
 
     const btn = $('btnSaveTx');
