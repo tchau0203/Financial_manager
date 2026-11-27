@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cashmanager-static-v16'; // tăng phiên bản để xóa cache cũ và nhận file mới
+﻿const CACHE_NAME = 'cashmanager-static-v19'; // tăng phiên bản để xóa cache cũ và nhận file mới
 const APP_BASE = new URL('./', self.location.href);
 
 const STATIC_FILES = [
@@ -13,6 +13,7 @@ const STATIC_FILES = [
   'pages/report.html',
   'pages/account.html',
   'pages/shared.html',
+  'pages/feed.html',
   'pages/map.html',
   'pages/help.html',
   'assets/css/style.css',
@@ -24,6 +25,7 @@ const STATIC_FILES = [
   'assets/js/ai.js',
   'assets/js/budget.js',
   'assets/js/dashboard.js',
+  'assets/js/feed.js',
   'assets/js/expense.js',
   'assets/js/location_picker.js',
   'assets/js/map.js',

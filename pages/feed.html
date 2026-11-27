@@ -1,0 +1,443 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bảng tin - Quản Lý Chi Tiêu</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+:root{--primary:#4f46e5;--green:#10b981;--red:#ef4444;--muted:#64748b;--line:#e2e8f0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:#f1f5f9;color:#0f172a;font:15px/1.5 'Inter','Segoe UI',system-ui,sans-serif}
+.green{color:var(--green)}.red{color:var(--red)}.muted{color:var(--muted);font-size:13px}.hide{display:none!important}
+.pad{padding:12px}
+
+/* ===== Mobile-first: topbar + nội dung 1 cột ===== */
+.sidebar{display:none}
+.main{min-width:0}
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px;background:#fff;border-bottom:1px solid var(--line)}
+.topbar h1{display:flex;align-items:center;gap:8px;font-size:17px}
+.topbar h1 a{color:var(--muted);text-decoration:none}
+.tools{display:flex;align-items:center;gap:8px}
+.icon-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:40px;height:40px;padding:0 12px;border:0;border-radius:20px;background:#eef2ff;color:var(--primary);font:600 13px inherit;cursor:pointer}
+.icon-btn .badge{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--red);color:#fff;font-size:11px;line-height:18px;text-align:center}
+.feed{width:100%;max-width:560px;margin:0 auto;padding:14px 12px 110px}
+
+/* ===== Card bài đăng ===== */
+.post{margin-bottom:16px;overflow:hidden;border-radius:16px;background:#fff;box-shadow:0 1px 3px rgba(15,23,42,.1)}
+.post-head{display:flex;align-items:center;gap:10px;padding:12px 14px}
+.post-who{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3}
+.post-who strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.post-who small{color:var(--muted);font-size:12px}
+.post-amt{font-size:17px;font-weight:800;white-space:nowrap}
+.post-img{background:#0f172a}
+.post-img img{display:block;width:100%;max-height:70vh;object-fit:cover}
+.post-body{padding:12px 14px 4px}
+.post-body p{margin-top:6px;word-break:break-word}
+.chip{display:inline-block;padding:2px 10px;border-radius:99px;background:color-mix(in srgb,var(--c) 14%,#fff);color:var(--c);font-size:12px;font-weight:600}
+.post-rx{display:flex;flex-wrap:wrap;gap:8px;padding:10px 14px 14px}
+.rx{display:inline-flex;align-items:center;gap:5px;min-height:36px;padding:4px 12px;border:1px solid var(--line);border-radius:99px;background:#f8fafc;font-size:17px;cursor:pointer;transition:transform .12s}
+.rx b{min-width:8px;font-size:13px;color:var(--muted)}
+.rx:active{transform:scale(1.15)}
+.rx.on{border-color:var(--primary);background:#eef2ff}
+.rx.on b{color:var(--primary)}
+.av{position:relative;display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;flex-shrink:0;overflow:hidden;border-radius:50%;background:linear-gradient(135deg,#6366f1,#a855f7);color:#fff;font-weight:700}
+.av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.empty{padding:40px 16px;text-align:center;color:var(--muted)}
+.empty i{font-size:42px;margin-bottom:10px;opacity:.5}
+#feedState{text-align:center;color:var(--muted)}
+.more{display:block;margin:6px auto;padding:10px 22px;border:1px solid var(--line);border-radius:99px;background:#fff;color:var(--primary);font:600 14px inherit;cursor:pointer}
+
+/* ===== Nút nổi camera ===== */
+.fab{position:fixed;right:18px;bottom:22px;z-index:30;display:flex;align-items:center;justify-content:center;width:62px;height:62px;border:0;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;font-size:24px;box-shadow:0 8px 24px rgba(79,70,229,.45);cursor:pointer}
+.fab:active{transform:scale(.94)}
+
+/* ===== Modal (bottom-sheet trên mobile) ===== */
+.modal{display:none;position:fixed;inset:0;z-index:50;align-items:flex-end;justify-content:center;background:rgba(15,23,42,.55)}
+.modal.show{display:flex}
+.sheet{width:100%;max-width:520px;max-height:94vh;overflow:auto;padding:18px 16px 24px;border-radius:20px 20px 0 0;background:#fff}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sheet-head h3{font-size:17px}
+.x{width:36px;height:36px;border:0;border-radius:50%;background:#f1f5f9;color:var(--muted);font-size:16px;cursor:pointer}
+.pick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.pick button{display:flex;flex-direction:column;align-items:center;gap:8px;padding:22px 8px;border:2px dashed #c7d2fe;border-radius:14px;background:#eef2ff;color:var(--primary);font:600 14px inherit;cursor:pointer}
+.pick i{font-size:26px}
+.preview{position:relative;margin-bottom:14px;overflow:hidden;border-radius:14px;background:#0f172a}
+.preview img{display:block;width:100%;max-height:300px;object-fit:contain}
+.preview .x{position:absolute;top:8px;right:8px;background:rgba(15,23,42,.7);color:#fff}
+.field{display:grid;gap:6px;margin-bottom:12px}
+.field label{font-weight:600;font-size:13px}
+input[type=text],input[type=search],input[type=number],input[inputmode],select,textarea{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;font:inherit}
+textarea{resize:vertical;min-height:70px}
+input:focus,select:focus,textarea:focus{outline:2px solid #c7d2fe;border-color:var(--primary)}
+.seg{display:flex;padding:4px;border-radius:12px;background:#f1f5f9}
+.seg button{flex:1;padding:10px;border:0;border-radius:9px;background:none;color:var(--muted);font:600 14px inherit;cursor:pointer}
+.seg button.on[data-type=expense]{background:#fff;color:var(--red);box-shadow:0 1px 2px rgba(15,23,42,.15)}
+.seg button.on[data-type=income]{background:#fff;color:var(--green);box-shadow:0 1px 2px rgba(15,23,42,.15)}
+.check{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:14px}
+.check input{width:18px;height:18px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:12px 18px;border:0;border-radius:10px;background:var(--primary);color:#fff;font:600 14px inherit;cursor:pointer}
+.btn.block{width:100%;margin-top:6px;padding:14px;font-size:15px}
+.btn.sm{padding:7px 12px;font-size:13px}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+
+/* ===== Bạn bè ===== */
+.list{list-style:none}
+.person{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.person-info{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3}
+.person-info small{color:var(--muted)}
+.sec-title{margin:16px 0 4px;font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase}
+.tag{padding:3px 10px;border-radius:99px;background:#f1f5f9;color:var(--muted);font-size:12px;font-weight:600;white-space:nowrap}
+.tag.ok{background:#d1fae5;color:#047857}
+.toast{display:none;position:fixed;left:50%;bottom:98px;z-index:80;max-width:90vw;padding:12px 18px;border-radius:12px;background:#0f172a;color:#fff;transform:translateX(-50%);text-align:center}
+.toast.show{display:block}.toast.err{background:var(--red)}
+
+
+
+/* ===== Trình xem kiểu Locket ===== */
+body{background:#0c0a09}
+.stage{display:flex;align-items:center;justify-content:center;gap:18px;min-height:100vh;padding:12px;background:radial-gradient(1200px 700px at 50% 0,#292524 0,#0c0a09 70%)}
+.locket{display:flex;flex-direction:column;align-items:center;width:min(430px,100%);height:min(920px,calc(100vh - 24px));padding:16px 16px 18px;border-radius:38px;background:linear-gradient(180deg,#2b2623 0,#1c1816 100%);box-shadow:0 30px 80px rgba(0,0,0,.55);border:1px solid #3a332f;color:#fafaf9;overflow:hidden}
+@media(max-width:560px){.stage{padding:0}.locket{width:100vw;height:100dvh;border-radius:0;border:0}}
+.l-top{display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:12px}
+.l-round{position:relative;display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border:0;border-radius:50%;background:rgba(68,64,60,.75);color:#fafaf9;font-size:18px;text-decoration:none;cursor:pointer;overflow:hidden}
+.l-round .badge{position:absolute;top:2px;right:2px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#ef4444;color:#fff;font-size:11px;line-height:18px;text-align:center}
+.av-btn{font-weight:700;border:2px solid #57534e}
+.av-btn img,.av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.filter-wrap{position:relative}
+.l-pill{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border:0;border-radius:99px;background:rgba(68,64,60,.75);color:#fafaf9;font:600 17px inherit;cursor:pointer}
+.l-pill i{font-size:13px}
+.filter-menu{position:absolute;top:calc(100% + 8px);left:50%;z-index:10;width:240px;max-height:320px;overflow:auto;padding:6px;border-radius:18px;background:#292524;box-shadow:0 14px 34px rgba(0,0,0,.6);transform:translateX(-50%)}
+.filter-menu button,.filter-menu a{display:flex;align-items:center;gap:10px;width:100%;padding:11px 12px;border:0;border-radius:11px;background:none;color:#fafaf9;font:500 15px inherit;text-align:left;text-decoration:none;cursor:pointer}
+.filter-menu button:hover,.filter-menu a:hover,.filter-menu button.on{background:#44403c}
+.filter-menu button.on{color:#fbbf24}
+.filter-menu hr{margin:6px 4px;border:0;border-top:1px solid #44403c}
+.l-photo{position:relative;flex:1;min-height:0;width:100%;overflow:hidden;border-radius:56px 56px 56px 56px / 56px;background:#0c0a09;display:flex;align-items:center;justify-content:center}
+.l-photo img{width:100%;height:100%;object-fit:cover;user-select:none;-webkit-user-drag:none}
+.l-photo.slide-up img,.l-photo.slide-up .l-amount{animation:slideUp .35s cubic-bezier(.16,1,.3,1)}
+.l-photo.slide-down img,.l-photo.slide-down .l-amount{animation:slideDown .35s cubic-bezier(.16,1,.3,1)}
+@keyframes slideUp{from{opacity:.2;transform:translateY(40px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes slideDown{from{opacity:.2;transform:translateY(-40px) scale(.97)}to{opacity:1;transform:none}}
+.l-count{position:absolute;top:16px;right:18px;padding:4px 12px;border-radius:99px;background:rgba(0,0,0,.5);font-size:12px;font-weight:600}
+.l-count:empty{display:none}
+.l-amount{position:absolute;left:50%;bottom:62px;display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:99px;font-size:19px;font-weight:700;white-space:nowrap;transform:translateX(-50%);box-shadow:0 8px 22px rgba(0,0,0,.45);border:3px solid rgba(0,0,0,.55)}
+.l-amount small{font-weight:500;opacity:.9;font-size:13px}
+.l-amount.exp{background:#ef4444;color:#fff}
+.l-amount.inc{background:#10b981;color:#fff}
+.l-caption{position:absolute;left:18px;right:18px;bottom:14px;padding:10px 16px;border-radius:99px;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);font-size:14px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.l-empty{padding:30px;text-align:center;color:#a8a29e;line-height:1.7}
+.l-empty i{font-size:46px;margin-bottom:12px;opacity:.5}
+.l-author{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px;font-size:17px}
+.l-author .av{position:relative;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;overflow:hidden;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ec4899);font-size:14px;font-weight:700;border:2px solid #57534e}
+.l-author .ago{color:#a8a29e;font-size:15px}
+.l-react{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;margin-top:14px;padding:8px 10px 8px 20px;border-radius:99px;background:rgba(68,64,60,.7);min-height:56px}
+.l-react-label{color:#a8a29e;font-size:15px}
+.l-react-bar{display:flex;gap:6px}
+.emo{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:3px;min-width:42px;height:42px;padding:0 8px;border:2px solid transparent;border-radius:99px;background:none;font-size:25px;cursor:pointer;transition:transform .15s}
+.emo:hover{transform:scale(1.18)}
+.emo b{font-size:12px;color:#d6d3d1}
+.emo.on{background:rgba(251,191,36,.18);border-color:#fbbf24}
+.emo.pop span{animation:emoPop .5s ease}
+@keyframes emoPop{0%{transform:scale(1)}40%{transform:scale(1.7) rotate(-10deg)}100%{transform:scale(1)}}
+.l-bottom{display:flex;align-items:center;justify-content:space-between;width:100%;padding:16px 26px 0}
+.l-icon{display:inline-flex;align-items:center;justify-content:center;width:56px;height:56px;border:0;background:none;color:#fafaf9;font-size:28px;cursor:pointer}
+.l-shutter{width:84px;height:84px;padding:0;border:5px solid #fbbf24;border-radius:50%;background:#1c1816;cursor:pointer}
+.l-shutter span{display:block;width:100%;height:100%;border-radius:50%;background:#d6d3d1;transition:transform .12s,background .12s}
+.l-shutter:hover span{background:#fff}
+.l-shutter:active span{transform:scale(.86)}
+.l-nav{display:none;flex-direction:column;gap:12px}
+.l-nav button{width:48px;height:48px;border:0;border-radius:50%;background:#292524;color:#fafaf9;font-size:18px;cursor:pointer}
+.l-nav button:hover:not(:disabled){background:#44403c}
+.l-nav button:disabled{opacity:.3;cursor:not-allowed}
+@media(min-width:561px){.l-nav{display:flex}}
+
+/* Lưới lịch sử */
+.grid-view{position:fixed;inset:0;z-index:55;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.8)}
+.grid-box{display:flex;flex-direction:column;width:min(560px,100vw);height:min(820px,100vh);padding:18px;border-radius:30px;background:#1c1816;color:#fafaf9}
+.grid-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.grid-body{flex:1;overflow:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-content:start}
+.g-item{position:relative;aspect-ratio:1;padding:0;overflow:hidden;border:0;border-radius:18px;background:#292524;cursor:pointer}
+.g-item img{width:100%;height:100%;object-fit:cover;transition:transform .2s}
+.g-item:hover img{transform:scale(1.06)}
+.g-amt{position:absolute;left:6px;bottom:6px;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:700;color:#fff}
+.g-amt.exp{background:rgba(239,68,68,.92)}.g-amt.inc{background:rgba(16,185,129,.92)}
+.g-empty{grid-column:1/-1;padding:40px;text-align:center;color:#a8a29e}
+.grid-more{margin:12px auto 0;padding:10px 24px;border:0;border-radius:99px;background:#44403c;color:#fff;font:600 14px inherit;cursor:pointer}
+
+/* ===== Camera app kiểu điện thoại (hiển thị giữa màn hình trên máy tính) ===== */
+.cam-overlay{display:none;position:fixed;inset:0;z-index:60;align-items:center;justify-content:center;background:rgba(2,6,23,.82);backdrop-filter:blur(6px)}
+.cam-overlay.show{display:flex}
+.phone{position:relative;width:min(430px,100vw);height:min(900px,100vh);overflow:hidden;border-radius:34px;background:#000;color:#fff;box-shadow:0 30px 80px rgba(0,0,0,.6);border:1px solid #27272a}
+@media(max-width:560px){.phone{width:100vw;height:100dvh;border-radius:0;border:0}}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;padding:16px 14px 0;background:#000}
+.cam-top{display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:12px}
+.cam-title{font-weight:700;font-size:17px}
+.round{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border:0;border-radius:50%;background:#27272a;color:#fff;font-size:18px;cursor:pointer}
+.round.ghost{background:none;cursor:default}
+.round.sm{width:42px;height:42px;font-size:16px;background:rgba(39,39,42,.85)}
+.viewport{position:relative;width:100%;flex:1;min-height:0;overflow:hidden;border-radius:34px;background:#18181b}
+.viewport.drag{outline:3px dashed #d946ef;outline-offset:-8px}
+#camVideo{width:100%;height:100%;object-fit:cover}
+#camVideo.mirror{transform:scaleX(-1)}
+.cam-msg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:28px;text-align:center;color:#d4d4d8;font-size:14px;line-height:1.6}
+.cam-side{position:absolute;right:12px;bottom:14px;display:flex;flex-direction:column;gap:10px}
+.plus{position:absolute;left:50%;bottom:16px;width:60px;height:60px;border:0;border-radius:50%;background:#c026d3;color:#fff;font-size:22px;transform:translateX(-50%);box-shadow:0 6px 20px rgba(192,38,211,.5);cursor:pointer}
+.drop-hint{position:absolute;top:12px;left:0;right:0;text-align:center;font-size:12px;color:rgba(255,255,255,.55);pointer-events:none}
+.shutter-row{display:flex;align-items:center;justify-content:space-between;width:100%;padding:22px 34px 8px}
+.side-btn{display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;border:0;background:none;color:#fff;font-size:30px;text-decoration:none;cursor:pointer}
+.shutter{width:92px;height:92px;padding:0;border:5px solid #c026d3;border-radius:50%;background:#000;cursor:pointer}
+.shutter span{display:block;width:100%;height:100%;border-radius:50%;background:#fff;transition:transform .12s}
+.shutter:active span{transform:scale(.88)}
+.stat-pill{display:inline-flex;align-items:center;gap:8px;margin:10px 0 14px;padding:14px 26px;border-radius:99px;background:#27272a;color:#fff;font-size:18px;font-weight:600;text-decoration:none}
+.tabbar{display:flex;justify-content:space-around;width:calc(100% + 28px);margin-top:auto;padding:16px 0 20px;background:#18181b}
+.tabbar a{color:#71717a;font-size:22px}
+.tabbar a.on{color:#d946ef}
+
+/* Màn thêm giao dịch */
+.shot{position:relative;width:100%;flex:1;min-height:0;overflow:hidden;border-radius:34px;background:linear-gradient(#27272a,#09090b);display:flex;align-items:center;justify-content:center}
+.shot img{max-width:100%;max-height:100%;object-fit:contain}
+.type-pills{position:absolute;left:50%;bottom:16px;display:flex;gap:6px;padding:6px;border-radius:99px;background:rgba(0,0,0,.65);transform:translateX(-50%);white-space:nowrap}
+.type-pills button{padding:13px 24px;border:0;border-radius:99px;background:none;color:#e4e4e7;font:600 16px inherit;cursor:pointer}
+.type-pills button.on[data-type=expense]{background:#ef4444;color:#fff}
+.type-pills button.on[data-type=income]{background:#10b981;color:#fff}
+.chips{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;width:100%;margin-top:14px}
+.chip-wrap{position:relative}
+.pchip{display:inline-flex;align-items:center;gap:8px;padding:15px 24px;border:1px solid #27272a;border-radius:99px;background:#27272a;color:#fff;font:600 16px inherit;cursor:pointer}
+.pchip.small{padding:10px 16px;font-size:13px;color:#a1a1aa;background:#1f1f23}
+.pchip.small.on{color:#e879f9;border-color:#6b21a8}
+.hidden-date{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px}
+.pop{position:absolute;left:50%;bottom:calc(100% + 8px);z-index:5;width:250px;max-height:260px;overflow:auto;padding:6px;border-radius:16px;background:#27272a;box-shadow:0 12px 30px rgba(0,0,0,.6);transform:translateX(-50%)}
+.pop button{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border:0;border-radius:10px;background:none;color:#fff;font:500 15px inherit;text-align:left;cursor:pointer}
+.pop button:hover,.pop button.on{background:#3f3f46}
+.amount-card{width:100%;margin-top:14px;padding:18px 18px 16px;border-radius:26px;background:#18181b;text-align:center}
+.amount-row{display:flex;align-items:center;justify-content:center;gap:8px}
+.amount-row input{width:60%;min-width:0;padding:0;border:0;background:none;color:#fff;font:700 40px inherit;text-align:right;outline:none}
+.amount-row input::placeholder{color:#52525b}
+.vnd{color:#a1a1aa;font-size:30px;font-weight:700;text-decoration:underline}
+.clear{width:30px;height:30px;border:0;border-radius:50%;background:#fff;color:#000;font-size:14px;cursor:pointer}
+#postCaption{width:100%;margin-top:6px;padding:6px;border:0;background:none;color:#e4e4e7;font:15px inherit;text-align:center;outline:none}
+#postCaption::placeholder{color:#71717a}
+.save-btn{width:100%;margin:14px 0 18px;padding:18px;border:0;border-radius:99px;background:#c026d3;color:#fff;font:700 18px inherit;cursor:pointer}
+.save-btn:disabled{opacity:.6;cursor:not-allowed}
+
+/* ===== Màn hình lớn ===== */
+@media(min-width:700px){
+  .modal{align-items:center}
+  .sheet{border-radius:20px}
+}
+@media(min-width:900px){
+  body{display:flex}
+  .sidebar{display:block;width:235px;flex-shrink:0;position:sticky;top:0;height:100vh;background:#0f172a}
+  .logo{display:flex;align-items:center;gap:10px;padding:20px 22px;border-bottom:1px solid #1e293b;color:#fff;font-size:19px;font-weight:700}
+  .logo i{color:#6366f1}
+  .nav{padding-top:12px}
+  .nav a{display:flex;align-items:center;gap:12px;padding:14px 22px;border-left:3px solid transparent;color:#cbd5e1;font-weight:500;text-decoration:none}
+  .nav a i{width:18px;text-align:center}
+  .nav a:hover,.nav a.active{background:#1e293b;color:#fff}
+  .nav a.active{border-left-color:var(--primary);font-weight:600}
+  .main{flex:1}
+  .topbar h1 a{display:none}
+  .fab{right:36px;bottom:32px}
+  .toast{bottom:36px}
+}
+
+/* ===== ĐỒNG NHẤT với màn camera: nền đen, điểm nhấn tím ===== */
+body{background:#000}
+.stage{background:radial-gradient(1000px 600px at 50% 0,#18181b 0,#000 70%)}
+.locket{padding:16px 14px 0;background:#000;border:1px solid #27272a;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+.l-round,.l-pill{background:#27272a}
+.av-btn{border:2px solid #3f3f46}
+.filter-menu{background:#27272a}
+.filter-menu button:hover,.filter-menu a:hover,.filter-menu button.on{background:#3f3f46}
+.filter-menu button.on{color:#e879f9}
+.l-photo{border-radius:34px;background:#18181b}
+.l-count{background:rgba(24,24,27,.8)}
+.l-caption{background:rgba(0,0,0,.6)}
+.l-author .av{background:linear-gradient(135deg,#6366f1,#a855f7);border:2px solid #27272a}
+.l-author .ago,.l-react-label,.l-empty{color:#a1a1aa}
+.l-react{background:#18181b}
+.emo.on{background:rgba(192,38,211,.2);border-color:#c026d3}
+.l-bottom{padding:14px 34px 6px}
+.l-shutter{width:92px;height:92px;border:5px solid #c026d3;background:#000}
+.l-shutter span{background:#fff}
+.l-shutter:hover span{background:#f4f4f5}
+.l-nav button{background:#27272a}
+.l-nav button:hover:not(:disabled){background:#3f3f46}
+.locket .tabbar{margin-top:auto}
+.grid-box{background:#09090b;border:1px solid #27272a}
+.g-item{background:#18181b}
+.grid-more{background:#27272a}
+/* Màn hình thấp: thu gọn để ảnh vẫn đủ lớn */
+@media(max-height:760px){
+  .l-react{margin-top:8px;min-height:48px}.l-react-label{display:none}.l-react-bar{width:100%;justify-content:space-around}
+  .l-author{margin-top:8px}.l-bottom{padding-top:8px}
+  .l-shutter{width:72px;height:72px;border-width:4px}
+  .locket .tabbar{padding:10px 0 12px}
+}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="logo"><i class="fa-solid fa-wallet"></i> CashManager</div>
+  <nav class="nav">
+    <a href="dashboard.html"><i class="fa-solid fa-chart-pie"></i> Bảng điều khiển</a>
+    <a href="income.html"><i class="fa-solid fa-arrow-down"></i> Thu nhập</a>
+    <a href="expense.html"><i class="fa-solid fa-arrow-up"></i> Chi tiêu</a>
+    <a href="budget.html"><i class="fa-solid fa-piggy-bank"></i> Ngân sách</a>
+    <a href="report.html"><i class="fa-solid fa-chart-column"></i> Báo cáo</a>
+    <a href="map.html"><i class="fa-solid fa-map-location-dot"></i> Bản đồ thu chi</a>
+    <a href="shared.html"><i class="fa-solid fa-users"></i> Quỹ chung</a>
+    <a href="feed.html" class="active"><i class="fa-solid fa-camera-retro"></i> Bảng tin</a>
+  </nav>
+</aside>
+
+<div class="main stage">
+  <div class="locket">
+    <header class="l-top">
+      <a class="l-round av-btn" id="meAvatar" href="account.html" title="Tài khoản"><span>?</span></a>
+      <div class="filter-wrap">
+        <button type="button" class="l-pill" id="filterBtn" aria-haspopup="true"><span id="filterLabel">Mọi người</span> <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="filter-menu hide" id="filterMenu"></div>
+      </div>
+      <button type="button" class="l-round" id="btnFriends" title="Bạn bè" aria-label="Bạn bè"><i class="fa-solid fa-user-group"></i><span class="badge hide" id="badgeInvite"></span></button>
+    </header>
+
+    <div class="l-photo" id="photoBox">
+      <img id="photoImg" class="hide" alt="">
+      <div class="l-count" id="photoCount"></div>
+      <div class="l-amount hide" id="photoAmount"></div>
+      <div class="l-caption hide" id="photoCaption"></div>
+      <div class="l-empty hide" id="emptyBox"><i class="fa-regular fa-image"></i><p></p></div>
+    </div>
+
+    <div class="l-author hide" id="authorRow"></div>
+
+    <div class="l-react">
+      <span class="l-react-label">Thả cảm xúc</span>
+      <div class="l-react-bar hide" id="reactBar"></div>
+    </div>
+
+    <footer class="l-bottom">
+      <button type="button" class="l-icon" id="btnGrid" title="Lịch sử bài đăng" aria-label="Lịch sử bài đăng"><i class="fa-solid fa-table-cells-large"></i></button>
+      <button type="button" class="l-shutter" id="fab" title="Chụp / đăng bài mới" aria-label="Đăng bài mới"><span></span></button>
+      <button type="button" class="l-icon" id="btnUpload" title="Tải ảnh từ máy" aria-label="Tải ảnh từ máy"><i class="fa-solid fa-arrow-up-from-bracket"></i></button>
+    </footer>
+    <nav class="tabbar">
+      <a href="report.html" title="Báo cáo"><i class="fa-solid fa-calendar-days"></i></a>
+      <a href="feed.html" class="on" title="Bảng tin"><i class="fa-solid fa-house"></i></a>
+      <a href="expense.html" title="Chi tiêu"><i class="fa-solid fa-wallet"></i></a>
+      <a href="map.html" title="Bản đồ"><i class="fa-solid fa-map"></i></a>
+    </nav>
+  </div>
+
+  <div class="l-nav">
+    <button type="button" id="btnPrev" title="Bài trước (↑)" aria-label="Bài trước"><i class="fa-solid fa-chevron-up"></i></button>
+    <button type="button" id="btnNext" title="Bài kế tiếp (↓)" aria-label="Bài kế tiếp"><i class="fa-solid fa-chevron-down"></i></button>
+  </div>
+</div>
+
+<!-- Lưới lịch sử -->
+<div class="grid-view hide" id="gridView">
+  <div class="grid-box">
+    <div class="grid-head"><h3>Lịch sử</h3><button type="button" class="l-round" id="gridClose" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="grid-body" id="gridBody"></div>
+    <button type="button" class="grid-more hide" id="gridMore">Xem thêm</button>
+  </div>
+</div>
+
+<!-- Camera + Thêm giao dịch (giao diện kiểu điện thoại, chạy bằng webcam trên máy tính) -->
+<div class="cam-overlay" id="camApp" aria-hidden="true">
+  <div class="phone">
+
+    <!-- Màn 1: Camera -->
+    <section class="screen" id="stepCamera">
+      <div class="cam-top">
+        <button type="button" class="round" id="camClose" title="Đóng" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
+        <span class="cam-title">Chụp hóa đơn / món ăn</span>
+        <span class="round ghost"></span>
+      </div>
+      <div class="viewport" id="viewport">
+        <video id="camVideo" autoplay playsinline muted></video>
+        <div class="cam-msg hide" id="camMsg"></div>
+        <div class="cam-side">
+          <button type="button" class="round sm" id="btnFlip" title="Đổi camera"><i class="fa-solid fa-camera-rotate"></i></button>
+        </div>
+        <button type="button" class="plus" id="btnManual" title="Nhập không cần ảnh mới (chọn ảnh từ máy)"><i class="fa-solid fa-plus"></i></button>
+        <div class="drop-hint">Kéo thả ảnh vào đây</div>
+      </div>
+      <div class="shutter-row">
+        <button type="button" class="side-btn" id="btnGallery" title="Chọn ảnh từ máy" aria-label="Chọn ảnh từ máy"><i class="fa-regular fa-images"></i></button>
+        <button type="button" class="shutter" id="btnShutter" title="Chụp" aria-label="Chụp ảnh"><span></span></button>
+        <a class="side-btn" href="report.html" title="Thống kê" aria-label="Thống kê"><i class="fa-solid fa-chart-column"></i></a>
+      </div>
+      <a class="stat-pill" href="report.html"><i class="fa-solid fa-chart-simple"></i> Thống kê</a>
+      <nav class="tabbar">
+        <a href="report.html" title="Báo cáo"><i class="fa-solid fa-calendar-days"></i></a>
+        <a href="feed.html" class="on" title="Bảng tin"><i class="fa-solid fa-house"></i></a>
+        <a href="expense.html" title="Chi tiêu"><i class="fa-solid fa-wallet"></i></a>
+        <a href="map.html" title="Bản đồ"><i class="fa-solid fa-map"></i></a>
+      </nav>
+    </section>
+
+    <!-- Màn 2: Thêm giao dịch -->
+    <form class="screen hide" id="stepForm" novalidate>
+      <div class="cam-top">
+        <button type="button" class="round" id="formBack" title="Chụp lại" aria-label="Chụp lại"><i class="fa-solid fa-xmark"></i></button>
+        <span class="cam-title">Thêm giao dịch</span>
+        <span class="round ghost"></span>
+      </div>
+      <div class="shot">
+        <img id="previewImg" alt="Ảnh giao dịch">
+        <div class="type-pills" id="typeSeg">
+          <button type="button" data-type="expense" class="on"><i class="fa-solid fa-arrow-up-right-from-square"></i> Chi tiêu</button>
+          <button type="button" data-type="income"><i class="fa-solid fa-arrow-down"></i> Thu nhập</button>
+        </div>
+      </div>
+      <div class="chips">
+        <div class="chip-wrap">
+          <button type="button" class="pchip" id="chipCategory"><span id="chipCatIcon">🏷️</span> <span id="chipCatName">Danh mục</span></button>
+          <div class="pop hide" id="catPop"></div>
+        </div>
+        <button type="button" class="pchip" id="chipDate"><span id="chipDateText">Hôm nay</span></button>
+        <input type="date" id="postDate" class="hidden-date" tabindex="-1" aria-label="Ngày giao dịch">
+      </div>
+      <div class="chips">
+        <button type="button" class="pchip small" id="chipLocation"><i class="fa-solid fa-location-dot"></i> <span id="chipLocText">Thêm vị trí</span></button>
+        <button type="button" class="pchip small on" id="chipShare" title="Bật: bạn bè xem được bài này"><i class="fa-solid fa-user-group"></i> <span id="chipShareText">Chia sẻ bạn bè</span></button>
+        <button type="button" class="pchip small on" id="chipLedger" title="Bật: ghi luôn vào sổ thu chi"><i class="fa-solid fa-book"></i> <span id="chipLedgerText">Ghi vào sổ</span></button>
+      </div>
+      <div class="amount-card">
+        <div class="amount-row">
+          <input type="text" id="postAmount" inputmode="numeric" placeholder="0" autocomplete="off" aria-label="Số tiền">
+          <span class="vnd">đ</span>
+          <button type="button" class="clear" id="amountClear" aria-label="Xóa số tiền"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <input type="text" id="postCaption" maxlength="500" placeholder="Nhập mô tả" autocomplete="off" aria-label="Mô tả">
+      </div>
+      <button type="submit" class="save-btn" id="btnPost"><i class="fa-solid fa-check"></i> Lưu</button>
+    </form>
+
+  </div>
+  <input type="file" id="fileGallery" accept="image/jpeg,image/png,image/webp" hidden>
+  <canvas id="camCanvas" hidden></canvas>
+</div>
+
+<!-- Modal bạn bè -->
+<div class="modal" id="friendModal" role="dialog" aria-modal="true" aria-labelledby="friendTitle">
+  <div class="sheet">
+    <div class="sheet-head"><h3 id="friendTitle">Bạn bè</h3><button type="button" class="x" data-close="friendModal" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="field"><label for="friendSearch">Tìm theo username</label><input type="search" id="friendSearch" placeholder="Nhập ít nhất 2 ký tự..." autocomplete="off"></div>
+    <ul class="list" id="searchList"></ul>
+
+    <div id="incomingBox" class="hide"><div class="sec-title">Lời mời kết bạn</div><ul class="list" id="incomingList"></ul></div>
+    <div class="sec-title">Bạn bè của tôi</div>
+    <ul class="list" id="friendList"></ul>
+    <div id="outgoingBox" class="hide"><div class="sec-title">Lời mời đã gửi</div><ul class="list" id="outgoingList"></ul></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script src="../assets/js/feed.js?v=4"></script>
+</body>
+</html>
