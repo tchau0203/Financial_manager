@@ -96,11 +96,39 @@
                     <button type="button" id="btnMenu" class="btn btn-icon menu-toggle" aria-label="Mở menu"><i class="fa-solid fa-bars"></i></button>
                     <div style="font-weight: 700; font-size: 1.25rem;">Bản đồ thu chi</div>
                 </div>
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <span id="header-username" style="font-weight: 600;">Đang tải...</span>
-                    <button id="btnLogout" class="btn" style="background: #fee2e2; color: #991b1b; padding: 0.4rem 0.8rem; font-size: 0.85rem;">
-                        <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+                <div class="header-user-nav" id="headerUserNav">
+                    <button type="button" class="btn-quick-tx" id="btnHeaderAddTx" title="Thêm giao dịch mới">
+                        <i class="fa-solid fa-plus"></i> Giao dịch
                     </button>
+                    <div class="user-dropdown-wrapper" id="userDropdownWrapper">
+                        <button type="button" class="user-profile-btn" id="userProfileBtn" aria-expanded="false" title="Tài khoản">
+                            <span class="user-avatar-circle" id="headerAvatar">T</span>
+                            <span class="user-profile-name" id="headerUserName">Thái Châu</span>
+                            <i class="fa-solid fa-caret-down user-profile-caret"></i>
+                        </button>
+                        <div class="user-dropdown-menu" id="userDropdownMenu">
+                            <a href="javascript:void(0)" class="user-dropdown-item item-upgrade" id="menuItemUpgrade">
+                                <i class="fa-solid fa-star"></i>
+                                <span>Nâng cấp</span>
+                            </a>
+                            <a href="account.html" class="user-dropdown-item" id="menuItemAccount">
+                                <i class="fa-solid fa-sliders"></i>
+                                <span>Cài đặt</span>
+                            </a>
+                            <a href="javascript:void(0)" class="user-dropdown-item" id="menuItemHelp">
+                                <i class="fa-regular fa-circle-question"></i>
+                                <span>Trợ giúp</span>
+                            </a>
+                            <a href="javascript:void(0)" class="user-dropdown-item" id="menuItemPwa">
+                                <i class="fa-solid fa-mobile-screen-button"></i>
+                                <span>Thử ứng dụng di động</span>
+                            </a>
+                            <a href="javascript:void(0)" class="user-dropdown-item item-logout" id="menuItemLogout">
+                                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                                <span>Đăng xuất</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </header>
 
@@ -137,6 +165,7 @@
     </div>
 
     <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/header_nav.js?v=20261127"></script>
     <script src="../assets/js/pwa.js"></script>
     <script src="../assets/js/map.js?v=20261126b"></script>
 </body>

@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Quỹ chung - Quản Lý Chi Tiêu</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../assets/css/components.css">
 <style>
 :root{--primary:#4f46e5;--green:#10b981;--amber:#f59e0b;--red:#ef4444;--muted:#64748b;--line:#e2e8f0}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -93,7 +94,40 @@ td{padding:12px 14px;border-bottom:1px solid var(--line)}
 <div class="main">
   <header class="topbar">
     <h1>Quỹ chi tiêu chung</h1>
-    <div class="right"><span id="userName"></span><button class="btn out" id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</button></div>
+    <div class="header-user-nav" id="headerUserNav">
+        <button type="button" class="btn-quick-tx" id="btnHeaderAddTx" title="Thêm giao dịch mới">
+            <i class="fa-solid fa-plus"></i> Giao dịch
+        </button>
+        <div class="user-dropdown-wrapper" id="userDropdownWrapper">
+            <button type="button" class="user-profile-btn" id="userProfileBtn" aria-expanded="false" title="Tài khoản">
+                <span class="user-avatar-circle" id="headerAvatar">T</span>
+                <span class="user-profile-name" id="headerUserName">Thái Châu</span>
+                <i class="fa-solid fa-caret-down user-profile-caret"></i>
+            </button>
+            <div class="user-dropdown-menu" id="userDropdownMenu">
+                <a href="javascript:void(0)" class="user-dropdown-item item-upgrade" id="menuItemUpgrade">
+                    <i class="fa-solid fa-star"></i>
+                    <span>Nâng cấp</span>
+                </a>
+                <a href="account.html" class="user-dropdown-item" id="menuItemAccount">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Cài đặt</span>
+                </a>
+                <a href="javascript:void(0)" class="user-dropdown-item" id="menuItemHelp">
+                    <i class="fa-regular fa-circle-question"></i>
+                    <span>Trợ giúp</span>
+                </a>
+                <a href="javascript:void(0)" class="user-dropdown-item" id="menuItemPwa">
+                    <i class="fa-solid fa-mobile-screen-button"></i>
+                    <span>Thử ứng dụng di động</span>
+                </a>
+                <a href="javascript:void(0)" class="user-dropdown-item item-logout" id="menuItemLogout">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <span>Đăng xuất</span>
+                </a>
+            </div>
+        </div>
+    </div>
   </header>
   <div class="content">
     <div class="card">
@@ -230,6 +264,7 @@ td{padding:12px 14px;border-bottom:1px solid var(--line)}
       const d = await api('../api/auth/me.php');
       u = d.user || d;
       $('userName').textContent = u.full_name || u.name || u.username || '';
+      if (window.HeaderNav) window.HeaderNav.updateUser(u);
     } catch (e) {}
     $('logoutBtn').onclick = async () => {
       try { await api('../api/auth/logout.php', { method: 'POST' }); } catch (e) {}
@@ -505,5 +540,7 @@ td{padding:12px 14px;border-bottom:1px solid var(--line)}
   })();
 })();
 </script>
+<script src="../assets/js/pwa.js"></script>
+<script src="../assets/js/header_nav.js?v=20261127"></script>
 </body>
 </html>

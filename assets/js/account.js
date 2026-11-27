@@ -66,6 +66,7 @@
     $('emailAlert').checked = !!+(u.email_alerts ?? u.email_notifications ?? 0); // [HUY T2]
     $('bankCode').value = u.bank_code ?? '';        // [HUY T3]
     $('bankAcc').value = u.bank_account ?? '';      // [HUY T3]
+    if (window.HeaderNav) window.HeaderNav.updateUser(u);
   });
 
   // ===== Cài đặt Đa tiền tệ (Nhóm 2) =====

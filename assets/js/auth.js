@@ -115,6 +115,9 @@ async function checkAuth() {
             }
             const userEl = document.getElementById('header-username');
             if (userEl) userEl.textContent = userData.full_name || userData.username || 'Người dùng';
+            if (window.HeaderNav && typeof window.HeaderNav.updateUser === 'function') {
+                window.HeaderNav.updateUser(userData);
+            }
 
             // Nếu người dùng là Admin, tự động hiển thị lối tắt đến Trang Quản trị trên Sidebar
             if (userData.role === 'admin') {
