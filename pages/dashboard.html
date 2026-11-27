@@ -9,8 +9,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="CashManager">
-    <link rel="stylesheet" href="../assets/css/style.css?v=20261127_m4">
-    <link rel="stylesheet" href="../assets/css/components.css?v=20261127_m4">
+    <link rel="stylesheet" href="../assets/css/style.css?v=20261127_m5">
+    <link rel="stylesheet" href="../assets/css/components.css?v=20261127_m5">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -406,6 +406,32 @@ body.dark-mode .ai-widget-footer .form-control { background: #0f172a; border-col
     .mobile-bottom-nav { display: none !important; }
 }
 
+
+    .header {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 999 !important;
+        background: #0f172a !important;
+    }
+    .user-dropdown-wrapper {
+        position: relative !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        z-index: 1001 !important;
+    }
+    .user-dropdown-menu {
+        position: absolute !important;
+        top: calc(100% + 8px) !important;
+        right: 0 !important;
+        z-index: 1002 !important;
+    }
+    .modal {
+        z-index: 1100 !important;
+    }
+    input, select, textarea {
+        font-size: 16px !important;
+    }
+
 </style>
 </head>
 <body>
@@ -610,7 +636,7 @@ body.dark-mode .ai-widget-footer .form-control { background: #0f172a; border-col
     </div>
 
     <script src="../assets/js/auth.js"></script>
-    <script src="../assets/js/header_nav.js?v=20261127_m4"></script>
+    <script src="../assets/js/header_nav.js?v=20261127_m5"></script>
     <script src="../assets/js/pwa.js"></script>
     <script src="../assets/js/table_sort.js"></script>
     <script src="../assets/js/dashboard.js?v=2"></script>
@@ -820,12 +846,24 @@ body.dark-mode .ai-widget-footer .form-control { background: #0f172a; border-col
         const wait = add('ai', '<i class="fa-solid fa-spinner fa-spin"></i> AI đang suy nghĩ…');
         const ctl = new AbortController();
         const timer = setTimeout(() => ctl.abort(), 40000);
-        try {
-            const r = await fetch('../api/ai/chat.php', {
-                method: 'POST', credentials: 'include', signal: ctl.signal,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ question: q })
-            });
+                  try {
+              let r = null;
+              // 1. Thử gửi POST với FormData (tránh bị ModSecurity của InfinityFree chặn 403)
+              try {
+                  const fd = new FormData();
+                  fd.append('question', q);
+                  r = await fetch('../api/ai/chat.php', {
+                      method: 'POST', credentials: 'include', signal: ctl.signal,
+                      body: fd
+                  });
+              } catch (_) {}
+
+              // 2. Nếu bị 403 hoặc lỗi, tự động fallback sang GET (an toàn 100% trên InfinityFree)
+              if (!r || r.status === 403 || !r.ok) {
+                  r = await fetch('../api/ai/chat.php?question=' + encodeURIComponent(q), {
+                      method: 'GET', credentials: 'include', signal: ctl.signal
+                  });
+              }
             if (r.status === 401) { location.href = 'login.html'; return; }
             let j = {};
             const raw = await r.text();
@@ -915,6 +953,38 @@ body.dark-mode .ai-widget-footer .form-control { background: #0f172a; border-col
 
         if (sidebar) {
             sidebar.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+        }
+    
+        // Gắn sự kiện trực tiếp cho nút + Giao dịch và Avatar Dropdown
+        const btnAddTx = document.getElementById('btnHeaderAddTx');
+        const userWrapper = document.getElementById('userDropdownWrapper');
+        const userTrigger = document.getElementById('userProfileBtn');
+        const modalQuick = document.getElementById('modalQuickAdd');
+
+        if (btnAddTx) {
+            btnAddTx.onclick = function(e) {
+                if (e) e.preventDefault();
+                if (modalQuick) {
+                    modalQuick.classList.add('show');
+                    if (typeof updateQuickCategorySelect === 'function') updateQuickCategorySelect();
+                }
+            };
+        }
+
+        if (userTrigger && userWrapper) {
+            userTrigger.onclick = function(e) {
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                userWrapper.classList.toggle('active');
+            };
+
+            document.addEventListener('click', function(e) {
+                if (!userWrapper.contains(e.target)) {
+                    userWrapper.classList.remove('active');
+                }
+            });
         }
     })();
     </script>

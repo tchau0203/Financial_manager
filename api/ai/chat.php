@@ -20,16 +20,26 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'OPTIONS') {
 
 require_once __DIR__ . '/../../config/db.php';
 
-if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
-    jsonResponse(['error' => 'Phương thức không được hỗ trợ. Vui lòng sử dụng POST.'], 405);
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+if (!in_array($method, ['POST', 'GET'], true)) {
+    jsonResponse(['error' => 'Phương thức không được hỗ trợ.'], 405);
 }
 
 $userId = requireAuth();
 $pdo    = getDbConnection();
 
-// 1. Tiếp nhận và kiểm tra câu hỏi đầu vào
-$input    = getJsonInput();
-$question = trim((string)($input['question'] ?? ''));
+// 1. Tiếp nhận và kiểm tra câu hỏi đầu vào (hỗ trợ FormData, JSON và GET)
+$question = '';
+if ($method === 'POST') {
+    if (!empty($_POST['question'])) {
+        $question = trim((string)$_POST['question']);
+    } else {
+        $input = getJsonInput();
+        $question = trim((string)($input['question'] ?? ''));
+    }
+} else {
+    $question = trim((string)($_GET['question'] ?? ''));
+}
 
 if ($question === '') {
     jsonResponse(['error' => 'Vui lòng nhập câu hỏi của bạn.'], 400);

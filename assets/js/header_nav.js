@@ -534,6 +534,12 @@
                     return;
                 }
                 // 3. Nếu đang ở trang Dashboard -> mở form Thêm nhanh
+                const modalQuickAdd = document.getElementById('modalQuickAdd');
+                if (modalQuickAdd) {
+                    modalQuickAdd.classList.add('show');
+                    if (typeof updateQuickCategorySelect === 'function') updateQuickCategorySelect();
+                    return;
+                }
                 const btnQuickAdd = document.getElementById('btnQuickAdd');
                 if (btnQuickAdd) {
                     btnQuickAdd.click();
