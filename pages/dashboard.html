@@ -9,8 +9,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="CashManager">
-    <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="../assets/css/style.css?v=20261127_m3">
+    <link rel="stylesheet" href="../assets/css/components.css?v=20261127_m3">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -209,13 +209,211 @@ body.dark-mode .ai-widget-body .aic-list { background: #1e293b; border-color: #3
 body.dark-mode .aic-bub { background: #334155; color: #f1f5f9; border-color: #475569; }
 body.dark-mode .ai-widget-footer { background: #1e293b; border-color: #334155; }
 body.dark-mode .ai-widget-footer .form-control { background: #0f172a; border-color: #334155; color: #f8fafc; }
-    </style>
+    
+/* ===== Mobile Responsive Override (Inline để tránh cache) ===== */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        bottom: 0 !important;
+        width: 280px !important;
+        max-width: 82vw !important;
+        background: #0f172a !important;
+        z-index: 1050 !important;
+        transform: translateX(-100%) !important;
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        box-shadow: none;
+    }
+    .sidebar.open {
+        transform: translateX(0) !important;
+        box-shadow: 0 0 50px rgba(0,0,0,0.6) !important;
+    }
+    .sidebar-brand {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 0 1.25rem !important;
+    }
+    .btn-sidebar-close {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        border: none;
+        background: rgba(255,255,255,0.12);
+        color: #fff;
+        font-size: 1.1rem;
+        cursor: pointer;
+    }
+    .sidebar-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(15,23,42,0.6);
+        backdrop-filter: blur(2px);
+        -webkit-backdrop-filter: blur(2px);
+        z-index: 1040;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+    .sidebar-backdrop.show {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    .main-content {
+        margin-left: 0 !important;
+        padding-bottom: 74px !important;
+    }
+    .header {
+        height: 56px !important;
+        padding: 0 10px !important;
+        gap: 6px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+    }
+    .btn-sidebar-toggle {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        border-radius: 8px;
+        border: 1px solid #334155;
+        background: #1e293b;
+        color: #f8fafc;
+        font-size: 1.15rem;
+        cursor: pointer;
+        padding: 0;
+        margin-right: 4px;
+        flex-shrink: 0;
+    }
+    .page-header-title {
+        font-size: 1rem !important;
+        font-weight: 700 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+    }
+    .header-user-nav {
+        gap: 6px !important;
+        margin-left: auto !important;
+        flex-shrink: 0 !important;
+    }
+    .user-profile-name {
+        display: none !important;
+    }
+    .user-profile-btn {
+        padding: 4px 6px !important;
+        gap: 4px !important;
+    }
+    .btn-quick-tx {
+        padding: 6px 10px !important;
+        font-size: 0.8rem !important;
+        gap: 4px !important;
+    }
+    @media (max-width: 420px) {
+        .btn-quick-tx .tx-text { display: none !important; }
+        .btn-quick-tx {
+            padding: 6px 8px !important;
+            border-radius: 50% !important;
+            width: 34px !important;
+            height: 34px !important;
+            min-width: 34px !important;
+            justify-content: center !important;
+        }
+    }
+    .content-body {
+        padding: 12px 14px !important;
+    }
+    .grid-kpi {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+        margin-bottom: 1.25rem !important;
+    }
+    .card {
+        padding: 1rem !important;
+        border-radius: 14px !important;
+    }
+    .card-title {
+        font-size: 0.78rem !important;
+    }
+    .card-value {
+        font-size: 1.5rem !important;
+    }
+    .ai-fab {
+        bottom: 74px !important;
+        right: 12px !important;
+        padding: 8px 14px !important;
+        font-size: 0.85rem !important;
+    }
+    .ai-chat-widget {
+        right: 8px !important;
+        bottom: 68px !important;
+        width: calc(100vw - 16px) !important;
+        height: calc(100vh - 120px) !important;
+    }
+    .mobile-bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 60px;
+        background: #1e293b;
+        border-top: 1px solid #334155;
+        box-shadow: 0 -2px 12px rgba(15,23,42,0.25);
+        z-index: 950;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        padding: 0 4px;
+        padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+    .mb-nav-item {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        height: 100%;
+        color: #94a3b8;
+        text-decoration: none;
+        font-size: 0.7rem;
+        font-weight: 500;
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+    .mb-nav-item i { font-size: 1.15rem; }
+    .mb-nav-item.active, .mb-nav-item:active {
+        color: #6366f1 !important;
+        font-weight: 700;
+    }
+}
+@media (min-width: 769px) {
+    .btn-sidebar-toggle { display: none !important; }
+    .btn-sidebar-close { display: none !important; }
+    .sidebar-backdrop { display: none !important; }
+    .mobile-bottom-nav { display: none !important; }
+}
+
+</style>
 </head>
 <body>
     <div class="app-container">
         <aside class="sidebar">
             <div class="sidebar-brand">
-                <i class="fa-solid fa-wallet" style="margin-right: 0.5rem; color: var(--primary);"></i> CashManager
+                <span><i class="fa-solid fa-wallet" style="margin-right: 0.5rem; color: var(--primary);"></i> CashManager</span>
+                <button type="button" id="btnSidebarClose" class="btn-sidebar-close" aria-label="Đóng menu"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <ul class="sidebar-menu">
                 <li class="active"><a href="dashboard.html"><i class="fa-solid fa-chart-pie"></i> Bảng điều khiển</a></li>
@@ -231,10 +429,11 @@ body.dark-mode .ai-widget-footer .form-control { background: #0f172a; border-col
 
         <div class="main-content">
             <header class="header">
-                <div style="font-weight: 700; font-size: 1.25rem;">Tổng quan tài chính</div>
+                <button type="button" id="btnSidebarToggle" class="btn-sidebar-toggle" aria-label="Mở menu"><i class="fa-solid fa-bars"></i></button>
+                <div class="page-header-title">Tổng quan tài chính</div>
                 <div class="header-user-nav" id="headerUserNav">
                     <button type="button" class="btn-quick-tx" id="btnHeaderAddTx" title="Thêm giao dịch mới">
-                        <i class="fa-solid fa-plus"></i> Giao dịch
+                        <i class="fa-solid fa-plus"></i> <span class="tx-text">Giao dịch</span>
                     </button>
                     <button id="btnQuickAdd" style="display:none;"></button>
                     <div class="user-dropdown-wrapper" id="userDropdownWrapper">
@@ -411,7 +610,7 @@ body.dark-mode .ai-widget-footer .form-control { background: #0f172a; border-col
     </div>
 
     <script src="../assets/js/auth.js"></script>
-    <script src="../assets/js/header_nav.js?v=20261127"></script>
+    <script src="../assets/js/header_nav.js?v=20261127_m3"></script>
     <script src="../assets/js/pwa.js"></script>
     <script src="../assets/js/table_sort.js"></script>
     <script src="../assets/js/dashboard.js?v=2"></script>
@@ -662,6 +861,63 @@ body.dark-mode .ai-widget-footer .form-control { background: #0f172a; border-col
 
     add('ai', fmt('Xin chào! Mình là trợ lý tài chính AI. Bạn cứ hỏi về chi tiêu, tiết kiệm hay kế hoạch mua sắm, mình sẽ trả lời dựa trên số liệu thu chi của bạn nhé.'));
 })();
+    </script>
+
+    <!-- Mobile Navigation Drawer & Bottom Bar -->
+    <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+    <nav id="mobileBottomNav" class="mobile-bottom-nav">
+        <a href="dashboard.html" class="mb-nav-item active">
+            <i class="fa-solid fa-house"></i>
+            <span>Tổng quan</span>
+        </a>
+        <a href="expense.html" class="mb-nav-item">
+            <i class="fa-solid fa-arrow-trend-down"></i>
+            <span>Chi tiêu</span>
+        </a>
+        <a href="feed.html" class="mb-nav-item">
+            <i class="fa-solid fa-camera-retro"></i>
+            <span>Bảng tin</span>
+        </a>
+        <a href="report.html" class="mb-nav-item">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span>Báo cáo</span>
+        </a>
+        <button type="button" class="mb-nav-item" id="btnBottomNavMenu">
+            <i class="fa-solid fa-bars"></i>
+            <span>Menu</span>
+        </button>
+    </nav>
+    <script>
+    (function() {
+        const sidebar = document.querySelector('.sidebar');
+        const backdrop = document.getElementById('sidebarBackdrop');
+        const toggleBtn = document.getElementById('btnSidebarToggle');
+        const closeBtn = document.getElementById('btnSidebarClose');
+        const menuBtn = document.getElementById('btnBottomNavMenu');
+
+        function openMenu(e) {
+            if (e) e.preventDefault();
+            if (sidebar) sidebar.classList.add('open');
+            if (backdrop) backdrop.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMenu(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            if (sidebar) sidebar.classList.remove('open');
+            if (backdrop) backdrop.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        if (toggleBtn) toggleBtn.addEventListener('click', openMenu);
+        if (menuBtn) menuBtn.addEventListener('click', openMenu);
+        if (closeBtn) closeBtn.addEventListener('click', closeMenu);
+        if (backdrop) backdrop.addEventListener('click', closeMenu);
+
+        if (sidebar) {
+            sidebar.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+        }
+    })();
     </script>
 </body>
 </html>
