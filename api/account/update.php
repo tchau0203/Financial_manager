@@ -46,6 +46,12 @@ if ($emailAlerts !== null) {
     $stmt->execute([$fullName, $email, $phone, $currency, $userId]);
 }
 
+if (array_key_exists('avatar_url', $data)) {
+    $avatarUrl = trim((string)$data['avatar_url']);
+    $pdo->prepare('UPDATE users SET avatar_url = ? WHERE id = ?')->execute([$avatarUrl ?: null, $userId]);
+    $_SESSION['avatar_url'] = $avatarUrl ?: null;
+}
+
 // Thông tin tài khoản ngân hàng (phục vụ VietQR) - chỉ cập nhật khi client gửi lên
 $bank = null;
 if (array_key_exists('bank_code', $data) || array_key_exists('bank_account', $data) || array_key_exists('bank_account_name', $data)) {

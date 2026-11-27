@@ -140,6 +140,36 @@ td{padding:12px 14px;border-bottom:1px solid var(--line)}
     </div>
 
     <section class="tab" id="tab-info">
+      <!-- [AVATAR] Khối thay đổi ảnh đại diện (Hỗ trợ Google Avatar & Tải ảnh mới) -->
+      <div class="card" id="avatarSection" style="margin-bottom: 16px;">
+        <div style="display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
+          <div style="position:relative; width:80px; height:80px; flex-shrink:0;">
+            <div id="accountAvatarBox" class="user-avatar-circle" style="width:80px; height:80px; font-size:2rem; box-shadow:0 4px 12px rgba(0,0,0,0.12);">
+              T
+            </div>
+            <button type="button" id="btnChangeAvatarCamera" style="position:absolute; bottom:-4px; right:-4px; width:30px; height:30px; border-radius:50%; background:var(--primary, #4f46e5); color:#fff; border:2px solid #fff; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,0.2);" title="Thay đổi ảnh">
+              <i class="fa-solid fa-camera" style="font-size:12px;"></i>
+            </button>
+            <input type="file" id="avatarInputFile" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none;">
+          </div>
+          <div style="flex:1; min-width:240px;">
+            <h3 style="margin-bottom:4px;">Ảnh đại diện</h3>
+            <p class="muted" style="margin-bottom:12px; font-size:13px;">Hỗ trợ ảnh từ tài khoản Google hoặc tải lên ảnh đại diện tùy thích từ máy (JPG, PNG, WEBP tối đa 5MB).</p>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+              <button type="button" class="btn" id="btnUploadAvatarFile" style="padding:7px 14px; font-size:13px;">
+                <i class="fa-solid fa-cloud-arrow-up"></i> Tải ảnh từ máy
+              </button>
+              <button type="button" class="btn ghost" id="btnInputAvatarUrl" style="padding:7px 14px; font-size:13px;">
+                <i class="fa-solid fa-link"></i> Nhập link ảnh
+              </button>
+              <button type="button" class="btn ghost out" id="btnDeleteAvatar" style="padding:7px 14px; font-size:13px; display:none;">
+                <i class="fa-solid fa-trash-can"></i> Xóa ảnh
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="grid g2">
         <div class="card">
           <h3>Thông tin cá nhân</h3>
@@ -274,6 +304,28 @@ td{padding:12px 14px;border-bottom:1px solid var(--line)}
       <div class="field"><label for="catType">Loại</label>
         <select id="catType"><option value="expense">Chi tiêu</option><option value="income">Thu nhập</option></select></div>
       <div class="row act"><button type="button" class="btn ghost" id="cancel">Hủy</button><button type="submit" class="btn">Lưu danh mục</button></div>
+    </form>
+  </div>
+</div>
+<!-- Modal nhập URL ảnh đại diện -->
+<div id="modalAvatarUrl" class="modal">
+  <div class="modal-content" style="max-width: 440px;">
+    <div class="modal-header">
+      <h3 style="margin:0; font-size:1.1rem;"><i class="fa-solid fa-link" style="color:var(--primary)"></i> Nhập liên kết ảnh đại diện</h3>
+      <button type="button" class="modal-close" id="btnCloseAvatarUrlModal">&times;</button>
+    </div>
+    <form id="formAvatarUrl">
+      <div class="modal-body">
+        <div class="field">
+          <label for="inputAvatarUrlVal">Đường dẫn ảnh (URL)</label>
+          <input type="url" id="inputAvatarUrlVal" placeholder="https://example.com/avatar.jpg" required>
+        </div>
+        <small class="muted" style="display:block; margin-top:6px;">Dán đường link ảnh đại diện (hỗ trợ JPG, PNG, WEBP, Google avatar link...)</small>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn ghost" id="btnCancelAvatarUrlModal">Hủy</button>
+        <button type="submit" class="btn">Lưu ảnh đại diện</button>
+      </div>
     </form>
   </div>
 </div>

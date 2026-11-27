@@ -91,6 +91,16 @@ function getDbConnection() {
                 } catch (Throwable $e) {
                     error_log('[geo-migration] ' . $e->getMessage());
                 }
+
+                // Tự động thêm cột avatar_url cho người dùng (Google avatar & ảnh đại diện tùy chỉnh)
+                try {
+                    $avatarChk = $pdo->query("SHOW COLUMNS FROM users LIKE 'avatar_url'")->fetch();
+                    if (!$avatarChk) {
+                        $pdo->exec("ALTER TABLE users ADD COLUMN avatar_url VARCHAR(500) DEFAULT NULL AFTER currency");
+                    }
+                } catch (Throwable $e) {
+                    error_log('[avatar-migration] ' . $e->getMessage());
+                }
             }
         } catch (PDOException $e) {
             jsonResponse(['error' => 'Kết nối CSDL thất bại: ' . $e->getMessage()], 500);

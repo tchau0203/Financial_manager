@@ -11,7 +11,12 @@
     const apiBasePath = isPagesDir ? '../api/' : './api/';
 
     // Tạo HTML cho Dropdown góc trên bên phải
-    function buildHeaderNavHTML(userName = 'Thái Châu', userInitial = 'T') {
+    function buildHeaderNavHTML(userName = 'Thái Châu', userInitial = 'T', avatarUrl = '') {
+        const avatarContent = avatarUrl
+            ? `<img src="${avatarUrl}" alt="${userName}" onerror="this.onerror=null; this.parentElement.style.background='#4e342e'; this.parentElement.textContent='${userInitial}';">`
+            : userInitial;
+        const avatarBg = avatarUrl ? 'transparent' : '#4e342e';
+
         return `
             <div class="header-user-nav" id="headerUserNav">
                 <button type="button" class="btn-quick-tx" id="btnHeaderAddTx" title="Thêm giao dịch mới">
@@ -19,7 +24,7 @@
                 </button>
                 <div class="user-dropdown-wrapper" id="userDropdownWrapper">
                     <button type="button" class="user-profile-btn" id="userProfileBtn" aria-expanded="false" title="Tài khoản">
-                        <span class="user-avatar-circle" id="headerAvatar">${userInitial}</span>
+                        <span class="user-avatar-circle" id="headerAvatar" style="background:${avatarBg};">${avatarContent}</span>
                         <span class="user-profile-name" id="headerUserName">${userName}</span>
                         <i class="fa-solid fa-caret-down user-profile-caret"></i>
                     </button>
@@ -31,6 +36,10 @@
                         <a href="${basePath}account.html" class="user-dropdown-item" id="menuItemAccount">
                             <i class="fa-solid fa-sliders"></i>
                             <span>Cài đặt</span>
+                        </a>
+                        <a href="${basePath}account.html#avatarSection" class="user-dropdown-item" id="menuItemAvatar">
+                            <i class="fa-regular fa-image"></i>
+                            <span>Đổi ảnh đại diện</span>
                         </a>
                         <a href="javascript:void(0)" class="user-dropdown-item" id="menuItemHelp">
                             <i class="fa-regular fa-circle-question"></i>
@@ -353,18 +362,42 @@
 
     // Cập nhật tên và avatar trên Header
     function updateHeaderUser(userData) {
-        const name = (userData && (userData.full_name || userData.name || userData.username)) || 'Thái Châu';
+        if (!userData) return;
+        const name = userData.full_name || userData.name || userData.username || 'Thái Châu';
         const initial = getInitialLetter(name);
+        const avatarUrl = userData.avatar_url || userData.picture || userData.avatar || '';
 
         const nameEl = document.getElementById('headerUserName');
         const avatarEl = document.getElementById('headerAvatar');
 
         if (nameEl) nameEl.textContent = name;
-        if (avatarEl) avatarEl.textContent = initial;
+        if (avatarEl) {
+            if (avatarUrl) {
+                avatarEl.style.background = 'transparent';
+                avatarEl.innerHTML = `<img src="${avatarUrl}" alt="${name}" onerror="this.onerror=null; this.parentElement.style.background='#4e342e'; this.parentElement.textContent='${initial}';">`;
+            } else {
+                avatarEl.style.background = '#4e342e';
+                avatarEl.textContent = initial;
+            }
+        }
 
         // Tương thích với các id cũ
         const oldUserEl = document.getElementById('header-username') || document.getElementById('userName');
         if (oldUserEl) oldUserEl.textContent = name;
+    }
+
+    // Tự động tải thông tin người dùng từ máy chủ nếu chưa có
+    async function fetchCurrentUser() {
+        try {
+            const res = await fetch(`${apiBasePath}auth/me.php`, { credentials: 'include' });
+            if (res.ok) {
+                const json = await res.json();
+                const u = json.user || json.data;
+                if (u) updateHeaderUser(u);
+            }
+        } catch (e) {
+            console.warn('Lỗi khi tải thông tin người dùng:', e);
+        }
     }
 
     // Nâng cấp khối header hiện tại trên trang
@@ -399,9 +432,11 @@
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
             upgradeHeader();
+            fetchCurrentUser();
         });
     } else {
         upgradeHeader();
+        fetchCurrentUser();
     }
 
     // Xuất API toàn cục để các trang có thể nạp dữ liệu người dùng

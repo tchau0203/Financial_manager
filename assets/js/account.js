@@ -66,8 +66,111 @@
     $('emailAlert').checked = !!+(u.email_alerts ?? u.email_notifications ?? 0); // [HUY T2]
     $('bankCode').value = u.bank_code ?? '';        // [HUY T3]
     $('bankAcc').value = u.bank_account ?? '';      // [HUY T3]
+    initAvatarControls(u);
     if (window.HeaderNav) window.HeaderNav.updateUser(u);
   });
+
+  // ===== [AVATAR] Quản lý ảnh đại diện =====
+  function renderAvatarBox(avatarUrl, fullName) {
+    const box = $('accountAvatarBox');
+    if (!box) return;
+    const initial = (fullName || 'U').trim().charAt(0).toUpperCase();
+    if (avatarUrl) {
+      box.style.background = 'transparent';
+      box.innerHTML = `<img src="${avatarUrl}" alt="${fullName}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.onerror=null; this.parentElement.style.background='#4e342e'; this.parentElement.textContent='${initial}';">`;
+      if ($('btnDeleteAvatar')) $('btnDeleteAvatar').style.display = 'inline-flex';
+    } else {
+      box.style.background = '#4e342e';
+      box.textContent = initial;
+      if ($('btnDeleteAvatar')) $('btnDeleteAvatar').style.display = 'none';
+    }
+  }
+
+  function initAvatarControls(u) {
+    renderAvatarBox(u.avatar_url, u.full_name || u.name);
+
+    // Kích hoạt chọn file ảnh
+    const fileInput = $('avatarInputFile');
+    const triggerBtn = $('btnUploadAvatarFile');
+    const cameraBtn = $('btnChangeAvatarCamera');
+    if (triggerBtn && fileInput) triggerBtn.onclick = () => fileInput.click();
+    if (cameraBtn && fileInput) cameraBtn.onclick = () => fileInput.click();
+
+    if (fileInput) {
+      fileInput.onchange = async () => {
+        const file = fileInput.files && fileInput.files[0];
+        if (!file) return;
+        if (file.size > 5 * 1024 * 1024) return toast('Kích thước ảnh tối đa là 5MB', true);
+        const fd = new FormData();
+        fd.append('avatar_file', file);
+        try {
+          toast('Đang tải ảnh lên...');
+          const res = await api('../api/account/avatar.php', { method: 'POST', body: fd });
+          const newUrl = res.avatar_url || res.url;
+          u.avatar_url = newUrl;
+          renderAvatarBox(newUrl, $('fullName').value);
+          if (window.HeaderNav) window.HeaderNav.updateUser({ ...u, avatar_url: newUrl });
+          toast('Cập nhật ảnh đại diện thành công');
+        } catch (err) {
+          toast(err.message, true);
+        } finally {
+          fileInput.value = '';
+        }
+      };
+    }
+
+    // Modal nhập link ảnh
+    const urlModal = $('modalAvatarUrl');
+    const urlBtn = $('btnInputAvatarUrl');
+    const closeUrlBtn = $('btnCloseAvatarUrlModal');
+    const cancelUrlBtn = $('btnCancelAvatarUrlModal');
+    const urlForm = $('formAvatarUrl');
+
+    if (urlBtn && urlModal) urlBtn.onclick = () => {
+      $('inputAvatarUrlVal').value = u.avatar_url || '';
+      urlModal.classList.add('show');
+      $('inputAvatarUrlVal').focus();
+    };
+    if (closeUrlBtn && urlModal) closeUrlBtn.onclick = () => urlModal.classList.remove('show');
+    if (cancelUrlBtn && urlModal) cancelUrlBtn.onclick = () => urlModal.classList.remove('show');
+    if (urlModal) urlModal.onclick = e => { if (e.target === urlModal) urlModal.classList.remove('show'); };
+
+    if (urlForm) {
+      urlForm.onsubmit = async (e) => {
+        e.preventDefault();
+        const url = $('inputAvatarUrlVal').value.trim();
+        if (!url) return toast('Vui lòng nhập đường dẫn ảnh', true);
+        try {
+          const res = await post('../api/account/avatar.php', { avatar_url: url });
+          const newUrl = res.avatar_url || url;
+          u.avatar_url = newUrl;
+          renderAvatarBox(newUrl, $('fullName').value);
+          if (window.HeaderNav) window.HeaderNav.updateUser({ ...u, avatar_url: newUrl });
+          if (urlModal) urlModal.classList.remove('show');
+          toast('Cập nhật ảnh đại diện thành công');
+        } catch (err) {
+          toast(err.message, true);
+        }
+      };
+    }
+
+    // Xóa ảnh đại diện
+    const delBtn = $('btnDeleteAvatar');
+    if (delBtn) {
+      delBtn.onclick = async () => {
+        if (!confirm('Bạn có chắc muốn xóa ảnh đại diện và quay về chữ cái mặc định?')) return;
+        try {
+          await post('../api/account/avatar.php', { avatar_url: '' });
+          u.avatar_url = null;
+          renderAvatarBox(null, $('fullName').value);
+          if (window.HeaderNav) window.HeaderNav.updateUser({ ...u, avatar_url: null });
+          toast('Đã xóa ảnh đại diện');
+        } catch (err) {
+          toast(err.message, true);
+        }
+      };
+    }
+  }
 
   // ===== Cài đặt Đa tiền tệ (Nhóm 2) =====
   if ($('currencyForm')) {

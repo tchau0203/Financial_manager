@@ -77,8 +77,9 @@ $googleId = (string)$info['sub'];
 $email = strtolower(trim($info['email']));
 $fullName = trim((string)($info['name'] ?? ''));
 if ($fullName === '') $fullName = strstr($email, '@', true);
+$picture = trim((string)($info['picture'] ?? ''));
 
-// Tự động thêm cột google_id nếu database của thành viên chưa có cột này
+// Tự động thêm cột google_id và avatar_url nếu database của thành viên chưa có cột này
 try {
     $pdo->query("SELECT google_id FROM users LIMIT 1");
 } catch (Throwable $e) {
@@ -86,22 +87,37 @@ try {
         $pdo->exec("ALTER TABLE users ADD COLUMN google_id VARCHAR(64) DEFAULT NULL, ADD UNIQUE KEY uk_users_google_id (google_id)");
     } catch (Throwable $ex) {}
 }
+try {
+    $pdo->query("SELECT avatar_url FROM users LIMIT 1");
+} catch (Throwable $e) {
+    try {
+        $pdo->exec("ALTER TABLE users ADD COLUMN avatar_url VARCHAR(500) DEFAULT NULL");
+    } catch (Throwable $ex) {}
+}
 
 // 1. Đã liên kết Google
-$st = $pdo->prepare('SELECT id, username, email, full_name, phone, currency, role, status FROM users WHERE google_id = ? LIMIT 1');
+$st = $pdo->prepare('SELECT id, username, email, full_name, phone, currency, role, status, avatar_url FROM users WHERE google_id = ? LIMIT 1');
 $st->execute([$googleId]);
 $user = $st->fetch();
 
+if ($user && !empty($picture) && (empty($user['avatar_url']) || strpos($user['avatar_url'], 'googleusercontent.com') !== false)) {
+    // Luôn làm mới ảnh đại diện Google nếu tài khoản dùng ảnh Google
+    $pdo->prepare('UPDATE users SET avatar_url = ? WHERE id = ?')->execute([$picture, $user['id']]);
+    $user['avatar_url'] = $picture;
+}
+
 // 2. Chưa liên kết nhưng trùng email -> liên kết vào tài khoản có sẵn
 if (!$user) {
-    $st = $pdo->prepare('SELECT id, username, email, full_name, phone, currency, role, status, google_id FROM users WHERE email = ? LIMIT 1');
+    $st = $pdo->prepare('SELECT id, username, email, full_name, phone, currency, role, status, google_id, avatar_url FROM users WHERE email = ? LIMIT 1');
     $st->execute([$email]);
     $user = $st->fetch();
     if ($user) {
         if (!empty($user['google_id']) && $user['google_id'] !== $googleId) {
             jsonResponse(['error' => 'Email này đã liên kết với một tài khoản Google khác'], 409);
         }
-        $pdo->prepare('UPDATE users SET google_id = ? WHERE id = ?')->execute([$googleId, $user['id']]);
+        $avatarToSet = !empty($user['avatar_url']) ? $user['avatar_url'] : $picture;
+        $pdo->prepare('UPDATE users SET google_id = ?, avatar_url = ? WHERE id = ?')->execute([$googleId, $avatarToSet ?: null, $user['id']]);
+        $user['avatar_url'] = $avatarToSet;
         unset($user['google_id']);
     }
 }
@@ -119,11 +135,12 @@ if (!$user) {
         $username = $base . rand(100, 99999);
     }
     $hashed = password_hash(bin2hex(random_bytes(24)), PASSWORD_BCRYPT);
-    $pdo->prepare('INSERT INTO users (username, email, password, full_name, role, status, google_id) VALUES (?, ?, ?, ?, ?, ?, ?)')
-        ->execute([$username, $email, $hashed, $fullName, 'user', 'active', $googleId]);
+    $pdo->prepare('INSERT INTO users (username, email, password, full_name, role, status, google_id, avatar_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+        ->execute([$username, $email, $hashed, $fullName, 'user', 'active', $googleId, $picture ?: null]);
     $user = [
         'id' => (int)$pdo->lastInsertId(), 'username' => $username, 'email' => $email,
-        'full_name' => $fullName, 'phone' => null, 'currency' => 'VND', 'role' => 'user', 'status' => 'active'
+        'full_name' => $fullName, 'phone' => null, 'currency' => 'VND', 'role' => 'user', 'status' => 'active',
+        'avatar_url' => $picture ?: null
     ];
 }
 
@@ -137,6 +154,7 @@ $_SESSION['username']  = $user['username'];
 $_SESSION['full_name'] = $user['full_name'];
 $_SESSION['role']      = $user['role'] ?? 'user';
 $_SESSION['status']    = $user['status'] ?? 'active';
+$_SESSION['avatar_url'] = $user['avatar_url'] ?? null;
 
 jsonResponse([
     'success' => true,
