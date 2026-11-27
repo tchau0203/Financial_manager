@@ -483,10 +483,15 @@
     // 3. Ngôn ngữ của trang web
     const langSelect = document.getElementById('selectAppLanguage');
     if (langSelect) {
-      langSelect.value = localStorage.getItem('app_language') || 'vi';
+      const currentSavedLang = localStorage.getItem('app_language') || 'vi';
+      langSelect.value = currentSavedLang;
       langSelect.addEventListener('change', () => {
-        localStorage.setItem('app_language', langSelect.value);
-        toast('Đã lưu ngôn ngữ: ' + (langSelect.value === 'vi' ? 'Tiếng Việt' : 'English'));
+        const val = langSelect.value;
+        localStorage.setItem('app_language', val);
+        if (window.CashManagerI18n) {
+          window.CashManagerI18n.applyLanguage(val);
+        }
+        toast(val === 'en' ? 'Language switched to English' : 'Đã đổi ngôn ngữ sang Tiếng Việt');
       });
     }
 

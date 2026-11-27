@@ -22,6 +22,25 @@
     const isPagesDir = window.location.pathname.includes('/pages/');
     const basePath = isPagesDir ? './' : './pages/';
     const apiBasePath = isPagesDir ? '../api/' : './api/';
+    const jsBasePath = isPagesDir ? '../assets/js/' : './assets/js/';
+
+    // Tự động tải i18n và áp dụng ngôn ngữ toàn hệ thống
+    if (!window.CashManagerI18n) {
+        const s = document.createElement('script');
+        s.src = `${jsBasePath}i18n.js?v=20261127`;
+        s.onload = () => {
+            const lang = localStorage.getItem('app_language') || 'vi';
+            if (lang === 'en' && window.CashManagerI18n) {
+                window.CashManagerI18n.applyLanguage('en');
+            }
+        };
+        document.head.appendChild(s);
+    } else {
+        const lang = localStorage.getItem('app_language') || 'vi';
+        if (lang === 'en') {
+            window.CashManagerI18n.applyLanguage('en');
+        }
+    }
 
     // Tạo HTML cho Dropdown góc trên bên phải
     function buildHeaderNavHTML(userName = 'Thái Châu', userInitial = 'T', avatarUrl = '') {
