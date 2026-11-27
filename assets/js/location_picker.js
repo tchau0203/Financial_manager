@@ -215,10 +215,25 @@
         if (map) return true;
 
         map = L.map(box).setView(DEFAULT_CENTER, DEFAULT_ZOOM);
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+
+        const satelliteLayer = L.tileLayer('https://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+            attribution: '&copy; Google Maps'
+        });
+
+        const streetLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        }).addTo(map);
+            attribution: '&copy; OpenStreetMap'
+        });
+
+        // Mặc định chọn Vệ tinh
+        satelliteLayer.addTo(map);
+
+        L.control.layers({
+            '🛰️ Vệ tinh': satelliteLayer,
+            '🗺️ Đường phố': streetLayer
+        }, null, { position: 'topright' }).addTo(map);
 
         // Bấm lên bản đồ để chọn điểm
         map.on('click', (e) => setPoint(e.latlng.lat, e.latlng.lng));

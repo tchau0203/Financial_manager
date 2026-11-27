@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trung tâm trợ giúp & Hỗ trợ - CashManager</title>
+    <link rel="manifest" href="../manifest.json">
+    <meta name="theme-color" content="#4f46e5">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            background-color: var(--bg-body, #f8fafc);
+            color: var(--text-main, #1e293b);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        /* Help Header Nav */
+        .help-top-nav {
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-color, #e2e8f0);
+            padding: 14px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .help-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main, #0f172a);
+            text-decoration: none;
+        }
+
+        .help-brand i {
+            color: var(--primary, #4f46e5);
+            font-size: 1.4rem;
+        }
+
+        .help-nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Hero Banner */
+        .help-hero {
+            background: linear-gradient(135deg, #3730a3, #4f46e5, #6366f1);
+            color: #ffffff;
+            padding: 56px 20px 64px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .help-hero h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin: 0 0 12px 0;
+            letter-spacing: -0.02em;
+        }
+
+        .help-hero p {
+            font-size: 1.05rem;
+            opacity: 0.9;
+            max-width: 620px;
+            margin: 0 auto 28px auto;
+        }
+
+        .hero-search-box {
+            max-width: 640px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .hero-search-box i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 1.1rem;
+            pointer-events: none;
+        }
+
+        .hero-search-input {
+            width: 100%;
+            padding: 15px 20px 15px 50px;
+            border-radius: 999px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            font-size: 1rem;
+            background: #ffffff;
+            color: #1e293b;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15);
+            transition: all 0.2s ease;
+        }
+
+        .hero-search-input:focus {
+            outline: none;
+            border-color: #ffffff;
+            box-shadow: 0 12px 28px -4px rgba(0,0,0,0.22);
+        }
+
+        /* Main Container Layout */
+        .help-container {
+            max-width: 1200px;
+            margin: -24px auto 60px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 28px;
+            position: relative;
+            z-index: 10;
+        }
+
+        @media (max-width: 992px) {
+            .help-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Category Chips Bar */
+        .help-chips-bar {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 22px;
+            background: #ffffff;
+            padding: 14px 18px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color, #e2e8f0);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        }
+
+        .category-chip {
+            padding: 7px 14px;
+            border-radius: 999px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            color: #475569;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            user-select: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .category-chip:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .category-chip.active {
+            background: var(--primary, #4f46e5);
+            color: #ffffff;
+            border-color: var(--primary, #4f46e5);
+            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25);
+        }
+
+        /* Accordion Questions */
+        .faq-card-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .faq-item {
+            background: #ffffff;
+            border: 1.5px solid var(--border-color, #e2e8f0);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+
+        .faq-item:hover {
+            border-color: #cbd5e1;
+        }
+
+        .faq-item.open {
+            border-color: #818cf8;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.1);
+        }
+
+        .faq-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14.5px;
+            color: var(--text-main, #1e293b);
+            user-select: none;
+            gap: 12px;
+        }
+
+        .faq-header span {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .faq-header i.caret-icon {
+            color: #94a3b8;
+            transition: transform 0.2s ease;
+            font-size: 13px;
+        }
+
+        .faq-item.open .faq-header i.caret-icon {
+            transform: rotate(180deg);
+            color: var(--primary, #4f46e5);
+        }
+
+        .faq-content {
+            display: none;
+            padding: 0 20px 18px 44px;
+            font-size: 13.5px;
+            line-height: 1.7;
+            color: var(--text-muted, #64748b);
+            border-top: 1px dashed #f1f5f9;
+            padding-top: 12px;
+        }
+
+        .faq-item.open .faq-content {
+            display: block;
+        }
+
+        .faq-content strong {
+            color: var(--text-main, #0f172a);
+        }
+
+        /* Contact Sidebar Box */
+        .contact-admin-card {
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1.5px solid var(--border-color, #e2e8f0);
+            padding: 24px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 90px;
+        }
+
+        .contact-admin-card h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin: 0 0 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-main, #0f172a);
+        }
+
+        .contact-admin-card p {
+            font-size: 13px;
+            color: var(--text-muted, #64748b);
+            margin: 0 0 18px 0;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text-main, #334155);
+            margin-bottom: 5px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 13.5px;
+            background: #ffffff;
+            color: inherit;
+            box-sizing: border-box;
+            transition: border-color 0.15s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary, #4f46e5);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        .btn-send-admin {
+            width: 100%;
+            padding: 11px 16px;
+            background: var(--primary, #4f46e5);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-send-admin:hover {
+            background: var(--primary-hover, #4338ca);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+        }
+
+        .btn-send-admin:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .admin-meta-info {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-top: 18px;
+            font-size: 12.5px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .admin-meta-info div {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            color: #475569;
+        }
+
+        .admin-meta-info div:last-child {
+            margin-bottom: 0;
+        }
+
+        .admin-meta-info i {
+            color: var(--primary, #4f46e5);
+            width: 16px;
+            text-align: center;
+        }
+
+        /* Dark Theme Support */
+        [data-theme="dark"] body {
+            background-color: #0f172a !important;
+            color: #f8fafc !important;
+        }
+
+        [data-theme="dark"] .help-top-nav,
+        [data-theme="dark"] .help-chips-bar,
+        [data-theme="dark"] .faq-item,
+        [data-theme="dark"] .contact-admin-card {
+            background-color: #1e293b !important;
+            border-color: #334155 !important;
+            color: #f8fafc !important;
+        }
+
+        [data-theme="dark"] .help-brand,
+        [data-theme="dark"] .faq-header,
+        [data-theme="dark"] .contact-admin-card h3 {
+            color: #f8fafc !important;
+        }
+
+        [data-theme="dark"] .faq-header:hover {
+            background-color: #273549 !important;
+        }
+
+        [data-theme="dark"] .faq-content {
+            color: #cbd5e1 !important;
+            border-top-color: #334155 !important;
+        }
+
+        [data-theme="dark"] .category-chip {
+            background-color: #0f172a !important;
+            border-color: #334155 !important;
+            color: #94a3b8 !important;
+        }
+
+        [data-theme="dark"] .category-chip.active {
+            background-color: #4f46e5 !important;
+            color: #ffffff !important;
+        }
+
+        [data-theme="dark"] .form-control {
+            background-color: #0f172a !important;
+            border-color: #334155 !important;
+            color: #f8fafc !important;
+        }
+
+        [data-theme="dark"] .admin-meta-info {
+            background-color: #0f172a !important;
+            border-color: #334155 !important;
+        }
+
+        [data-theme="dark"] .admin-meta-info div {
+            color: #94a3b8 !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <header class="help-top-nav">
+        <a href="dashboard.html" class="help-brand">
+            <i class="fa-solid fa-wallet"></i> CashManager
+        </a>
+        <div class="help-nav-actions">
+            <a href="#contactSection" class="btn" style="background:#eef2ff; color:#4f46e5; padding:8px 14px; font-weight:600; font-size:13px; text-decoration:none; border-radius:8px;">
+                <i class="fa-solid fa-envelope"></i> Gửi tin nhắn cho Admin
+            </a>
+            <a href="dashboard.html" class="btn btn-primary" style="padding:8px 16px; font-weight:600; font-size:13px; text-decoration:none; border-radius:8px;">
+                <i class="fa-solid fa-arrow-left"></i> Quay lại ứng dụng
+            </a>
+        </div>
+    </header>
+
+    <!-- Hero Search Section -->
+    <section class="help-hero">
+        <h1>Trung tâm trợ giúp CashManager</h1>
+        <p>Tìm kiếm câu trả lời nhanh cho các tính năng hoặc gửi thắc mắc trực tiếp về hòm thư của Quản trị viên hệ thống.</p>
+        <div class="hero-search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="helpSearchInput" class="hero-search-input" placeholder="Gõ từ khóa tìm kiếm (VD: thêm giao dịch, vietqr, bản đồ, dark mode, sao lưu...)">
+        </div>
+    </section>
+
+    <!-- Main Container -->
+    <main class="help-container">
+        <!-- Cột trái: Hướng dẫn & FAQs -->
+        <div class="help-main-content">
+            <!-- Thanh phân loại chủ đề -->
+            <div class="help-chips-bar" id="categoryChips">
+                <span class="category-chip active" data-category="all"><i class="fa-solid fa-layer-group"></i> Tất cả chủ đề</span>
+                <span class="category-chip" data-category="tx"><i class="fa-solid fa-receipt"></i> Giao dịch & Thu chi</span>
+                <span class="category-chip" data-category="map"><i class="fa-solid fa-map-location-dot"></i> Bản đồ GPS</span>
+                <span class="category-chip" data-category="shared"><i class="fa-solid fa-users"></i> Quỹ VietQR</span>
+                <span class="category-chip" data-category="ai"><i class="fa-solid fa-robot"></i> Cố vấn AI</span>
+                <span class="category-chip" data-category="settings"><i class="fa-solid fa-sliders"></i> Cài đặt & Đa ngôn ngữ</span>
+                <span class="category-chip" data-category="pwa"><i class="fa-solid fa-mobile-screen"></i> Di động (PWA)</span>
+                <span class="category-chip" data-category="backup"><i class="fa-solid fa-database"></i> Sao lưu & Bảo mật</span>
+            </div>
+
+            <!-- Danh sách câu hỏi FAQs Accordion -->
+            <div class="faq-card-list" id="faqCardList">
+                <!-- 1. Giao dịch -->
+                <div class="faq-item" data-categories="tx all">
+                    <div class="faq-header">
+                        <span><i class="fa-solid fa-circle-plus" style="color:#10b981;"></i> Làm thế nào để thêm nhanh một khoản chi tiêu hoặc thu nhập?</span>
+                        <i class="fa-solid fa-chevron-down caret-icon"></i>
+                    </div>
+                    <div class="faq-content">
+                        Bạn chỉ cần bấm nút <strong>"+ Giao dịch"</strong> màu xanh lá ở góc trên bên phải ở bất kỳ trang nào. Hệ thống sẽ mở hộp thoại cho phép bạn chọn nhanh giữa <strong>"Thêm chi tiêu"</strong> và <strong>"Thêm thu nhập"</strong> ngay tức thì mà không cần chuyển qua lại giữa các menu.
+                    </div>
+                </div>
+
+                <div class="faq-item" data-categories="tx all">
+                    <div class="faq-header">
+                        <span><i class="fa-solid fa-filter" style="color:#3b82f6;"></i> Cách lọc, tìm kiếm và sắp xếp các khoản giao dịch?</span>
+                        <i class="fa-solid fa-chevron-down caret-icon"></i>
+                    </div>
+                    <div class="faq-content">
+                        Tại các trang <strong>Thu nhập</strong> và <strong>Chi tiêu</strong>:
+                        <ul style="margin:6px 0 0 18px; padding:0;">
+                            <li>Gõ từ khóa vào ô tìm kiếm để lọc theo ghi chú, tên quán hoặc mặt hàng.</li>
+                            <li>Lọc theo danh mục chi tiêu (Ăn uống, Mua sắm, Di chuyển, Lương, Thưởng...).</li>
+                            <li>Lọc theo khoảng giá tối thiểu - tối đa hoặc sắp xếp theo số tiền và ngày tháng.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 2. Bản đồ GPS -->
+                <div class="faq-item" data-categories="map all">
+                    <div class="faq-header">
+                        <span><i class="fa-solid fa-location-dot" style="color:#ef4444;"></i> Cách lưu vị trí địa lý của địa điểm chi tiêu?</span>
+                        <i class="fa-solid fa-chevron-down caret-icon"></i>
+                    </div>
+                    <div class="faq-content">
+                        Khi thêm hoặc sửa một khoản chi tiêu:
+                        <ul style="margin:6px 0 0 18px; padding:0;">
+                            <li>Bấm nút <strong>"Lấy vị trí hiện tại"</strong>: Trình duyệt sẽ yêu cầu quyền truy cập GPS và tự động ghim vị trí nơi bạn đang đứng.</li>
+                            <li>Hoặc nhập địa chỉ vào ô <strong>"Vị trí chi tiêu"</strong> rồi bấm <strong>"Tìm"</strong> để ghim vị trí quán cà phê, nhà hàng hoặc cửa hàng trên bản đồ.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-categories="map all">
+                    <div class="faq-header">
+                        <span><i class="fa-solid fa-map" style="color:#6366f1;"></i> Xem lại các địa điểm đã chi tiêu trên bản đồ ở đâu?</span>
+                        <i class="fa-solid fa-chevron-down caret-icon"></i>
+                    </div>
+                    <div class="faq-content">
+                        Chọn mục <strong>"Bản đồ thu chi"</strong> trên thanh menu bên trái. Hệ thống sẽ hiển thị toàn bộ các điểm giao dịch trên bản đồ nhiệt tương tác OpenStreetMap/Leaflet, giúp bạn biết khu vực nào mình tiêu xài nhiều nhất.
+                    </div>
+                </div>
+
+                <!-- 3. Quỹ nhóm & VietQR -->
+                <div class="faq-item" data-categories="shared all">
+                    <div class="faq-header">
+                        <span><i class="fa-solid fa-users-viewfinder" style="color:#f59e0b;"></i> Quỹ chi tiêu chung hoạt động như thế nào?</span>
+                        <i class="fa-solid fa-chevron-down caret-icon"></i>
+                    </div>
+                    <div class="faq-content">
+                        Tính năng <strong>Quỹ chung</strong> dành cho các nhóm bạn bè cùng đi ăn uống, du lịch hoặc các thành viên trong gia đình:
+                        <ul style="margin:6px 0 0 18px; padding:0;">
+                            <li>Tạo nhóm quỹ và thêm các thành viên tham gia bằng email hoặc mã mời.</li>
+                            <li>Ghi lại các khoản chi tiêu chung (ai đã trả tiền và chia đều cho những ai).</li>
+                            <li>Hệ thống tự động tính toán tổng kết sòng phẳng: Ai cần trả cho ai bao nhiêu tiền một cách minh bạch nhất.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-categories="shared all">
+                    <div class="faq-header">
+                        <span><i class="fa-solid fa-qrcode" style="color:#10b981;"></i> Quyết toán tiền nợ tự động qua mã VietQR ra sao?</span>
+                        <i class="fa-solid fa-chevron-down caret-icon"></i>
+                    </div>
+                    <div class="faq-content">
+                        Người nhận chỉ cần lưu số tài khoản ngân hàng của mình trong mục <strong>Cài đặt</strong>. Sau đó trong nhóm Quỹ chung, bấm nút <strong>"Quyết toán"</strong>, CashManager sẽ tự động sinh mã VietQR chứa đúng số tài khoản, ngân hàng và chính xác số tiền cần chuyển để quét app ngân hàng thanh toán ngay lập tức.
+                    </div>
+                </div>
+
+                <!-- 4. Cố vấn AI -->
+                <div class="faq-item" data-categories="ai all">
+                    <div class="faq-header">
+                        <span><i class="fa-solid fa-wand-magic-sparkles" style="color:#8b5cf6;"></i> Trợ lý tài chính AI hỗ trợ những gì?</span>
+                        <i class="fa-solid fa-chevron-down caret-icon"></i>
+                    </div>
+                    <div class="faq-content">
+                        Trợ lý AI phân tích các số liệu thu chi thực tế của bạn để:
+                        <ul style="margin:6px 0 0 18px; padding:0;">
+                            <li>Cảnh báo các danh mục chi tiêu vượt định mức ngân sách.</li>
+                            <li>Đưa ra lời khuyên cắt giảm chi tiêu theo mô hình tài chính 50/30/20.</li>
+                            <li>Giải đáp các thắc mắc về lập kế hoạch tiết kiệm tiền và tối ưu hóa dòng tiền cá nhân.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 5. Cài đặt & Đa ngôn ngữ -->
+                <div class="faq-item" data-categories="settings all">
+                    <div class="faq-header">
+                        <span><i class="fa-solid fa-circle-half-stroke" style="color:#475569;"></i> Cách chuyển đổi Dark Mode (chế độ Tối) và đổi ngôn ngữ?</span>
+                        <i class="fa-solid fa-chevron-down caret-icon"></i>
+                    </div>
+                    <div class="faq-content">
+                        Bấm vào menu người dùng ở góc trên bên phải $\rightarrow$ chọn <strong>Cài đặt</strong>:
+                        <ul style="margin:6px 0 0 18px; padding:0;">
+                            <li>Tại phần <strong>Ngôn ngữ của trang web</strong>: Hỗ trợ chuyển đổi tức thì giữa 6 ngôn ngữ (Tiếng Việt, English, 日本語, 한국어, 简体中文, Français).</li>
+                            <li>Tại phần <strong>Giao diện</strong>: Bạn có thể chọn giữa chế độ <em>Theo trình duyệt</em>, <em>Sáng</em> hoặc <em>Tối</em> và điều chỉnh <em>Mật độ danh sách ghi chép</em>.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 6. Di động PWA -->
+                <div class="faq-item" data-categories="pwa all">
+                    <div class="faq-header">
+                        <span><i class="fa-solid fa-mobile-screen-button" style="color:#0284c7;"></i> Cách cài CashManager lên điện thoại không cần App Store?</span>
+                        <i class="fa-solid fa-chevron-down caret-icon"></i>
+                    </div>
+                    <div class="faq-content">
+                        CashManager được xây dựng theo chuẩn <strong>Progressive Web App (PWA)</strong>:
+                        <ul style="margin:6px 0 0 18px; padding:0;">
+                            <li><strong>Trên iPhone/iPad (Safari):</strong> Bấm nút <em>Chia sẻ (Share)</em> $\rightarrow$ chọn <em>"Thêm vào Màn hình chính" (Add to Home Screen)</em>.</li>
+                            <li><strong>Trên Android (Chrome/Cốc Cốc):</strong> Bấm menu 3 chấm (...) $\rightarrow$ chọn <em>"Cài đặt ứng dụng"</em> hoặc <em>"Thêm vào màn hình chính"</em>.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 7. Sao lưu & Bảo mật -->
+                <div class="faq-item" data-categories="backup all">
+                    <div class="faq-header">
+                        <span><i class="fa-solid fa-shield-halved" style="color:#10b981;"></i> Dữ liệu của tôi được lưu trữ ở đâu và có an toàn không?</span>
+                        <i class="fa-solid fa-chevron-down caret-icon"></i>
+                    </div>
+                    <div class="faq-content">
+                        Dữ liệu của bạn được lưu trữ an toàn trong cơ sở dữ liệu với mật khẩu được mã hóa chuẩn Bcrypt. Ngoài ra, bạn có thể tự quản lý dữ liệu độc lập bằng cách vào mục <strong>Cài đặt</strong> $\rightarrow$ tab <strong>"Sao lưu & Dữ liệu"</strong> để tải toàn bộ dữ liệu về máy dưới dạng file <code>.json</code> bất kỳ lúc nào.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cột phải: Form gửi Email trực tiếp tới Admin -->
+        <aside class="help-sidebar" id="contactSection">
+            <div class="contact-admin-card">
+                <h3><i class="fa-solid fa-paper-plane" style="color:var(--primary);"></i> Gửi tin nhắn cho Admin</h3>
+                <p>Nếu bạn gặp sự cố kỹ thuật hoặc cần hỗ trợ riêng, hãy điền form bên dưới để gửi email trực tiếp tới Quản trị viên hệ thống.</p>
+
+                <form id="contactAdminForm">
+                    <div class="form-group">
+                        <label for="contactName">Họ và tên của bạn</label>
+                        <input type="text" id="contactName" class="form-control" placeholder="Nhập họ và tên..." required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contactEmail">Địa chỉ Email nhận phản hồi</label>
+                        <input type="email" id="contactEmail" class="form-control" placeholder="tenban@gmail.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contactSubject">Chủ đề hỗ trợ</label>
+                        <select id="contactSubject" class="form-control">
+                            <option value="Hỏi đáp hướng dẫn sử dụng">Hỏi đáp hướng dẫn sử dụng</option>
+                            <option value="Báo cáo lỗi hệ thống">Báo cáo lỗi hệ thống (Bug report)</option>
+                            <option value="Đóng góp ý kiến & Đề xuất tính năng">Đóng góp ý kiến & Đề xuất tính năng mới</option>
+                            <option value="Vấn đề tài khoản & Bảo mật">Vấn đề tài khoản & Bảo mật</option>
+                            <option value="Khác">Chủ đề khác...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contactMessage">Nội dung yêu cầu chi tiết</label>
+                        <textarea id="contactMessage" class="form-control" placeholder="Mô tả chi tiết câu hỏi hoặc sự cố bạn gặp phải..." required></textarea>
+                    </div>
+
+                    <button type="submit" id="btnSendContact" class="btn-send-admin">
+                        <i class="fa-solid fa-envelope"></i> Gửi đến Quản trị viên
+                    </button>
+                </form>
+
+                <div class="admin-meta-info">
+                    <div><i class="fa-solid fa-user-shield"></i> <strong>Người tiếp nhận:</strong> Admin Quản Trị Hệ Thống</div>
+                    <div><i class="fa-solid fa-envelope"></i> <strong>Email Admin:</strong> admin@cashmanager.vn</div>
+                    <div><i class="fa-solid fa-clock"></i> <strong>Thời gian phản hồi:</strong> Trong vòng 24 giờ</div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="../assets/js/i18n.js?v=20261127"></script>
+    <script>
+        // Tự động nhận diện theme & density từ localStorage
+        (function applySavedSettings() {
+            try {
+                const savedTheme = localStorage.getItem('app_theme') || 'auto';
+                const isDark = savedTheme === 'dark' || (savedTheme === 'auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+
+                const savedLang = localStorage.getItem('app_language') || 'vi';
+                if (savedLang !== 'vi' && window.CashManagerI18n) {
+                    window.CashManagerI18n.applyLanguage(savedLang);
+                }
+            } catch (_) {}
+        })();
+
+        // Toast thông báo
+        function showToast(msg, isErr = false) {
+            const t = document.getElementById('toast');
+            if (!t) return;
+            t.textContent = msg;
+            t.className = 'toast show' + (isErr ? ' err' : '');
+            setTimeout(() => { t.className = 'toast'; }, 3500);
+        }
+
+        // Tự động điền họ tên & email nếu đã đăng nhập
+        async function loadCurrentUserInfo() {
+            try {
+                const res = await fetch('../api/auth/me.php', { credentials: 'include' });
+                if (res.ok) {
+                    const json = await res.json();
+                    const u = json.user || json.data;
+                    if (u) {
+                        const nameInp = document.getElementById('contactName');
+                        const emailInp = document.getElementById('contactEmail');
+                        if (nameInp && !nameInp.value) nameInp.value = u.full_name || u.name || '';
+                        if (emailInp && !emailInp.value) emailInp.value = u.email || '';
+                    }
+                }
+            } catch (_) {}
+        }
+        loadCurrentUserInfo();
+
+        // 1. Accordion Đóng / Mở
+        document.querySelectorAll('.faq-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const item = header.parentElement;
+                const isOpen = item.classList.contains('open');
+                // Đóng tất cả mục khác nếu muốn gọn
+                document.querySelectorAll('.faq-item').forEach(it => it.classList.remove('open'));
+                if (!isOpen) item.classList.add('open');
+            });
+        });
+
+        // 2. Phân loại theo nhãn Category Chips
+        const chips = document.querySelectorAll('.category-chip');
+        chips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                chips.forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                const cat = chip.dataset.category;
+                const items = document.querySelectorAll('.faq-item');
+                items.forEach(it => {
+                    const cats = (it.dataset.categories || '').split(' ');
+                    const match = cat === 'all' || cats.includes(cat);
+                    it.style.display = match ? 'block' : 'none';
+                });
+            });
+        });
+
+        // 3. Tìm kiếm câu hỏi tức thì
+        const searchInput = document.getElementById('helpSearchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', () => {
+                const q = searchInput.value.toLowerCase().trim();
+                const items = document.querySelectorAll('.faq-item');
+                items.forEach(it => {
+                    const text = it.textContent.toLowerCase();
+                    if (!q || text.includes(q)) {
+                        it.style.display = 'block';
+                        if (q) it.classList.add('open');
+                    } else {
+                        it.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        // 4. Xử lý gửi Form liên hệ tới Admin
+        const contactForm = document.getElementById('contactAdminForm');
+        const btnSend = document.getElementById('btnSendContact');
+
+        if (contactForm && btnSend) {
+            contactForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const name = document.getElementById('contactName').value.trim();
+                const email = document.getElementById('contactEmail').value.trim();
+                const subject = document.getElementById('contactSubject').value.trim();
+                const message = document.getElementById('contactMessage').value.trim();
+
+                if (!name || !email || !message) {
+                    showToast('Vui lòng điền đầy đủ các trường thông tin!', true);
+                    return;
+                }
+
+                btnSend.disabled = true;
+                btnSend.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang gửi tới Admin...';
+
+                try {
+                    const res = await fetch('../api/support/contact.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ name, email, subject, message })
+                    });
+
+                    const json = await res.json();
+
+                    if (res.ok && json.success) {
+                        showToast(json.message || 'Đã gửi yêu cầu thành công tới Admin hệ thống!');
+                        document.getElementById('contactMessage').value = '';
+                    } else {
+                        showToast(json.error || 'Có lỗi khi gửi tin nhắn, vui lòng thử lại sau!', true);
+                    }
+                } catch (err) {
+                    showToast('Lỗi kết nối tới máy chủ, vui lòng thử lại!', true);
+                } finally {
+                    btnSend.disabled = false;
+                    btnSend.innerHTML = '<i class="fa-solid fa-envelope"></i> Gửi đến Quản trị viên';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
