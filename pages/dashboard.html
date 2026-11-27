@@ -31,27 +31,184 @@
 .ai-tips{margin-top:.75rem;padding-left:1.25rem;line-height:1.6}
 @media(max-width:600px){.ai-review{flex-direction:column;align-items:center;text-align:center}}
 
-/* ===== [HUY] Chatbot AI hỏi - đáp ===== */
-.aic{margin-top:1.25rem;padding-top:1.25rem;border-top:1px dashed #e2e8f0}
-.aic-title{margin-bottom:.75rem;font-weight:600}
-.aic-title small{display:block;margin-top:.15rem;color:var(--text-muted,#64748b);font-weight:400}
-.aic-list{display:flex;flex-direction:column;gap:.75rem;min-height:110px;max-height:380px;overflow-y:auto;margin-bottom:1rem;padding:.9rem;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc}
-.aic-msg{display:flex;gap:.6rem;max-width:92%}
-.aic-msg.me{align-self:flex-end;flex-direction:row-reverse}
-.aic-av{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;flex-shrink:0;border-radius:50%;background:linear-gradient(135deg,#6366f1,#a855f7);color:#fff;font-size:.85rem}
-.aic-bub{padding:.6rem .9rem;border:1px solid #e2e8f0;border-radius:14px;background:#fff;line-height:1.6;word-break:break-word}
-.aic-msg.me .aic-bub{border-color:var(--primary,#4f46e5);background:var(--primary,#4f46e5);color:#fff}
-.aic-msg.err .aic-bub{border-color:#fecaca;background:#fef2f2;color:#b91c1c}
-.aic-bub p{margin:0 0 .4rem}.aic-bub p:last-child{margin:0}
-.aic-bub ul,.aic-bub ol{margin:.25rem 0 .4rem 1.25rem}
-.aic-chips{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.75rem}
-.aic-chip{padding:.5rem .9rem;border:1px solid #c7d2fe;border-radius:999px;background:#eef2ff;color:var(--primary,#4f46e5);font-family:inherit;font-size:.85rem;font-weight:500;text-align:left;cursor:pointer}
-.aic-chip:hover{background:#e0e7ff}
-.aic-chip:disabled,.aic-send:disabled{opacity:.55;cursor:not-allowed}
-.aic-form{display:flex;gap:.6rem}
-.aic-form .form-control{flex:1;min-width:0}
-.aic-send{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem 1.2rem;white-space:nowrap}
-@media(max-width:600px){.aic-msg{max-width:100%}.aic-send span{display:none}}
+/* ===== [HUY] Chatbot AI hỏi - đáp dạng Popup thu nhỏ góc phải (giống Meta AI / Messenger) ===== */
+.ai-fab {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 990;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px 10px 14px;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(79, 70, 229, 0.4);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ai-fab:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 12px 28px rgba(79, 70, 229, 0.5);
+}
+.ai-fab-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    font-size: 0.95rem;
+}
+.ai-chat-widget {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    width: 380px;
+    max-width: calc(100vw - 32px);
+    height: 530px;
+    max-height: calc(100vh - 80px);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 16px 48px rgba(15, 23, 42, 0.22);
+    overflow: hidden;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+}
+.ai-chat-widget.collapsed {
+    display: none !important;
+}
+.ai-widget-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: #ffffff;
+    border-bottom: 1px solid #f1f5f9;
+}
+.ai-widget-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.ai-widget-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    color: #fff;
+    font-size: 0.95rem;
+}
+.ai-widget-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.ai-widget-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: #64748b;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s;
+}
+.ai-widget-btn:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+.ai-widget-body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 12px;
+    background: #f8fafc;
+    overflow: hidden;
+}
+.ai-widget-body .aic-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    margin-bottom: 8px;
+    padding: 10px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+}
+.aic-msg { display: flex; gap: .6rem; max-width: 92%; }
+.aic-msg.me { align-self: flex-end; flex-direction: row-reverse; }
+.aic-av { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; flex-shrink: 0; border-radius: 50%; background: linear-gradient(135deg,#6366f1,#a855f7); color: #fff; font-size: .8rem; }
+.aic-bub { padding: .55rem .85rem; border: 1px solid #e2e8f0; border-radius: 14px; background: #fff; line-height: 1.5; font-size: 0.88rem; word-break: break-word; }
+.aic-msg.me .aic-bub { border-color: var(--primary,#4f46e5); background: var(--primary,#4f46e5); color: #fff; }
+.aic-msg.err .aic-bub { border-color: #fecaca; background: #fef2f2; color: #b91c1c; }
+.aic-bub p { margin: 0 0 .4rem; } .aic-bub p:last-child { margin: 0; }
+.aic-bub ul, .aic-bub ol { margin: .25rem 0 .4rem 1.15rem; }
+.ai-widget-body .aic-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 4px;
+    max-height: 80px;
+    overflow-y: auto;
+}
+.ai-widget-body .aic-chip {
+    padding: 4px 10px;
+    border: 1px solid #c7d2fe;
+    border-radius: 999px;
+    background: #eef2ff;
+    color: var(--primary,#4f46e5);
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.ai-widget-body .aic-chip:hover { background: #e0e7ff; }
+.ai-widget-body .aic-chip:disabled, .aic-send:disabled { opacity: .55; cursor: not-allowed; }
+.ai-widget-footer {
+    padding: 10px 14px;
+    background: #ffffff;
+    border-top: 1px solid #f1f5f9;
+}
+.ai-widget-footer .aic-form { display: flex; gap: 8px; align-items: center; }
+.ai-widget-footer .aic-form .form-control { flex: 1; min-width: 0; font-size: 0.88rem; padding: 8px 12px; }
+.ai-widget-footer .aic-send { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; padding: 0; border-radius: 8px; flex-shrink: 0; }
+@media (max-width: 480px) {
+    .ai-chat-widget { right: 12px; bottom: 12px; width: calc(100vw - 24px); height: 82vh; }
+    .ai-fab { right: 16px; bottom: 16px; }
+}
+/* Hỗ trợ Dark Mode cho Chatbot Widget */
+body.dark-mode .ai-chat-widget { background: #1e293b; border-color: #334155; box-shadow: 0 16px 48px rgba(0,0,0,0.5); }
+body.dark-mode .ai-widget-header { background: #1e293b; border-color: #334155; }
+body.dark-mode .ai-widget-title div { color: #f8fafc; }
+body.dark-mode .ai-widget-btn { color: #94a3b8; }
+body.dark-mode .ai-widget-btn:hover { background: #334155; color: #f8fafc; }
+body.dark-mode .ai-widget-body { background: #0f172a; }
+body.dark-mode .ai-widget-body .aic-list { background: #1e293b; border-color: #334155; }
+body.dark-mode .aic-bub { background: #334155; color: #f1f5f9; border-color: #475569; }
+body.dark-mode .ai-widget-footer { background: #1e293b; border-color: #334155; }
+body.dark-mode .ai-widget-footer .form-control { background: #0f172a; border-color: #334155; color: #f8fafc; }
     </style>
 </head>
 <body>
@@ -68,6 +225,7 @@
                 <li><a href="report.html"><i class="fa-solid fa-chart-column"></i> Báo cáo</a></li>
                 <li><a href="map.html"><i class="fa-solid fa-map-location-dot"></i> Bản đồ thu chi</a></li>
                 <li><a href="shared.html"><i class="fa-solid fa-users"></i> Quỹ chung</a></li>
+                <li><a href="feed.html"><i class="fa-solid fa-camera-retro"></i> Bảng tin</a></li>
             </ul>
         </aside>
 
@@ -135,31 +293,21 @@
                     </div>
                 </div>
 
-                <!-- Trợ lý tài chính AI: đánh giá tự động + [HUY] chatbot hỏi - đáp -->
+                <!-- Trợ lý tài chính AI: Đánh giá tự động & Khung chat thu nhỏ -->
                 <div class="card ai-box">
                     <div class="ai-head">
-                        <h3>🤖 Trợ lý tài chính AI</h3>
-                        <button type="button" id="aiAskBtn" class="ai-btn">Hỏi chuyên gia AI</button>
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <h3 style="margin: 0;">🤖 Trợ lý tài chính AI</h3>
+                            <span style="font-size: 0.75rem; background: #e0e7ff; color: #4338ca; padding: 2px 8px; border-radius: 999px; font-weight: 600;">Gemini AI</span>
+                        </div>
+                        <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+                            <button type="button" id="aiAskBtn" class="ai-btn" title="Nhận đánh giá và phân tích nhanh">Đánh giá nhanh</button>
+                            <button type="button" id="btnOpenAiChat" class="ai-btn" style="background: linear-gradient(135deg, #6366f1, #a855f7); color: #fff;" title="Mở khung chat hỏi đáp trực tiếp">
+                                <i class="fa-solid fa-comments"></i> <span>Mở chat AI</span>
+                            </button>
+                        </div>
                     </div>
                     <div id="aiResult"></div>
-
-                    <div class="aic" id="aiChat">
-                        <div class="aic-title">Hỏi đáp trực tiếp với AI
-                            <small>AI trả lời dựa trên số liệu thu chi thật của bạn.</small>
-                        </div>
-                        <div class="aic-list" id="aicList" aria-live="polite"></div>
-                        <div class="aic-chips">
-                            <button type="button" class="aic-chip" data-q="Làm sao để tháng sau tôi tiết kiệm được 2 triệu?">💡 Làm sao để tháng sau tôi tiết kiệm được 2 triệu?</button>
-                            <button type="button" class="aic-chip" data-q="Với thu nhập hiện tại, tôi có nên mua điện thoại mới không?">📱 Với thu nhập hiện tại, tôi có nên mua điện thoại mới không?</button>
-                            <button type="button" class="aic-chip" data-q="Gợi ý cách giảm 30% tiền ăn uống tháng tới?">🥗 Gợi ý cách giảm 30% tiền ăn uống tháng tới?</button>
-                        </div>
-                        <div class="aic-form">
-                            <input type="text" id="aicInput" class="form-control" maxlength="500" autocomplete="off"
-                                   aria-label="Câu hỏi tài chính cho AI"
-                                   placeholder="Nhập câu hỏi tài chính cho AI (VD: Tôi có nên mua xe máy mới lúc này không?)...">
-                            <button type="button" id="aicSend" class="ai-btn aic-send"><i class="fa-solid fa-paper-plane"></i> <span>Gửi</span></button>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- 2 Biểu đồ -->
@@ -338,14 +486,83 @@
 })();
     </script>
 
+    <!-- Nút nổi mở Chatbot AI ở góc phải dưới (Floating Action Button) -->
+    <button type="button" id="aiFab" class="ai-fab" title="Trò chuyện cùng Trợ lý tài chính AI">
+        <span class="ai-fab-icon"><i class="fa-solid fa-robot"></i></span>
+        <span class="ai-fab-text">Hỏi AI</span>
+    </button>
+
+    <!-- Cửa sổ Chatbot AI thu nhỏ dạng popup góc phải (giống Meta AI / Messenger) -->
+    <div id="aiChatWidget" class="ai-chat-widget collapsed" role="dialog" aria-labelledby="aiWidgetTitle" hidden>
+        <div class="ai-widget-header">
+            <div class="ai-widget-title" id="aiWidgetTitle">
+                <span class="ai-widget-badge"><i class="fa-solid fa-robot"></i></span>
+                <div>
+                    <div style="font-weight: 700; font-size: 0.95rem; line-height: 1.2;">Trợ lý tài chính AI</div>
+                    <small style="color: #64748b; font-size: 0.75rem; display: flex; align-items: center; gap: 4px;">
+                        <span style="display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #10b981;"></span> Trực tuyến
+                    </small>
+                </div>
+            </div>
+            <div class="ai-widget-actions">
+                <button type="button" id="aiWidgetMinimize" class="ai-widget-btn" title="Thu nhỏ"><i class="fa-solid fa-minus"></i></button>
+                <button type="button" id="aiWidgetClose" class="ai-widget-btn" title="Đóng"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+        </div>
+
+        <div class="ai-widget-body">
+            <div class="aic-list" id="aicList" aria-live="polite"></div>
+            <div class="aic-chips">
+                <button type="button" class="aic-chip" data-q="Làm sao để tháng sau tôi tiết kiệm được 2 triệu?">💡 Tiết kiệm 2 triệu?</button>
+                <button type="button" class="aic-chip" data-q="Với thu nhập hiện tại, tôi có nên mua điện thoại mới không?">📱 Có nên mua điện thoại?</button>
+                <button type="button" class="aic-chip" data-q="Gợi ý cách giảm 30% tiền ăn uống tháng tới?">🥗 Giảm 30% tiền ăn?</button>
+            </div>
+        </div>
+
+        <div class="ai-widget-footer">
+            <form id="aicForm" class="aic-form" onsubmit="return false;">
+                <input type="text" id="aicInput" class="form-control" maxlength="500" autocomplete="off"
+                       aria-label="Câu hỏi tài chính cho AI"
+                       placeholder="Hỏi về chi tiêu, tiết kiệm...">
+                <button type="button" id="aicSend" class="ai-btn aic-send" title="Gửi"><i class="fa-solid fa-paper-plane"></i></button>
+            </form>
+        </div>
+    </div>
+
     <!-- [HUY] Chatbot AI hỏi - đáp: gọi api/ai/chat.php -->
     <script>
 (function () {
+    const widget = document.getElementById('aiChatWidget');
+    const fab = document.getElementById('aiFab');
+    const btnOpenCard = document.getElementById('btnOpenAiChat');
+    const btnClose = document.getElementById('aiWidgetClose');
+    const btnMin = document.getElementById('aiWidgetMinimize');
     const list = document.getElementById('aicList');
     const input = document.getElementById('aicInput');
     const sendBtn = document.getElementById('aicSend');
     const chips = document.querySelectorAll('.aic-chip');
     let busy = false;
+
+    function openChat() {
+        if (!widget) return;
+        widget.classList.remove('collapsed');
+        widget.hidden = false;
+        if (fab) fab.style.display = 'none';
+        list.scrollTop = list.scrollHeight;
+        setTimeout(() => input && input.focus(), 150);
+    }
+
+    function closeChat() {
+        if (!widget) return;
+        widget.classList.add('collapsed');
+        widget.hidden = true;
+        if (fab) fab.style.display = 'flex';
+    }
+
+    if (fab) fab.addEventListener('click', openChat);
+    if (btnOpenCard) btnOpenCard.addEventListener('click', openChat);
+    if (btnClose) btnClose.addEventListener('click', closeChat);
+    if (btnMin) btnMin.addEventListener('click', closeChat);
 
     const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
@@ -412,7 +629,12 @@
             });
             if (r.status === 401) { location.href = 'login.html'; return; }
             let j = {};
-            try { j = await r.json(); } catch (e) {}
+            const raw = await r.text();
+            try { j = JSON.parse(raw); } catch (e) {
+                const i = raw.indexOf('{"success"');
+                if (i >= 0) { try { j = JSON.parse(raw.slice(i)); } catch (e2) {} }
+                else throw new Error('Máy chủ trả dữ liệu không hợp lệ (HTTP ' + r.status + '): ' + raw.replace(/<[^>]*>/g, ' ').trim().slice(0, 200));
+            }
             if (!r.ok || j.success === false || j.status === 'error') throw new Error(j.message || j.error || 'Máy chủ chưa phản hồi đúng');
             const d = j.data !== undefined ? j.data : j;
             const text = typeof d === 'string' ? d : (d.answer ?? d.reply ?? d.response ?? d.text ?? d.message ?? '');

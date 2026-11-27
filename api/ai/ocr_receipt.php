@@ -117,13 +117,13 @@ $categoryListStr = !empty($categoryNames)
 // 5. Chuẩn bị gọi Gemini Vision API
 $envFile = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . '.env';
 $envVars = file_exists($envFile) ? loadEnvFile($envFile) : [];
-$apiKey  = $envVars['GEMINI_API_KEY'] ?? getenv('GEMINI_API_KEY') ?? $_ENV['GEMINI_API_KEY'] ?? '';
+$apiKey  = trim((string)($envVars['GEMINI_API_KEY'] ?? getenv('GEMINI_API_KEY') ?? ($_ENV['GEMINI_API_KEY'] ?? '')));
 
 $extractedData = null;
 $source        = 'rule_based';
 
 if (!empty($apiKey)) {
-    $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" . urlencode($apiKey);
+    $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=" . urlencode($apiKey);
 
     // Chuyển đổi ảnh sang Base64
     $rawImageContent = file_get_contents($file['tmp_name']);
@@ -163,7 +163,8 @@ if (!empty($apiKey)) {
         ],
         'generationConfig' => [
             'temperature'     => 0.1,
-            'maxOutputTokens' => 800
+            'maxOutputTokens' => 2048,
+            'thinkingConfig'  => ['thinkingBudget' => 0]
         ]
     ];
 
@@ -173,9 +174,10 @@ if (!empty($apiKey)) {
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
         CURLOPT_POSTFIELDS     => json_encode($postData, JSON_UNESCAPED_UNICODE),
-        CURLOPT_TIMEOUT        => 30,
+        CURLOPT_TIMEOUT        => 25,
         CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_SSL_VERIFYHOST => false
+        CURLOPT_SSL_VERIFYHOST => false,
+        CURLOPT_IPRESOLVE      => CURL_IPRESOLVE_V4
     ]);
 
     $response = curl_exec($ch);

@@ -434,3 +434,8 @@ FodyWeavers.xsd
 !api/backup/
 !api/backup/**
 
+
+# Finance Feed: ?nh ngu?i dùng upload
+uploads/posts/*
+!uploads/posts/.gitkeep
+!uploads/posts/.htaccess
