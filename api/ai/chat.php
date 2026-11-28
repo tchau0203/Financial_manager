@@ -33,12 +33,14 @@ $question = '';
 if ($method === 'POST') {
     if (!empty($_POST['question'])) {
         $question = trim((string)$_POST['question']);
+    } elseif (!empty($_POST['message'])) {
+        $question = trim((string)$_POST['message']);
     } else {
         $input = getJsonInput();
-        $question = trim((string)($input['question'] ?? ''));
+        $question = trim((string)($input['question'] ?? ($input['message'] ?? '')));
     }
 } else {
-    $question = trim((string)($_GET['question'] ?? ''));
+    $question = trim((string)($_GET['question'] ?? ($_GET['message'] ?? '')));
 }
 
 if ($question === '') {
@@ -208,7 +210,7 @@ $answer = null;
 $source = 'rule_based';
 
 if (!empty($apiKey) && function_exists('curl_init')) {
-    $modelsToTry = ['gemini-3.5-flash', 'gemini-3.8-flash', 'gemini-flash-latest'];
+    $modelsToTry = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-flash-latest'];
 
     $postData = [
         'systemInstruction' => [
@@ -228,8 +230,8 @@ if (!empty($apiKey) && function_exists('curl_init')) {
             'thinkingConfig'  => [
                 'thinkingBudget' => 0
             ],
-            'temperature'     => 0.65,
-            'maxOutputTokens' => 2048
+            'temperature'     => 0.6,
+            'maxOutputTokens' => 650
         ]
     ];
     $jsonPayload = json_encode($postData, JSON_UNESCAPED_UNICODE);
@@ -243,7 +245,7 @@ if (!empty($apiKey) && function_exists('curl_init')) {
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
             CURLOPT_POSTFIELDS     => $jsonPayload,
-            CURLOPT_TIMEOUT        => 12,
+            CURLOPT_TIMEOUT        => 7,
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => false,
             CURLOPT_IPRESOLVE      => CURL_IPRESOLVE_V4
@@ -294,6 +296,7 @@ if ($answer === null) {
 while (ob_get_level() > 0) { ob_end_clean(); }
 jsonResponse([
     'success' => true,
+    'reply'   => $answer,
     'data'    => [
         'answer'  => $answer,
         'source'  => $source,

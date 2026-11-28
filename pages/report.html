@@ -26,41 +26,30 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="CashManager">
+<link rel="stylesheet" href="../assets/css/style.css?v=20261128_v1">
 <link rel="stylesheet" href="../assets/css/components.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
-:root{--primary:#4f46e5;--green:#10b981;--amber:#f59e0b;--red:#ef4444;--muted:#64748b;--line:#e2e8f0}
+:root{--primary:#2563eb;--green:#10b981;--amber:#f59e0b;--red:#ef4444;--muted:#64748b;--line:#e2e8f0}
 *{box-sizing:border-box;margin:0;padding:0}
-body{display:flex;min-height:100vh;background:#f8fafc;color:#0f172a;font:14px/1.5 'Inter','Segoe UI',system-ui,sans-serif}
-.sidebar{width:235px;flex-shrink:0;background:#0f172a;position:sticky;top:0;height:100vh}
-.logo{display:flex;align-items:center;gap:10px;padding:20px 22px;border-bottom:1px solid #1e293b;color:#fff;font-size:19px;font-weight:700}
-.logo i{color:#6366f1}
-.nav{padding-top:12px}
-.nav a{display:flex;align-items:center;gap:12px;padding:14px 22px;border-left:3px solid transparent;color:#cbd5e1;font-weight:500;text-decoration:none}
-.nav a i{width:18px;text-align:center}
-.nav a:hover,.nav a.active{background:#1e293b;color:#fff}
-.nav a.active{border-left-color:var(--primary);font-weight:600}
-.main{flex:1;min-width:0}
-.topbar{display:flex;justify-content:space-between;align-items:center;padding:18px 28px;background:#fff;border-bottom:1px solid var(--line)}
-.topbar h1{font-size:18px}
-.right{display:flex;align-items:center;gap:14px;font-weight:500}
-.content{display:grid;gap:22px;padding:28px}
-.card{background:#fff;border-radius:12px;padding:22px 24px;box-shadow:0 1px 3px rgba(15,23,42,.08)}
-.card h3{font-size:16px;margin-bottom:14px}
+.content{display:grid;gap:22px;padding:28px;max-width:1400px}
+.card{background:#fff;border-radius:22px;padding:22px 24px;box-shadow:0 4px 20px -2px rgba(15,23,42,.04);border:1px solid rgba(226,232,240,0.7)}
+.card h3{font-size:16px;margin-bottom:14px;font-weight:700}
 .grid{display:grid;gap:22px}
 .g2{grid-template-columns:1fr 1fr}.g4{grid-template-columns:repeat(4,1fr)}
-.stat small{color:var(--muted);text-transform:uppercase;font-size:12px}
-.stat b{display:block;margin-top:10px;font-size:26px}
+.stat small{color:var(--muted);text-transform:uppercase;font-size:12px;font-weight:700;letter-spacing:0.04em}
+.stat b{display:block;margin-top:8px;font-size:26px;font-weight:800;letter-spacing:-0.02em}
 .green{color:var(--green)}.red{color:var(--red)}.blue{color:var(--primary)}.amber{color:var(--amber)}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border:0;border-radius:8px;background:var(--primary);color:#fff;font:600 13px 'Inter','Segoe UI',sans-serif;cursor:pointer}
-.btn.gr{background:var(--green)}
-.btn.out{background:#fee2e2;color:var(--red)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border:0;border-radius:10px;background:var(--primary);color:#fff;font:700 13px 'Plus Jakarta Sans',sans-serif;cursor:pointer;box-shadow:0 4px 14px rgba(37,99,235,0.3);transition:all .2s ease}
+.btn:hover{background:#1d4ed8;transform:translateY(-1px)}
+.btn.gr{background:var(--green);box-shadow:0 4px 14px rgba(16,185,129,0.3)}
+.btn.out{background:#fee2e2;color:var(--red);box-shadow:none}
 .tools{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
 .tools .field{margin:0;min-width:150px}
 .field{display:grid;gap:6px;margin-bottom:14px}
-.field label{font-weight:600;font-size:13px}
-input,select{width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;font:inherit}
-input:focus,select:focus{outline:2px solid #c7d2fe;border-color:var(--primary)}
+.field label{font-weight:700;font-size:13px;color:var(--muted)}
+input,select{width:100%;padding:10px 14px;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc;font:inherit}
+input:focus,select:focus{outline:none;border-color:var(--primary);background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,0.12)}
 .chart-box{position:relative;height:300px}
 .empty{padding:24px;text-align:center;color:var(--muted)}
 .hide{display:none!important}
@@ -87,47 +76,70 @@ input:focus,select:focus{outline:2px solid #c7d2fe;border-color:var(--primary)}
 </style>
 </head>
 <body>
-<aside class="sidebar">
-  <div class="logo"><i class="fa-solid fa-wallet"></i> CashManager</div>
-  <nav class="nav">
-    <a href="dashboard.html"><i class="fa-solid fa-chart-pie"></i> Bảng điều khiển</a>
-    <a href="income.html"><i class="fa-solid fa-arrow-down"></i> Thu nhập</a>
-    <a href="expense.html"><i class="fa-solid fa-arrow-up"></i> Chi tiêu</a>
-    <a href="budget.html"><i class="fa-solid fa-piggy-bank"></i> Ngân sách</a>
-    <a href="report.html" class="active"><i class="fa-solid fa-chart-column"></i> Báo cáo</a>
-    <a href="map.html"><i class="fa-solid fa-map-location-dot"></i> Bản đồ thu chi</a>
-    <a href="shared.html"><i class="fa-solid fa-users"></i> Quỹ chung</a>
-    <a href="feed.html"><i class="fa-solid fa-camera-retro"></i> Bảng tin</a>
+<div class="app-shell app-container">
+<aside class="app-sidebar sidebar" id="appSidebar">
+  <div class="brand-logo-circle" title="Cổng Không Gian Làm Việc (Portal Hub)" onclick="window.location.href='portal.html'" style="cursor: pointer;">
+    <i class="fa-solid fa-bolt"></i>
+  </div>
+  <nav class="sidebar-menu">
+    <a href="dashboard.html" class="menu-item">
+      <i class="fa-solid fa-table-cells-large"></i>
+      <span class="tooltip">Bảng điều khiển</span>
+    </a>
+    <a href="transactions.html" class="menu-item active">
+      <i class="fa-solid fa-book-bookmark"></i>
+      <span class="tooltip">Sổ giao dịch & Báo cáo</span>
+    </a>
+    <a href="budget.html" class="menu-item">
+      <i class="fa-solid fa-piggy-bank"></i>
+      <span class="tooltip">Ngân sách</span>
+    </a>
+    <a href="map.html" class="menu-item">
+      <i class="fa-solid fa-map-location-dot"></i>
+      <span class="tooltip">Bản đồ</span>
+    </a>
+    <a href="notifications.html" class="menu-item">
+      <i class="fa-regular fa-bell"></i>
+      <span class="tooltip">Thông báo</span>
+    </a>
+    <a href="portal.html" class="menu-item" title="Cổng Không Gian">
+      <i class="fa-solid fa-layer-group"></i>
+      <span class="tooltip">Đổi không gian</span>
+    </a>
   </nav>
+  <div class="sidebar-bottom">
+    <a href="account.html" class="menu-item" title="Tài khoản">
+      <i class="fa-solid fa-gear"></i>
+      <span class="tooltip">Cài đặt</span>
+    </a>
+    <a href="javascript:void(0)" class="menu-item" onclick="if(confirm('Bạn có chắc chắn muốn đăng xuất?')){fetch('../api/auth/logout.php',{method:'POST'}).finally(()=>{localStorage.clear();window.location.href='login.html'})}" title="Đăng xuất">
+      <i class="fa-solid fa-arrow-right-from-bracket"></i>
+      <span class="tooltip">Đăng xuất</span>
+    </a>
+  </div>
 </aside>
-<div class="main">
-  <header class="topbar">
-    <h1>Báo cáo thống kê</h1>
-    <div class="header-user-nav" id="headerUserNav">
-        <button type="button" class="btn-quick-tx" id="btnHeaderAddTx" title="Thêm giao dịch mới">
-            <i class="fa-solid fa-plus"></i> Giao dịch
-        </button>
-        <div class="user-dropdown-wrapper" id="userDropdownWrapper">
-            <button type="button" class="user-profile-btn" id="userProfileBtn" aria-expanded="false" title="Tài khoản">
-                <span class="user-avatar-circle" id="headerAvatar">T</span>
-                <span class="user-profile-name" id="headerUserName">Thái Châu</span>
-                <i class="fa-solid fa-caret-down user-profile-caret"></i>
-            </button>
-            <div class="user-dropdown-menu" id="userDropdownMenu">
-                <a href="account.html" class="user-dropdown-item" id="menuItemSettings">
-                    <i class="fa-solid fa-sliders"></i>
-                    <span>Cài đặt</span>
-                </a>
-                <a href="help.html" target="_blank" class="user-dropdown-item" id="menuItemHelp">
-                    <i class="fa-regular fa-circle-question"></i>
-                    <span>Trợ giúp</span>
-                </a>
-                <a href="javascript:void(0)" class="user-dropdown-item item-logout" id="menuItemLogout">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                    <span>Đăng xuất</span>
-                </a>
-            </div>
-        </div>
+<main class="main-content app-main">
+  <header class="app-header header">
+    <div class="header-left">
+      <h1 class="page-title" style="margin: 0; font-size: 1.5rem; font-weight: 800; color: var(--text-heading);">Báo cáo thống kê</h1>
+    </div>
+
+    <!-- Center Search Pill -->
+    <div class="header-search">
+      <i class="fa-solid fa-magnifying-glass search-icon"></i>
+      <input type="text" class="search-pill" placeholder="Tìm kiếm báo cáo, phân tích chi tiêu...">
+    </div>
+
+    <!-- Right Action & Date Pill -->
+    <div class="header-right">
+      <button type="button" class="btn-ai-header" onclick="window.location.href='dashboard.html'" title="Trợ lý tài chính AI">
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+        <span>Trợ lý AI</span>
+      </button>
+      <div class="date-pill" id="currentDatePill">
+        <i class="fa-regular fa-calendar"></i>
+        <span>28 Tháng 11, 2026</span>
+      </div>
     </div>
   </header>
     <div class="print-header">
@@ -179,6 +191,7 @@ input:focus,select:focus{outline:2px solid #c7d2fe;border-color:var(--primary)}
       </div>
     </div>
   </div>
+</main>
 </div>
 <div class="toast" id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>

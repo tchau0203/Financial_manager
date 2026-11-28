@@ -84,6 +84,8 @@ $target   = $dir . DIRECTORY_SEPARATOR . $fileName;
 if (!move_uploaded_file($file['tmp_name'], $target)) {
     jsonResponse(['success' => false, 'message' => 'Không lưu được ảnh lên máy chủ'], 500);
 }
+@chmod($dir, 0755);
+@chmod($target, 0644);
 $imagePath = 'uploads/posts/' . $fileName;
 
 // ---- 3. Lưu DB (giao dịch + bài đăng cùng 1 transaction) ----

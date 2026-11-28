@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sổ Giao Dịch & Báo Cáo - CashManager</title>
+    <link rel="manifest" href="../manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="../assets/css/style.css?v=20261128_v2">
+    <link rel="stylesheet" href="../assets/css/components.css">
+
+    <!-- Chart.js & SheetJS (Excel) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <!-- Leaflet 1.9.4 (Bản đồ OpenStreetMap - Đánh dấu vị trí giao dịch) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <style>
+        /* Location Picker Map Styles */
+        .loc-search { display: flex; gap: 0.5rem; margin-bottom: 0.6rem; }
+        .loc-search .form-control { flex: 1; min-width: 0; }
+        .loc-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0.6rem 0; }
+        .loc-map { height: 220px; border-radius: 12px; border: 1px solid var(--border-color); z-index: 0; margin-top: 0.5rem; }
+        .loc-status { display: block; margin-top: 0.4rem; color: var(--text-muted); font-size: 0.82rem; }
+        .modal-content { max-height: 92vh; overflow-y: auto; }
+
+        /* 4-Tab System Navigation */
+        .tabs-header-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        .tx-tabs-nav {
+            display: flex;
+            gap: 0.5rem;
+            background: #ffffff;
+            padding: 0.35rem;
+            border-radius: var(--radius-pill);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            white-space: nowrap;
+            max-width: 100%;
+        }
+
+        .tx-tabs-nav::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tx-tab-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.25rem;
+            border-radius: var(--radius-pill);
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .tx-tab-btn:hover {
+            color: var(--text-heading);
+            background: #f1f5f9;
+        }
+
+        .tx-tab-btn.active {
+            background: var(--primary);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
+
+        .tx-tab-pane {
+            display: none;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .tx-tab-pane.active {
+            display: flex;
+        }
+
+        /* Tab Actions / Quick Buttons */
+        .tab-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-income-quick {
+            background: var(--color-success, #10b981);
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1.15rem;
+            border-radius: var(--radius-pill);
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+            transition: all 0.2s ease;
+        }
+
+        .btn-income-quick:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+
+        .btn-expense-quick {
+            background: var(--color-danger, #ef4444);
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1.15rem;
+            border-radius: var(--radius-pill);
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+            transition: all 0.2s ease;
+        }
+
+        .btn-expense-quick:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        .btn-ocr-quick {
+            background: #f5f3ff;
+            color: #7c3aed;
+            border: 1px solid #ddd6fe;
+            padding: 0.55rem 1.15rem;
+            border-radius: var(--radius-pill);
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            box-shadow: 0 2px 6px rgba(124, 58, 237, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        .btn-ocr-quick:hover {
+            background: #ede9fe;
+            transform: translateY(-1px);
+        }
+
+        /* Filter Toolbar */
+        .filter-card {
+            background: #ffffff;
+            border-radius: var(--radius-card);
+            padding: 1.15rem 1.35rem;
+            border: 1px solid var(--border-subtle);
+            box-shadow: var(--shadow-subtle);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) auto;
+            gap: 0.85rem;
+            align-items: flex-end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .filter-label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        .filter-input {
+            width: 100%;
+            height: 40px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-input);
+            border-radius: var(--radius-sm);
+            padding: 0 0.85rem;
+            font-size: 0.86rem;
+            color: var(--text-heading);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .filter-input:focus {
+            border-color: var(--primary);
+            background: #ffffff;
+        }
+
+        /* KPI Mini Bar */
+        .kpi-mini-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .kpi-mini-card {
+            background: #ffffff;
+            border-radius: var(--radius-card);
+            padding: 1.15rem 1.35rem;
+            border: 1px solid var(--border-subtle);
+            box-shadow: var(--shadow-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .kpi-mini-label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .kpi-mini-value {
+            font-size: 1.35rem;
+            font-weight: 800;
+            margin-top: 0.25rem;
+            letter-spacing: -0.02em;
+        }
+
+        .kpi-mini-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+        }
+
+        /* Table & Badges */
+        .table-card {
+            background: #ffffff;
+            border-radius: var(--radius-card);
+            border: 1px solid var(--border-subtle);
+            box-shadow: var(--shadow-subtle);
+            overflow: hidden;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .tx-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.88rem;
+        }
+
+        .tx-table th {
+            padding: 0.95rem 1.25rem;
+            background: #f8fafc;
+            color: var(--text-muted);
+            font-weight: 700;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        .tx-table td {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-body);
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
+        .tx-table tr:hover td {
+            background: #f8fafc;
+        }
+
+        .tx-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .cat-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: var(--text-heading);
+        }
+
+        .cat-icon-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            color: #ffffff;
+        }
+
+        .amt-badge {
+            font-weight: 800;
+            font-size: 0.95rem;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .amt-badge.income {
+            color: var(--color-success, #10b981);
+        }
+
+        .amt-badge.expense {
+            color: var(--color-danger, #ef4444);
+        }
+
+        .tx-action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: #ffffff;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .tx-action-btn:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+            background: #eff6ff;
+        }
+
+        .tx-action-btn.del:hover {
+            color: #ef4444;
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+
+        /* Report Grid & Charts */
+        .report-grid-2col {
+            display: grid;
+            grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 1024px) {
+            .report-grid-2col {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .export-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-export {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.6rem 1.15rem;
+            border-radius: var(--radius-pill);
+            font-size: 0.84rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            background: #ffffff;
+            color: var(--text-heading);
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.02);
+            text-decoration: none;
+        }
+
+        .btn-export:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: #eff6ff;
+            transform: translateY(-1px);
+        }
+
+        .btn-export.excel {
+            background: #ecfdf5;
+            color: #059669;
+            border-color: #a7f3d0;
+        }
+
+        .btn-export.excel:hover {
+            background: #d1fae5;
+        }
+
+        .btn-export.pdf {
+            background: #fef2f2;
+            color: #dc2626;
+            border-color: #fecaca;
+        }
+
+        .btn-export.pdf:hover {
+            background: #fee2e2;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-shell app-container">
+
+        <!-- ROYAL BLUE SLIM ICON SIDEBAR (Rút gọn còn 7 mục duy nhất) -->
+        <aside class="app-sidebar sidebar" id="appSidebar">
+            <!-- Brand Mark Circle -->
+            <div class="brand-logo-circle" title="Cổng Không Gian Làm Việc (Portal Hub)" onclick="window.location.href='portal.html'" style="cursor: pointer;">
+                <i class="fa-solid fa-bolt"></i>
+            </div>
+
+            <!-- Navigation Menu Icons (Phần Cá Nhân) -->
+            <nav class="sidebar-menu">
+                <a href="dashboard.html" class="menu-item">
+                    <i class="fa-solid fa-table-cells-large"></i>
+                    <span class="tooltip">Bảng điều khiển</span>
+                </a>
+                <a href="transactions.html" class="menu-item active">
+                    <i class="fa-solid fa-book-bookmark"></i>
+                    <span class="tooltip">Sổ giao dịch & Báo cáo</span>
+                </a>
+                <a href="budget.html" class="menu-item">
+                    <i class="fa-solid fa-piggy-bank"></i>
+                    <span class="tooltip">Ngân sách</span>
+                </a>
+                <a href="map.html" class="menu-item">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                    <span class="tooltip">Bản đồ</span>
+                </a>
+                <a href="notifications.html" class="menu-item">
+                    <i class="fa-regular fa-bell"></i>
+                    <span class="tooltip">Thông báo</span>
+                </a>
+                <a href="portal.html" class="menu-item" title="Cổng Không Gian">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <span class="tooltip">Đổi không gian</span>
+                </a>
+            </nav>
+
+            <!-- Bottom Settings & Logout -->
+            <div class="sidebar-bottom">
+                <a href="account.html" class="menu-item" title="Tài khoản">
+                    <i class="fa-solid fa-gear"></i>
+                    <span class="tooltip">Cài đặt</span>
+                </a>
+                <a href="javascript:void(0)" class="menu-item" onclick="if(confirm('Bạn có chắc chắn muốn đăng xuất?')){fetch('../api/auth/logout.php',{method:'POST'}).finally(()=>{localStorage.clear();window.location.href='login.html'})}" title="Đăng xuất">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <span class="tooltip">Đăng xuất</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- MAIN VIEW -->
+        <main class="main-content app-main">
+
+            <!-- HEADER (Top Bar) -->
+            <header class="app-header header">
+                <div class="header-left">
+                    <h1 class="page-title" style="margin: 0; font-size: 1.5rem; font-weight: 800; color: var(--text-heading);">
+                        Sổ Giao Dịch & Báo Cáo
+                    </h1>
+                </div>
+
+                <!-- Center Search Pill -->
+                <div class="header-search">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="globalTxSearch" class="search-pill" placeholder="Tìm kiếm giao dịch, ghi chú, danh mục...">
+                </div>
+
+                <!-- Right Action & Date Pill -->
+                <div class="header-right">
+                    <button type="button" class="btn-ai-header" onclick="window.location.href='dashboard.html'" title="Trợ lý tài chính AI">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>Trợ lý AI</span>
+                    </button>
+                    <div class="date-pill" id="currentDatePill">
+                        <i class="fa-regular fa-calendar"></i>
+                        <span id="currentDateText">28 Tháng 11, 2026</span>
+                    </div>
+                    <button type="button" class="btn-primary" id="btnQuickAddTx" style="border-radius: var(--radius-pill); padding: 0.5rem 1.15rem; font-size: 0.85rem; font-weight: 700;">
+                        <i class="fa-solid fa-plus"></i> Giao dịch
+                    </button>
+                </div>
+            </header>
+
+            <!-- BODY CONTENT -->
+            <div class="content-body" style="padding: 1.5rem 2.25rem 2.5rem 2.25rem; max-width: 1400px; width: 100%;">
+
+                <!-- 1. HỆ THỐNG 4 TAB ĐIỀU HƯỚNG (Vuốt ngang mượt mà trên mobile) -->
+                <div class="tabs-header-wrap">
+                    <nav class="tx-tabs-nav" id="txTabsNav">
+                        <button type="button" class="tx-tab-btn active" data-tab="all">
+                            <i class="fa-solid fa-list-check"></i>
+                            <span>Tất cả giao dịch</span>
+                        </button>
+                        <button type="button" class="tx-tab-btn" data-tab="expense">
+                            <i class="fa-solid fa-arrow-trend-down" style="color: #ef4444;"></i>
+                            <span>Khoản Chi</span>
+                        </button>
+                        <button type="button" class="tx-tab-btn" data-tab="income">
+                            <i class="fa-solid fa-arrow-trend-up" style="color: #10b981;"></i>
+                            <span>Khoản Thu</span>
+                        </button>
+                        <button type="button" class="tx-tab-btn" data-tab="report">
+                            <i class="fa-solid fa-chart-pie" style="color: #2563eb;"></i>
+                            <span>Báo cáo & Xuất file</span>
+                        </button>
+                    </nav>
+
+                    <div class="tab-actions" id="tabTopActions">
+                        <button type="button" class="btn-ocr-quick" id="btnScanOcrQuick" title="Chụp ảnh quét hóa đơn OCR">
+                            <i class="fa-solid fa-camera"></i>
+                            <span>Quét hóa đơn OCR</span>
+                        </button>
+                        <button type="button" class="btn-income-quick" id="btnAddIncomeQuick">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Thu nhập</span>
+                        </button>
+                        <button type="button" class="btn-expense-quick" id="btnAddExpenseQuick">
+                            <i class="fa-solid fa-minus"></i>
+                            <span>Chi tiêu</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 2. MINI KPI THỐNG KÊ TỔNG THU / CHI / SỐ DƯ (Cập nhật tức thì) -->
+                <section class="kpi-mini-grid" id="kpiMiniGrid">
+                    <div class="kpi-mini-card">
+                        <div>
+                            <div class="kpi-mini-label">Tổng thu nhập</div>
+                            <div class="kpi-mini-value" id="kpiTotalIncome" style="color: #10b981;">0 đ</div>
+                        </div>
+                        <div class="kpi-mini-icon" style="background: #ecfdf5; color: #10b981;">
+                            <i class="fa-solid fa-arrow-trend-up"></i>
+                        </div>
+                    </div>
+                    <div class="kpi-mini-card">
+                        <div>
+                            <div class="kpi-mini-label">Tổng chi tiêu</div>
+                            <div class="kpi-mini-value" id="kpiTotalExpense" style="color: #ef4444;">0 đ</div>
+                        </div>
+                        <div class="kpi-mini-icon" style="background: #fef2f2; color: #ef4444;">
+                            <i class="fa-solid fa-arrow-trend-down"></i>
+                        </div>
+                    </div>
+                    <div class="kpi-mini-card">
+                        <div>
+                            <div class="kpi-mini-label">Số dư ròng</div>
+                            <div class="kpi-mini-value" id="kpiNetBalance" style="color: #2563eb;">0 đ</div>
+                        </div>
+                        <div class="kpi-mini-icon" style="background: #eff6ff; color: #2563eb;">
+                            <i class="fa-solid fa-scale-balanced"></i>
+                        </div>
+                    </div>
+                    <div class="kpi-mini-card">
+                        <div>
+                            <div class="kpi-mini-label">Tỷ lệ tiết kiệm</div>
+                            <div class="kpi-mini-value" id="kpiSavingRate" style="color: #f59e0b;">0%</div>
+                        </div>
+                        <div class="kpi-mini-icon" style="background: #fffbeb; color: #f59e0b;">
+                            <i class="fa-solid fa-piggy-bank"></i>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ========================================================
+                     TAB 1: TẤT CẢ GIAO DỊCH (Thu + Chi xem chung)
+                     ======================================================== -->
+                <div class="tx-tab-pane active" id="pane-all">
+                    <!-- Bộ lọc đa năng -->
+                    <div class="filter-card">
+                        <div class="filter-group">
+                            <label class="filter-label" for="filterCatAll">Danh mục</label>
+                            <select id="filterCatAll" class="filter-input">
+                                <option value="">Tất cả danh mục</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label" for="filterDateFromAll">Từ ngày</label>
+                            <input type="date" id="filterDateFromAll" class="filter-input">
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label" for="filterDateToAll">Đến ngày</label>
+                            <input type="date" id="filterDateToAll" class="filter-input">
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label" for="filterMethodAll">Phương thức</label>
+                            <select id="filterMethodAll" class="filter-input">
+                                <option value="">Tất cả phương thức</option>
+                                <option value="Tiền mặt">Tiền mặt</option>
+                                <option value="Banking">Banking</option>
+                                <option value="Ví điện tử">Ví điện tử</option>
+                                <option value="Thẻ tín dụng">Thẻ tín dụng</option>
+                            </select>
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-light" id="btnResetFilterAll" style="height: 40px; border-radius: 10px;" title="Đặt lại bộ lọc">
+                                <i class="fa-solid fa-rotate-left"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Bảng dữ liệu Tất cả giao dịch -->
+                    <div class="table-card">
+                        <div class="table-responsive">
+                            <table class="tx-table">
+                                <thead>
+                                    <tr>
+                                        <th>Ngày GD</th>
+                                        <th>Loại</th>
+                                        <th>Danh mục</th>
+                                        <th>Ghi chú</th>
+                                        <th>Phương thức</th>
+                                        <th style="text-align: right;">Số tiền</th>
+                                        <th style="text-align: center;">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyAll">
+                                    <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">Đang tải dữ liệu...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="pagination" style="padding: 1rem 1.25rem;">
+                            <span id="pageInfoAll" style="font-size: 0.85rem; color: var(--text-muted);">Trang 1 / 1</span>
+                            <div class="pager" id="pagerAll"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========================================================
+                     TAB 2: KHOẢN CHI (Lọc riêng Chi tiêu + Quét OCR)
+                     ======================================================== -->
+                <div class="tx-tab-pane" id="pane-expense">
+                    <div class="filter-card">
+                        <div class="filter-group">
+                            <label class="filter-label" for="filterCatExpense">Danh mục chi</label>
+                            <select id="filterCatExpense" class="filter-input">
+                                <option value="">Tất cả danh mục chi</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label" for="filterDateFromExpense">Từ ngày</label>
+                            <input type="date" id="filterDateFromExpense" class="filter-input">
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label" for="filterDateToExpense">Đến ngày</label>
+                            <input type="date" id="filterDateToExpense" class="filter-input">
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label" for="filterMethodExpense">Phương thức</label>
+                            <select id="filterMethodExpense" class="filter-input">
+                                <option value="">Tất cả</option>
+                                <option value="Tiền mặt">Tiền mặt</option>
+                                <option value="Banking">Banking</option>
+                                <option value="Ví điện tử">Ví điện tử</option>
+                                <option value="Thẻ tín dụng">Thẻ tín dụng</option>
+                            </select>
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-light" id="btnResetFilterExpense" style="height: 40px; border-radius: 10px;" title="Đặt lại bộ lọc">
+                                <i class="fa-solid fa-rotate-left"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-card">
+                        <div class="table-responsive">
+                            <table class="tx-table">
+                                <thead>
+                                    <tr>
+                                        <th>Ngày GD</th>
+                                        <th>Danh mục chi</th>
+                                        <th>Ghi chú</th>
+                                        <th>Phương thức</th>
+                                        <th style="text-align: right;">Số tiền chi</th>
+                                        <th style="text-align: center;">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyExpense">
+                                    <tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">Đang tải dữ liệu...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="pagination" style="padding: 1rem 1.25rem;">
+                            <span id="pageInfoExpense" style="font-size: 0.85rem; color: var(--text-muted);">Trang 1 / 1</span>
+                            <div class="pager" id="pagerExpense"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========================================================
+                     TAB 3: KHOẢN THU (Lọc riêng Thu nhập)
+                     ======================================================== -->
+                <div class="tx-tab-pane" id="pane-income">
+                    <div class="filter-card">
+                        <div class="filter-group">
+                            <label class="filter-label" for="filterCatIncome">Nguồn thu nhập</label>
+                            <select id="filterCatIncome" class="filter-input">
+                                <option value="">Tất cả nguồn thu</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label" for="filterDateFromIncome">Từ ngày</label>
+                            <input type="date" id="filterDateFromIncome" class="filter-input">
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label" for="filterDateToIncome">Đến ngày</label>
+                            <input type="date" id="filterDateToIncome" class="filter-input">
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label" for="filterMethodIncome">Phương thức</label>
+                            <select id="filterMethodIncome" class="filter-input">
+                                <option value="">Tất cả</option>
+                                <option value="Banking">Banking</option>
+                                <option value="Tiền mặt">Tiền mặt</option>
+                                <option value="Ví điện tử">Ví điện tử</option>
+                            </select>
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-light" id="btnResetFilterIncome" style="height: 40px; border-radius: 10px;" title="Đặt lại bộ lọc">
+                                <i class="fa-solid fa-rotate-left"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-card">
+                        <div class="table-responsive">
+                            <table class="tx-table">
+                                <thead>
+                                    <tr>
+                                        <th>Ngày GD</th>
+                                        <th>Nguồn thu</th>
+                                        <th>Ghi chú</th>
+                                        <th>Phương thức</th>
+                                        <th style="text-align: right;">Số tiền thu</th>
+                                        <th style="text-align: center;">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyIncome">
+                                    <tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">Đang tải dữ liệu...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="pagination" style="padding: 1rem 1.25rem;">
+                            <span id="pageInfoIncome" style="font-size: 0.85rem; color: var(--text-muted);">Trang 1 / 1</span>
+                            <div class="pager" id="pagerIncome"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========================================================
+                     TAB 4: BÁO CÁO & XUẤT FILE (Charts + Excel/CSV/PDF)
+                     ======================================================== -->
+                <div class="tx-tab-pane" id="pane-report">
+                    <!-- Thanh xuất file & chọn kỳ -->
+                    <div class="tabs-header-wrap" style="margin-bottom: 0;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                            <label style="font-weight: 700; font-size: 0.85rem; color: var(--text-muted);">Kỳ báo cáo:</label>
+                            <select id="reportTimeframe" class="filter-input" style="width: 160px; height: 38px;">
+                                <option value="this_month">Tháng này</option>
+                                <option value="last_month">Tháng trước</option>
+                                <option value="this_year">Cả năm nay</option>
+                            </select>
+                        </div>
+
+                        <!-- Bộ nút xuất file đa định dạng -->
+                        <div class="export-bar">
+                            <button type="button" class="btn-export excel" id="btnExportExcel" title="Xuất toàn bộ giao dịch ra Excel">
+                                <i class="fa-solid fa-file-excel"></i>
+                                <span>Xuất Excel (.xlsx)</span>
+                            </button>
+                            <button type="button" class="btn-export" id="btnExportCSV" title="Tải file CSV">
+                                <i class="fa-solid fa-file-csv"></i>
+                                <span>Xuất CSV</span>
+                            </button>
+                            <button type="button" class="btn-export pdf" id="btnExportPDF" title="Tải báo cáo tài chính PDF">
+                                <i class="fa-solid fa-file-pdf"></i>
+                                <span>Xuất PDF</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 2 Biểu đồ chính: Cột thu-chi & Donut cơ cấu -->
+                    <div class="report-grid-2col">
+                        <!-- Biểu đồ cột Xu hướng Thu - Chi -->
+                        <div class="card" style="padding: 1.5rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+                                <div>
+                                    <h3 style="margin: 0; font-size: 1.1rem; font-weight: 700;">Xu hướng Thu - Chi</h3>
+                                    <small style="color: var(--text-muted);">So sánh đối chiếu tổng thu và tổng chi</small>
+                                </div>
+                                <div style="display: flex; gap: 1rem; font-size: 0.82rem; font-weight: 600;">
+                                    <span style="color: #10b981;"><i class="fa-solid fa-square"></i> Thu</span>
+                                    <span style="color: #ef4444;"><i class="fa-solid fa-square"></i> Chi</span>
+                                </div>
+                            </div>
+                            <div style="height: 280px; position: relative;">
+                                <canvas id="chartTrendBar"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Biểu đồ tròn Cơ cấu chi tiêu -->
+                        <div class="card" style="padding: 1.5rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+                                <div>
+                                    <h3 style="margin: 0; font-size: 1.1rem; font-weight: 700;">Cơ cấu chi tiêu</h3>
+                                    <small style="color: var(--text-muted);">Phân bổ theo danh mục chi tiết</small>
+                                </div>
+                            </div>
+                            <div style="height: 220px; position: relative; margin-bottom: 1rem;">
+                                <canvas id="chartCatDonut"></canvas>
+                            </div>
+                            <div id="chartLegendGrid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; font-size: 0.78rem;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Thẻ nhận xét thông minh AI -->
+                    <div class="card" style="background: linear-gradient(135deg, #1e1b4b 0%, #1e3a8a 100%); color: #ffffff; padding: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                                    <i class="fa-solid fa-robot"></i>
+                                </div>
+                                <div>
+                                    <h4 style="margin: 0; font-size: 1.05rem; font-weight: 800;">Chuyên gia AI Đánh Giá Chi Tiêu</h4>
+                                    <small style="color: rgba(255,255,255,0.7);">Phân tích thói quen và đưa ra lời khuyên tối ưu dòng tiền</small>
+                                </div>
+                            </div>
+                            <button type="button" class="btn" id="btnRequestAiAdvice" style="background: #ffffff; color: #1e1b4b; font-weight: 700; border-radius: var(--radius-pill); padding: 0.5rem 1.25rem;">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> Phân tích ngay
+                            </button>
+                        </div>
+                        <div id="aiAdviceContent" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; padding: 1.15rem; font-size: 0.9rem; line-height: 1.6;">
+                            Bấm "Phân tích ngay" để chuyên gia AI rà soát tỷ lệ tiết kiệm và các khoản chi lớn trong kỳ của bạn.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- =========================================================
+         MODAL: THÊM / SỬA GIAO DỊCH (Có sẵn nút Quét OCR)
+         ========================================================= -->
+    <div id="modalTx" class="modal">
+        <div class="modal-content" style="max-width: 520px;">
+            <div class="modal-header">
+                <h3 id="modalTxTitle" style="margin: 0; font-size: 1.2rem; font-weight: 800;">Thêm giao dịch mới</h3>
+                <button type="button" id="btnCloseModalTx" class="modal-close" aria-label="Đóng">&times;</button>
+            </div>
+            <form id="formTx">
+                <div class="modal-body">
+                    <input type="hidden" id="tx_id">
+
+                    <!-- Chọn Loại: Chi tiêu / Thu nhập -->
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; background: #f1f5f9; padding: 0.35rem; border-radius: 12px;">
+                        <button type="button" id="btnTypeExpense" class="btn" style="flex: 1; border-radius: 10px; background: #ef4444; color: #fff; font-weight: 700; padding: 0.55rem;">
+                            <i class="fa-solid fa-minus"></i> Khoản Chi
+                        </button>
+                        <button type="button" id="btnTypeIncome" class="btn" style="flex: 1; border-radius: 10px; background: transparent; color: var(--text-muted); font-weight: 700; padding: 0.55rem;">
+                            <i class="fa-solid fa-plus"></i> Khoản Thu
+                        </button>
+                    </div>
+
+                    <!-- Quét hóa đơn OCR tự động điền -->
+                    <div style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 0.75rem 1rem; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-camera-retro" style="color: #7c3aed; font-size: 1.25rem;"></i>
+                            <div>
+                                <strong style="font-size: 0.85rem; color: var(--text-heading); display: block;">Quét hóa đơn / Biên lai</strong>
+                                <small style="color: var(--text-muted);">AI tự động điền số tiền & danh mục</small>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-light" id="btnModalOcr" style="border-radius: 8px; font-size: 0.82rem; font-weight: 700;">
+                            Chọn ảnh
+                        </button>
+                        <input type="file" id="ocrFileInput" accept="image/*" hidden>
+                    </div>
+
+                    <div id="ocrPreviewWrap" style="display: none; align-items: center; gap: 0.75rem; background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 10px; padding: 0.6rem; margin-bottom: 1rem;">
+                        <img id="ocrPreviewImg" alt="Biên lai" style="width: 48px; height: 48px; object-fit: cover; border-radius: 6px;">
+                        <span id="ocrStatusText" style="font-size: 0.82rem; color: #6d28d9; font-weight: 600;">Đang phân tích...</span>
+                    </div>
+
+                    <!-- Danh mục -->
+                    <div class="form-group">
+                        <label class="form-label" for="tx_category_id">Danh mục</label>
+                        <select id="tx_category_id" class="form-control" required>
+                            <option value="">Chọn danh mục</option>
+                        </select>
+                    </div>
+
+                    <!-- Số tiền -->
+                    <div class="form-group">
+                        <label class="form-label" for="tx_amount">Số tiền (VNĐ)</label>
+                        <input type="number" id="tx_amount" class="form-control" placeholder="100000" min="1" step="1" required>
+                    </div>
+
+                    <!-- Ngày giao dịch -->
+                    <div class="form-group">
+                        <label class="form-label" for="tx_date">Ngày giao dịch</label>
+                        <input type="date" id="tx_date" class="form-control" required>
+                    </div>
+
+                    <!-- Phương thức thanh toán -->
+                    <div class="form-group">
+                        <label class="form-label" for="tx_method">Phương thức thanh toán</label>
+                        <select id="tx_method" class="form-control">
+                            <option value="Tiền mặt">Tiền mặt</option>
+                            <option value="Banking">Banking</option>
+                            <option value="Ví điện tử">Ví điện tử</option>
+                            <option value="Thẻ tín dụng">Thẻ tín dụng</option>
+                        </select>
+                    </div>
+
+                    <!-- Ghi chú -->
+                    <div class="form-group">
+                        <label class="form-label" for="tx_note">Ghi chú</label>
+                        <input type="text" id="tx_note" class="form-control" placeholder="Ghi chú thêm (vd: ăn trưa với đồng nghiệp...)" maxlength="500">
+                    </div>
+
+                    <!-- Vị trí chi tiêu / thu nhập (không bắt buộc) - hiển thị trên Bản đồ -->
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label class="form-label" for="tx_address">
+                            <i class="fa-solid fa-map-location-dot" style="color: #2563eb;"></i> Vị trí giao dịch <span style="font-weight: 400; color: var(--text-muted);">(không bắt buộc)</span>
+                        </label>
+                        <div class="loc-search">
+                            <input type="text" id="tx_address" class="form-control" placeholder="Nhập địa chỉ rồi nhấn Enter, ví dụ: 12 Nguyễn Huệ, Q1..." maxlength="255" autocomplete="off">
+                            <button type="button" class="btn btn-light" id="btnSearchAddress" style="white-space: nowrap;"><i class="fa-solid fa-magnifying-glass-location"></i> Tìm</button>
+                        </div>
+                        <label class="form-label" for="tx_location_name" style="font-size: 0.85rem; margin-top: 0.4rem;">Tên địa điểm</label>
+                        <input type="text" id="tx_location_name" class="form-control" placeholder="Tên địa điểm, ví dụ: Quán cà phê ABC, Chợ Bến Thành..." maxlength="255">
+                        <input type="hidden" id="tx_lat">
+                        <input type="hidden" id="tx_lng">
+                        <div class="loc-actions">
+                            <button type="button" class="btn btn-light" id="btnGetLocation"><i class="fa-solid fa-location-crosshairs"></i> Lấy vị trí hiện tại</button>
+                            <button type="button" class="btn btn-light" id="btnClearLocation" hidden><i class="fa-solid fa-xmark"></i> Xóa vị trí</button>
+                        </div>
+                        <div id="locMap" class="loc-map"></div>
+                        <small id="locStatus" class="loc-status">Chưa chọn vị trí (không bắt buộc). Bấm lên bản đồ để chọn điểm.</small>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" id="btnCancelTx" class="btn btn-light">Hủy</button>
+                    <button type="submit" id="btnSaveTx" class="btn btn-primary" style="padding: 0.6rem 1.5rem;">Lưu giao dịch</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JS Controllers -->
+    <script src="../assets/js/pwa.js"></script>
+    <script src="../assets/js/location_picker.js?v=20261128"></script>
+    <script src="../assets/js/transactions.js?v=20261128_v2"></script>
+    <script src="../assets/js/ai_chat_widget.js?v=20261128"></script>
+</body>
+</html>

@@ -14,6 +14,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     jsonResponse(['success' => false, 'error' => 'Phương thức không được hỗ trợ (chỉ chấp nhận POST)'], 405);
 }
 
+$pdo = getDbConnection();
+
 // Tự động kiểm tra và tạo bảng lưu trữ yêu cầu hỗ trợ (support_messages)
 try {
     static $checkedTable = false;
@@ -100,7 +102,7 @@ try {
     jsonResponse(['success' => false, 'error' => 'Lỗi hệ thống khi lưu yêu cầu hỗ trợ. Vui lòng thử lại sau.'], 500);
 }
 
-// 2. Tìm email của Admin hệ thống
+// 2. Tìm danh sách email của Admin hệ thống để nhận thông báo
 $adminEmail = null;
 $adminName  = 'Quản trị viên Hệ thống';
 
@@ -115,9 +117,13 @@ try {
     error_log('[support-admin-lookup] ' . $e->getMessage());
 }
 
-if (!$adminEmail) {
-    // Fallback email quản trị mặc định
-    $adminEmail = 'cashmanager.contact@gmail.com';
+// Danh sách email nhận thông báo: Luôn gửi đến cashmanager.contact@gmail.com và email tài khoản Admin (nếu có)
+$recipients = ['cashmanager.contact@gmail.com'];
+if (!empty($adminEmail) && !in_array($adminEmail, $recipients, true) && filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
+    $lower = strtolower($adminEmail);
+    if (!str_ends_with($lower, '@cashmanager.vn') && !str_ends_with($lower, '@example.com')) {
+        $recipients[] = $adminEmail;
+    }
 }
 
 // 3. Xây dựng nội dung email gửi đến Admin
@@ -206,18 +212,43 @@ $htmlBody = "
 </html>
 ";
 
-// 4. Gửi mail qua sendMail
+// 4. Gửi mail thông báo tới danh sách email Quản trị viên
 $sent = false;
-try {
-    $sent = sendMail($adminEmail, $mailSubject, $htmlBody);
-} catch (Exception $e) {
-    error_log('[support-sendmail-error] ' . $e->getMessage());
+$sentList = [];
+foreach ($recipients as $toEmail) {
+    try {
+        if (sendMail($toEmail, $mailSubject, $htmlBody)) {
+            $sent = true;
+            $sentList[] = $toEmail;
+        }
+    } catch (Exception $e) {
+        error_log('[support-sendmail-error] ' . $e->getMessage());
+    }
 }
 
+// 5. Thêm thông báo trong ứng dụng (Notifications) cho toàn bộ tài khoản Admin
+try {
+    $adminUserIds = $pdo->query("SELECT id FROM users WHERE role = 'admin'")->fetchAll(PDO::FETCH_COLUMN);
+    if (!empty($adminUserIds)) {
+        $notifStmt = $pdo->prepare('INSERT INTO notifications (user_id, title, message, type, is_read, created_at) VALUES (?, ?, ?, "info", 0, NOW())');
+        foreach ($adminUserIds as $aId) {
+            $notifStmt->execute([
+                $aId,
+                "📩 Yêu cầu hỗ trợ mới #{$ticketId}",
+                "{$safeName} ({$safeEmail}) đã gửi: {$safeSubject}"
+            ]);
+        }
+    }
+} catch (Exception $e) {
+    error_log('[support-notif-insert] ' . $e->getMessage());
+}
+
+$recipientStr = implode(', ', $recipients);
 jsonResponse([
     'success' => true,
     'ticket_id' => $ticketId,
     'mail_sent' => $sent,
-    'admin_email' => $adminEmail,
-    'message' => 'Yêu cầu của bạn (Mã #' . $ticketId . ') đã được gửi thành công đến Quản trị viên hệ thống (' . $adminEmail . '). Chúng tôi sẽ phản hồi lại bạn qua email sớm nhất!'
+    'sent_to' => $sentList,
+    'admin_email' => $recipientStr,
+    'message' => 'Yêu cầu của bạn (Mã #' . $ticketId . ') đã được gửi thành công đến Quản trị viên (' . $recipientStr . '). Chúng tôi sẽ phản hồi lại bạn sớm nhất!'
 ]);

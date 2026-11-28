@@ -61,14 +61,14 @@
   
     const card = b => {
       const c = calc(b);
-      return `<div class="card">
-        <div class="row"><b>${esc(b.category_name ?? b.name)}</b><span class="tag ${c.s[0]}">${c.s[1]}</span></div>
-        <div class="bar"><i class="${c.s[0]}" style="width:${Math.min(c.p, 100)}%"></i></div>
-        <div class="row muted"><span>Đã chi ${money(c.spent)}</span><span>${c.p.toFixed(0)}%</span></div>
-        <div class="row muted"><span>Hạn mức ${money(c.amount)}</span><span>Còn ${money(c.left)}</span></div>
-        <div class="row act">
-          <button class="btn ghost" data-e="${b.category_id}"><i class="fa-solid fa-pen"></i> Sửa</button>
-          <button class="btn out" data-d="${b.category_id}"><i class="fa-solid fa-trash"></i> Xóa</button>
+      return `<div class="card" style="border-radius: 20px; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04); background: #ffffff;">
+        <div class="row"><b style="font-size: 1.05rem; color: var(--text-heading);">${esc(b.category_name ?? b.name)}</b><span class="tag ${c.s[0]}">${c.s[1]}</span></div>
+        <div class="bar" style="height: 8px; border-radius: 99px; background: #e2e8f0; overflow: hidden; margin: 12px 0 8px;"><i class="${c.s[0]}" style="width:${Math.min(c.p, 100)}%; height: 100%; border-radius: 99px;"></i></div>
+        <div class="row muted" style="font-size: 0.85rem; margin-bottom: 4px;"><span>Đã chi ${money(c.spent)}</span><span style="font-weight: 700;">${c.p.toFixed(0)}%</span></div>
+        <div class="row muted" style="font-size: 0.85rem; margin-bottom: 12px;"><span>Hạn mức ${money(c.amount)}</span><span style="font-weight: 600;">Còn ${money(c.left)}</span></div>
+        <div class="row act" style="display: flex; gap: 8px; justify-content: flex-end;">
+          <button class="btn ghost" data-e="${b.category_id}" style="border-radius: 8px; padding: 6px 14px; font-size: 0.82rem;"><i class="fa-solid fa-pen"></i> Sửa</button>
+          <button class="btn out" data-d="${b.category_id}" style="border-radius: 8px; padding: 6px 14px; font-size: 0.82rem;"><i class="fa-solid fa-trash"></i> Xóa</button>
         </div></div>`;
     };
   
@@ -137,6 +137,23 @@
     $('cancel').onclick = closeModal;
     $('modal').onclick = e => { if (e.target === $('modal')) closeModal(); };
     $('month').onchange = $('year').onchange = load;
+
+    const btnSendReport = $('btnSendReport');
+    if (btnSendReport) {
+      btnSendReport.onclick = async () => {
+        btnSendReport.disabled = true;
+        btnSendReport.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang gửi mail...';
+        try {
+          const res = await api(`../api/budget/send_report.php?month=${$('month').value}&year=${$('year').value}`);
+          toast(res.message || 'Đã gửi báo cáo ngân sách đến email của bạn!');
+        } catch (err) {
+          toast(err.message || 'Không thể gửi email lúc này', true);
+        } finally {
+          btnSendReport.disabled = false;
+          btnSendReport.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Gửi báo cáo qua Mail';
+        }
+      };
+    }
   
     initUser(); loadCats(); load();
   })();

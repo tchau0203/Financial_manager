@@ -9,7 +9,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="CashManager">
-    <link rel="stylesheet" href="../assets/css/style.css?v=20261127_m4">
+    <link rel="stylesheet" href="../assets/css/style.css?v=20261128_v1">
     <link rel="stylesheet" href="../assets/css/components.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -64,54 +64,74 @@
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <aside class="sidebar">
-            <div class="sidebar-brand">
-                <i class="fa-solid fa-wallet" style="margin-right: 0.5rem; color: var(--primary);"></i> CashManager
+    <div class="app-shell app-container">
+        <aside class="app-sidebar sidebar" id="appSidebar">
+            <div class="brand-logo-circle" title="Cổng Không Gian Làm Việc (Portal Hub)" onclick="window.location.href='portal.html'" style="cursor: pointer;">
+                <i class="fa-solid fa-bolt"></i>
             </div>
-            <ul class="sidebar-menu">
-                <li><a href="dashboard.html"><i class="fa-solid fa-chart-pie"></i> Bảng điều khiển</a></li>
-                <li><a href="income.html"><i class="fa-solid fa-arrow-down-long"></i> Thu nhập</a></li>
-                <li class="active"><a href="expense.html"><i class="fa-solid fa-arrow-up-long"></i> Chi tiêu</a></li>
-                <li><a href="budget.html"><i class="fa-solid fa-piggy-bank"></i> Ngân sách</a></li>
-                <li><a href="report.html"><i class="fa-solid fa-chart-column"></i> Báo cáo</a></li>
-                <li><a href="map.html"><i class="fa-solid fa-map-location-dot"></i> Bản đồ thu chi</a></li>
-                <li><a href="shared.html"><i class="fa-solid fa-users"></i> Quỹ chung</a></li>
-                <li><a href="feed.html"><i class="fa-solid fa-camera-retro"></i> Bảng tin</a></li>
-            </ul>
+            <nav class="sidebar-menu">
+                <a href="dashboard.html" class="menu-item">
+                    <i class="fa-solid fa-table-cells-large"></i>
+                    <span class="tooltip">Bảng điều khiển</span>
+                </a>
+                <a href="transactions.html" class="menu-item active">
+                    <i class="fa-solid fa-book-bookmark"></i>
+                    <span class="tooltip">Sổ giao dịch & Báo cáo</span>
+                </a>
+                <a href="budget.html" class="menu-item">
+                    <i class="fa-solid fa-piggy-bank"></i>
+                    <span class="tooltip">Ngân sách</span>
+                </a>
+                <a href="map.html" class="menu-item">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                    <span class="tooltip">Bản đồ</span>
+                </a>
+                <a href="notifications.html" class="menu-item">
+                    <i class="fa-regular fa-bell"></i>
+                    <span class="tooltip">Thông báo</span>
+                </a>
+                <a href="portal.html" class="menu-item" title="Cổng Không Gian">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <span class="tooltip">Đổi không gian</span>
+                </a>
+            </nav>
+            <div class="sidebar-bottom">
+                <a href="account.html" class="menu-item" title="Tài khoản">
+                    <i class="fa-solid fa-gear"></i>
+                    <span class="tooltip">Cài đặt</span>
+                </a>
+                <a href="javascript:void(0)" class="menu-item" onclick="if(confirm('Bạn có chắc chắn muốn đăng xuất?')){fetch('../api/auth/logout.php',{method:'POST'}).finally(()=>{localStorage.clear();window.location.href='login.html'})}" title="Đăng xuất">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <span class="tooltip">Đăng xuất</span>
+                </a>
+            </div>
         </aside>
 
-        <div class="main-content">
-            <header class="header">
-                <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <button type="button" id="btnMenu" class="btn btn-icon menu-toggle" aria-label="Mở menu"><i class="fa-solid fa-bars"></i></button>
-                    <div style="font-weight: 700; font-size: 1.25rem;">Quản lý chi tiêu</div>
+        <div class="main-content app-main">
+            <header class="app-header header">
+                <div class="header-left">
+                    <h1 class="page-title" style="margin: 0; font-size: 1.5rem; font-weight: 800; color: var(--text-heading);">Quản lý chi tiêu</h1>
                 </div>
-                <div class="header-user-nav" id="headerUserNav">
-                    <button type="button" class="btn-quick-tx" id="btnHeaderAddTx" title="Thêm giao dịch mới">
-                        <i class="fa-solid fa-plus"></i> Giao dịch
+
+                <!-- Center Search Pill -->
+                <div class="header-search">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="quickSearchInput" class="search-pill" placeholder="Tìm kiếm nhanh chi tiêu, danh mục, số tiền...">
+                </div>
+
+                <!-- Right Action & Date Pill -->
+                <div class="header-right">
+                    <button type="button" class="btn-ai-header" onclick="window.location.href='dashboard.html'" title="Trợ lý tài chính AI">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>Trợ lý AI</span>
                     </button>
-                    <div class="user-dropdown-wrapper" id="userDropdownWrapper">
-                        <button type="button" class="user-profile-btn" id="userProfileBtn" aria-expanded="false" title="Tài khoản">
-                            <span class="user-avatar-circle" id="headerAvatar">T</span>
-                            <span class="user-profile-name" id="headerUserName">Thái Châu</span>
-                            <i class="fa-solid fa-caret-down user-profile-caret"></i>
-                        </button>
-                        <div class="user-dropdown-menu" id="userDropdownMenu">
-                            <a href="account.html" class="user-dropdown-item" id="menuItemSettings">
-                                <i class="fa-solid fa-sliders"></i>
-                                <span>Cài đặt</span>
-                            </a>
-                            <a href="help.html" target="_blank" class="user-dropdown-item" id="menuItemHelp">
-                                <i class="fa-regular fa-circle-question"></i>
-                                <span>Trợ giúp</span>
-                            </a>
-                            <a href="javascript:void(0)" class="user-dropdown-item item-logout" id="menuItemLogout">
-                                <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                                <span>Đăng xuất</span>
-                            </a>
-                        </div>
+                    <div class="date-pill" id="currentDatePill">
+                        <i class="fa-regular fa-calendar"></i>
+                        <span>28 Tháng 11, 2026</span>
                     </div>
+                    <button type="button" class="btn-primary" id="btnHeaderAddTx" style="border-radius: var(--radius-pill); padding: 0.5rem 1.15rem; font-size: 0.85rem; font-weight: 700;">
+                        <i class="fa-solid fa-plus"></i> Chi tiêu
+                    </button>
                 </div>
             </header>
 

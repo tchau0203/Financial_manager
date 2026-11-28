@@ -54,19 +54,22 @@
 
   // Dữ liệu gửi lên api/account/update.php: luôn gửi đủ để không làm mất trường khác
   const payload = () => ({
-    full_name: $('fullName').value.trim(), email: $('email').value.trim(),
-    email_alerts: $('emailAlert').checked ? 1 : 0,
-    bank_code: $('bankCode').value, bank_account: $('bankAcc').value.replace(/\s/g, '')   // [HUY T3]
+    full_name: $('fullName') ? $('fullName').value.trim() : '',
+    email: $('email') ? $('email').value.trim() : '',
+    email_alerts: $('emailAlert') && $('emailAlert').checked ? 1 : 0,
+    bank_code: $('bankCode') ? $('bankCode').value : '',
+    bank_account: $('bankAcc') ? $('bankAcc').value.replace(/\s/g, '') : ''
   });
 
   // ===== Thông tin cá nhân + công tắc email =====
   initUser().then(u => {
-    $('fullName').value = u.full_name || u.name || '';
-    $('email').value = u.email || '';
-    $('emailAlert').checked = !!+(u.email_alerts ?? u.email_notifications ?? 0); // [HUY T2]
-    $('bankCode').value = u.bank_code ?? '';        // [HUY T3]
-    $('bankAcc').value = u.bank_account ?? '';      // [HUY T3]
+    if ($('fullName')) $('fullName').value = u.full_name || u.name || '';
+    if ($('email')) $('email').value = u.email || '';
+    if ($('emailAlert')) $('emailAlert').checked = !!+(u.email_alerts ?? u.email_notifications ?? 0);
+    if ($('bankCode')) $('bankCode').value = u.bank_code ?? '';
+    if ($('bankAcc')) $('bankAcc').value = u.bank_account ?? '';
     initAvatarControls(u);
+    initLoginSessionInfo(u);
     if (window.HeaderNav) window.HeaderNav.updateUser(u);
   });
 
@@ -230,8 +233,62 @@
     } catch (err) { toast(err.message, true); }
   };
 
+  // ===== [PHIÊN BẢN ĐĂNG NHẬP] Quản lý thiết bị & Phiên làm việc =====
+  function initLoginSessionInfo(u) {
+    const devBox = $('sessionDeviceInfo');
+    const timeBox = $('sessionTimeInfo');
+    if (devBox) {
+      const ua = navigator.userAgent;
+      let browser = 'Trình duyệt Web';
+      if (ua.includes('CocCoc')) browser = 'Cốc Cốc';
+      else if (ua.includes('Edg/')) browser = 'Microsoft Edge';
+      else if (ua.includes('Chrome/')) browser = 'Google Chrome';
+      else if (ua.includes('Firefox/')) browser = 'Mozilla Firefox';
+      else if (ua.includes('Safari/') && !ua.includes('Chrome')) browser = 'Apple Safari';
+      
+      let os = 'Máy tính';
+      if (ua.includes('Windows')) os = 'Windows PC';
+      else if (ua.includes('Macintosh') || ua.includes('Mac OS')) os = 'macOS';
+      else if (ua.includes('Android')) os = 'Thiết bị Android';
+      else if (ua.includes('iPhone') || ua.includes('iPad')) os = 'Thiết bị iOS';
+      else if (ua.includes('Linux')) os = 'Linux';
+
+      devBox.textContent = `${os} • ${browser}`;
+    }
+
+    if (timeBox) {
+      const now = new Date();
+      const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')} - ${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()}`;
+      timeBox.textContent = `Phiên hoạt động hiện tại (Đăng nhập lúc ${timeStr})`;
+    }
+
+    const refreshBtn = $('btnRefreshSession');
+    if (refreshBtn) {
+      refreshBtn.onclick = () => {
+        toast('Đã làm mới thông tin phiên đăng nhập');
+        if (timeBox) {
+          const now = new Date();
+          timeBox.textContent = `Phiên hoạt động hiện tại (Cập nhật lúc ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')})`;
+        }
+      };
+    }
+
+    const logoutBtn = $('btnLogoutSession');
+    if (logoutBtn) {
+      logoutBtn.onclick = async () => {
+        if (!confirm('Bạn có chắc chắn muốn đăng xuất phiên làm việc này?')) return;
+        try {
+          await api('../api/auth/logout.php', { method: 'POST' });
+        } catch (e) {}
+        localStorage.clear();
+        location.href = 'login.html';
+      };
+    }
+  }
+
   // ===== Danh mục riêng của người dùng =====
   function render() {
+    if (!$('catBody')) return;
     $('catBody').innerHTML = cats.length ? cats.map(c => `<tr>
       <td>${esc(cname(c))}</td>
       <td><span class="tag ${c.type === 'income' ? 'ok' : 'over'}">${c.type === 'income' ? 'Thu nhập' : 'Chi tiêu'}</span></td>
@@ -243,6 +300,7 @@
   }
 
   async function loadCats() {
+    if (!$('catBody')) return;
     try {
       cats = list(await api('../api/category/list.php')).filter(c => !+c.is_default);
       render();
@@ -250,41 +308,46 @@
   }
 
   function openModal(c) {
+    if (!$('modal')) return;
     editId = c ? cid(c) : null;
-    $('mTitle').textContent = c ? 'Sửa danh mục' : 'Thêm danh mục';
-    $('catName').value = c ? cname(c) : '';
-    $('catType').value = c ? c.type : 'expense';
+    if ($('mTitle')) $('mTitle').textContent = c ? 'Sửa danh mục' : 'Thêm danh mục';
+    if ($('catName')) $('catName').value = c ? cname(c) : '';
+    if ($('catType')) $('catType').value = c ? c.type : 'expense';
     $('modal').classList.add('show');
-    $('catName').focus();
+    if ($('catName')) $('catName').focus();
   }
-  const closeModal = () => $('modal').classList.remove('show');
+  const closeModal = () => { if ($('modal')) $('modal').classList.remove('show'); };
 
-  $('catForm').onsubmit = async e => {
-    e.preventDefault();
-    const body = { name: $('catName').value.trim(), type: $('catType').value };
-    if (!body.name) return toast('Nhập tên danh mục', true);
-    try {
-      if (editId) await post('../api/category/edit.php', { ...body, id: editId, category_id: editId });
-      else await post('../api/category/add.php', body);
-      closeModal(); toast(editId ? 'Đã cập nhật danh mục' : 'Đã thêm danh mục'); loadCats();
-    } catch (err) { toast(err.message, true); }
-  };
-
-  $('catBody').onclick = async e => {
-    const btn = e.target.closest('button');
-    if (!btn) return;
-    if (btn.dataset.e) return openModal(cats.find(c => cid(c) == btn.dataset.e));
-    if (btn.dataset.d && confirm('Xóa danh mục này?')) {
+  if ($('catForm')) {
+    $('catForm').onsubmit = async e => {
+      e.preventDefault();
+      const body = { name: $('catName').value.trim(), type: $('catType').value };
+      if (!body.name) return toast('Nhập tên danh mục', true);
       try {
-        await post('../api/category/delete.php', { id: btn.dataset.d, category_id: btn.dataset.d });
-        toast('Đã xóa danh mục'); loadCats();
+        if (editId) await post('../api/category/edit.php', { ...body, id: editId, category_id: editId });
+        else await post('../api/category/add.php', body);
+        closeModal(); toast(editId ? 'Đã cập nhật danh mục' : 'Đã thêm danh mục'); loadCats();
       } catch (err) { toast(err.message, true); }
-    }
-  };
+    };
+  }
 
-  $('addCat').onclick = () => openModal();
-  $('cancel').onclick = closeModal;
-  $('modal').onclick = e => { if (e.target === $('modal')) closeModal(); };
+  if ($('catBody')) {
+    $('catBody').onclick = async e => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      if (btn.dataset.e) return openModal(cats.find(c => cid(c) == btn.dataset.e));
+      if (btn.dataset.d && confirm('Xóa danh mục này?')) {
+        try {
+          await post('../api/category/delete.php', { id: btn.dataset.d, category_id: btn.dataset.d });
+          toast('Đã xóa danh mục'); loadCats();
+        } catch (err) { toast(err.message, true); }
+      }
+    };
+  }
+
+  if ($('addCat')) $('addCat').onclick = () => openModal();
+  if ($('cancel')) $('cancel').onclick = closeModal;
+  if ($('modal')) $('modal').onclick = e => { if (e.target === $('modal')) closeModal(); };
 
   // ===== [HUY T2] Chuyển tab =====
   function switchTab(tabKey) {
@@ -513,5 +576,53 @@
     }
   }
 
+  // ===== [HỖ TRỢ / TRỢ GIÚP] Gửi yêu cầu hỗ trợ tới Quản trị viên =====
+  function initSupportHelp() {
+    const supportForm = $('supportHelpForm');
+    if (!supportForm) return;
+
+    supportForm.onsubmit = async (e) => {
+      e.preventDefault();
+      const subject = $('supportSubject') ? $('supportSubject').value : 'Hỗ trợ tính năng';
+      const message = $('supportMessage') ? $('supportMessage').value.trim() : '';
+
+      if (!message || message.length < 5) {
+        return toast('Vui lòng nhập nội dung yêu cầu hỗ trợ (tối thiểu 5 ký tự)', true);
+      }
+
+      const btn = $('btnSubmitSupport');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang gửi...';
+      }
+
+      try {
+        const userName = ($('fullName') && $('fullName').value.trim()) || 'Người dùng CashManager';
+        const userEmail = ($('email') && $('email').value.trim()) || 'cashmanager.contact@gmail.com';
+
+        const res = await api('../api/support/contact.php', {
+          method: 'POST',
+          body: {
+            name: userName,
+            email: userEmail,
+            subject: subject,
+            message: message
+          }
+        });
+
+        toast('Yêu cầu hỗ trợ của bạn đã được gửi thành công!');
+        supportForm.reset();
+      } catch (err) {
+        toast(err.message || 'Không thể gửi yêu cầu hỗ trợ, vui lòng thử lại sau', true);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Gửi yêu cầu hỗ trợ';
+        }
+      }
+    };
+  }
+
   initAppearanceSettings();
+  initSupportHelp();
 })();

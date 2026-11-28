@@ -9,42 +9,31 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="CashManager">
+<link rel="stylesheet" href="../assets/css/style.css?v=20261128_v1">
 <link rel="stylesheet" href="../assets/css/components.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
-:root{--primary:#4f46e5;--green:#10b981;--amber:#f59e0b;--red:#ef4444;--muted:#64748b;--line:#e2e8f0}
+:root{--primary:#2563eb;--green:#10b981;--amber:#f59e0b;--red:#ef4444;--muted:#64748b;--line:#e2e8f0}
 *{box-sizing:border-box;margin:0;padding:0}
-body{display:flex;min-height:100vh;background:#f8fafc;color:#0f172a;font:14px/1.5 'Inter','Segoe UI',system-ui,sans-serif}
-.sidebar{width:235px;flex-shrink:0;background:#0f172a;position:sticky;top:0;height:100vh}
-.logo{display:flex;align-items:center;gap:10px;padding:20px 22px;border-bottom:1px solid #1e293b;color:#fff;font-size:19px;font-weight:700}
-.logo i{color:#6366f1}
-.nav{padding-top:12px}
-.nav a{display:flex;align-items:center;gap:12px;padding:14px 22px;border-left:3px solid transparent;color:#cbd5e1;font-weight:500;text-decoration:none}
-.nav a i{width:18px;text-align:center}
-.nav a:hover,.nav a.active{background:#1e293b;color:#fff}
-.nav a.active{border-left-color:var(--primary);font-weight:600}
-.main{flex:1;min-width:0}
-.topbar{display:flex;justify-content:space-between;align-items:center;padding:18px 28px;background:#fff;border-bottom:1px solid var(--line)}
-.topbar h1{font-size:18px}
-.right{display:flex;align-items:center;gap:14px;font-weight:500}
-.content{display:grid;gap:22px;padding:28px}
-.card{background:#fff;border-radius:12px;padding:22px 24px;box-shadow:0 1px 3px rgba(15,23,42,.08)}
-.card h3{font-size:16px;margin-bottom:14px}
+.content{display:grid;gap:22px;padding:28px;max-width:1400px}
+.card{background:#fff;border-radius:22px;padding:22px 24px;box-shadow:0 4px 20px -2px rgba(15,23,42,.04);border:1px solid rgba(226,232,240,0.7)}
+.card h3{font-size:16px;margin-bottom:14px;font-weight:700}
 .head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
 .head h3{margin:0}
 .grid{display:grid;gap:22px}
 .g2{grid-template-columns:1fr 1fr}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border:0;border-radius:8px;background:var(--primary);color:#fff;font:600 13px 'Inter','Segoe UI',sans-serif;cursor:pointer}
-.btn.out{background:#fee2e2;color:var(--red)}
-.btn.ghost{background:#eef2ff;color:var(--primary)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border:0;border-radius:10px;background:var(--primary);color:#fff;font:700 13px 'Plus Jakarta Sans',sans-serif;cursor:pointer;box-shadow:0 4px 14px rgba(37,99,235,0.3);transition:all .2s ease}
+.btn:hover{background:#1d4ed8;transform:translateY(-1px)}
+.btn.out{background:#fee2e2;color:var(--red);box-shadow:none}
+.btn.ghost{background:#eff6ff;color:var(--primary);box-shadow:none}
 .btn:disabled{opacity:.5;cursor:not-allowed}
 .field{display:grid;gap:6px;margin-bottom:14px}
-.field label{font-weight:600;font-size:13px}
-input,select{width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;font:inherit}
-input:focus,select:focus{outline:2px solid #c7d2fe;border-color:var(--primary)}
+.field label{font-weight:700;font-size:13px;color:var(--muted)}
+input,select{width:100%;padding:10px 14px;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc;font:inherit}
+input:focus,select:focus{outline:none;border-color:var(--primary);background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,0.12)}
 .row{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .act{justify-content:flex-end;margin-top:14px}
-.tag{padding:3px 10px;border-radius:99px;font-size:12px;font-weight:600}
+.tag{padding:4px 12px;border-radius:99px;font-size:12px;font-weight:700}
 .tag.ok{background:#d1fae5;color:#047857}.tag.over{background:#fee2e2;color:#b91c1c}
 table{width:100%;border-collapse:collapse}
 th{padding:12px 14px;background:#f1f5f9;color:#475569;font-size:13px;text-align:left}
@@ -78,59 +67,82 @@ td{padding:12px 14px;border-bottom:1px solid var(--line)}
 .opt{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;padding:12px;border:1px solid #cbd5e1;border-radius:8px;cursor:pointer}
 .opt input{width:auto;margin-top:3px;padding:0}
 .opt small{display:block;color:var(--muted)}
-@media(max-width:900px){.sidebar{display:none}.g2{grid-template-columns:1fr}.content{padding:16px}.topbar{padding:14px 16px}}
 </style>
 </head>
 <body>
-<aside class="sidebar">
-  <div class="logo"><i class="fa-solid fa-wallet"></i> CashManager</div>
-  <nav class="nav">
-    <a href="dashboard.html"><i class="fa-solid fa-chart-pie"></i> Bảng điều khiển</a>
-    <a href="income.html"><i class="fa-solid fa-arrow-down"></i> Thu nhập</a>
-    <a href="expense.html"><i class="fa-solid fa-arrow-up"></i> Chi tiêu</a>
-    <a href="budget.html"><i class="fa-solid fa-piggy-bank"></i> Ngân sách</a>
-    <a href="report.html"><i class="fa-solid fa-chart-column"></i> Báo cáo</a>
-    <a href="map.html"><i class="fa-solid fa-map-location-dot"></i> Bản đồ thu chi</a>
-    <a href="shared.html"><i class="fa-solid fa-users"></i> Quỹ chung</a>
-    <a href="feed.html"><i class="fa-solid fa-camera-retro"></i> Bảng tin</a>
+<div class="app-shell app-container">
+<aside class="app-sidebar sidebar" id="appSidebar">
+  <div class="brand-logo-circle" title="Cổng Không Gian Làm Việc (Portal Hub)" onclick="window.location.href='portal.html'" style="cursor: pointer;">
+    <i class="fa-solid fa-bolt"></i>
+  </div>
+  <nav class="sidebar-menu">
+    <a href="dashboard.html" class="menu-item">
+      <i class="fa-solid fa-table-cells-large"></i>
+      <span class="tooltip">Bảng điều khiển</span>
+    </a>
+    <a href="transactions.html" class="menu-item">
+      <i class="fa-solid fa-book-bookmark"></i>
+      <span class="tooltip">Sổ giao dịch & Báo cáo</span>
+    </a>
+    <a href="budget.html" class="menu-item">
+      <i class="fa-solid fa-piggy-bank"></i>
+      <span class="tooltip">Ngân sách</span>
+    </a>
+    <a href="map.html" class="menu-item">
+      <i class="fa-solid fa-map-location-dot"></i>
+      <span class="tooltip">Bản đồ</span>
+    </a>
+    <a href="notifications.html" class="menu-item">
+      <i class="fa-regular fa-bell"></i>
+      <span class="tooltip">Thông báo</span>
+    </a>
+    <a href="portal.html" class="menu-item" title="Cổng Không Gian">
+      <i class="fa-solid fa-layer-group"></i>
+      <span class="tooltip">Đổi không gian</span>
+    </a>
   </nav>
+  <div class="sidebar-bottom">
+    <a href="account.html" class="menu-item active" title="Tài khoản">
+      <i class="fa-solid fa-gear"></i>
+      <span class="tooltip">Cài đặt</span>
+    </a>
+    <a href="javascript:void(0)" class="menu-item" onclick="if(confirm('Bạn có chắc chắn muốn đăng xuất?')){fetch('../api/auth/logout.php',{method:'POST'}).finally(()=>{localStorage.clear();window.location.href='login.html'})}" title="Đăng xuất">
+      <i class="fa-solid fa-arrow-right-from-bracket"></i>
+      <span class="tooltip">Đăng xuất</span>
+    </a>
+  </div>
 </aside>
-<div class="main">
-  <header class="topbar">
-    <h1>Cài đặt tài khoản</h1>
-    <div class="header-user-nav" id="headerUserNav">
-        <button type="button" class="btn-quick-tx" id="btnHeaderAddTx" title="Thêm giao dịch mới">
-            <i class="fa-solid fa-plus"></i> Giao dịch
-        </button>
-        <div class="user-dropdown-wrapper" id="userDropdownWrapper">
-            <button type="button" class="user-profile-btn" id="userProfileBtn" aria-expanded="false" title="Tài khoản">
-                <span class="user-avatar-circle" id="headerAvatar">T</span>
-                <span class="user-profile-name" id="headerUserName">Thái Châu</span>
-                <i class="fa-solid fa-caret-down user-profile-caret"></i>
-            </button>
-            <div class="user-dropdown-menu" id="userDropdownMenu">
-                <a href="account.html" class="user-dropdown-item" id="menuItemSettings">
-                    <i class="fa-solid fa-sliders"></i>
-                    <span>Cài đặt</span>
-                </a>
-                <a href="help.html" target="_blank" class="user-dropdown-item" id="menuItemHelp">
-                    <i class="fa-regular fa-circle-question"></i>
-                    <span>Trợ giúp</span>
-                </a>
-                <a href="javascript:void(0)" class="user-dropdown-item item-logout" id="menuItemLogout">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                    <span>Đăng xuất</span>
-                </a>
-            </div>
-        </div>
+<main class="main-content app-main">
+  <header class="app-header header">
+    <div class="header-left">
+      <h1 class="page-title" style="margin: 0; font-size: 1.5rem; font-weight: 800; color: var(--text-heading);">Cài đặt tài khoản</h1>
+    </div>
+
+    <!-- Center Search Pill -->
+    <div class="header-search">
+      <i class="fa-solid fa-magnifying-glass search-icon"></i>
+      <input type="text" class="search-pill" placeholder="Tìm kiếm cài đặt, danh mục, mật khẩu...">
+    </div>
+
+    <!-- Right Action & Date Pill -->
+    <div class="header-right">
+      <button type="button" class="btn-ai-header" onclick="window.location.href='dashboard.html'" title="Trợ lý tài chính AI">
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+        <span>Trợ lý AI</span>
+      </button>
+      <div class="date-pill" id="currentDatePill">
+        <i class="fa-regular fa-calendar"></i>
+        <span>28 Tháng 11, 2026</span>
+      </div>
     </div>
   </header>
   <div class="content">
-    <!-- Thanh Tab điều hướng: Tài khoản | Cài đặt | Sao lưu & Dữ liệu -->
+    <!-- Thanh Tab điều hướng: Tài khoản | Cài đặt | Sao lưu & Dữ liệu | Trợ giúp -->
     <div class="tabs">
       <button class="on" data-tab="account"><i class="fa-solid fa-user"></i> Tài khoản</button>
       <button data-tab="settings"><i class="fa-solid fa-sliders"></i> Cài đặt</button>
       <button data-tab="backup"><i class="fa-solid fa-database"></i> Sao lưu &amp; Dữ liệu</button>
+      <button data-tab="help"><i class="fa-solid fa-circle-question"></i> Trợ giúp</button>
     </div>
 
     <!-- TAB 1: TÀI KHOẢN -->
@@ -368,25 +380,118 @@ td{padding:12px 14px;border-bottom:1px solid var(--line)}
         </div>
       </div>
 
-      <!-- [HUY T3] Thông tin tài khoản ngân hàng (dùng cho VietQR) -->
-      <div class="card">
-        <h3>Thông tin tài khoản ngân hàng</h3>
-        <p class="muted" style="margin-bottom:14px">Dùng để tạo mã VietQR khi thành viên khác chuyển tiền quyết toán cho bạn.</p>
-        <form id="bankForm">
-          <div class="grid g2">
-            <div class="field"><label for="bankCode">Ngân hàng</label><select id="bankCode"></select></div>
-            <div class="field"><label for="bankAcc">Số tài khoản</label><input id="bankAcc" inputmode="numeric" maxlength="20" placeholder="Nhập số tài khoản"></div>
+      <!-- Khối: Phiên bản đăng nhập & Quản lý thiết bị -->
+      <div class="card" id="cardLoginSession">
+        <div class="head">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 42px; height: 42px; border-radius: 12px; background: #eff6ff; color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div>
+              <h3 style="margin: 0; font-size: 1.05rem; font-weight: 700; color: var(--text-heading);">Phiên bản đăng nhập</h3>
+              <p class="muted" style="margin: 2px 0 0 0; font-size: 13px;">Thông tin phiên bản ứng dụng và thiết bị đang đăng nhập hiện tại</p>
+            </div>
           </div>
-          <button type="submit" class="btn">Lưu tài khoản ngân hàng</button>
-        </form>
+          <span class="tag ok" style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; font-size: 12px;">
+            <span style="width: 7px; height: 7px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
+            Đang hoạt động
+          </span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 18px 0;">
+          <!-- Thông tin phiên bản -->
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px 18px;">
+            <div style="font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px;">
+              <i class="fa-solid fa-code-branch" style="color: var(--primary); margin-right: 4px;"></i> Phiên bản ứng dụng
+            </div>
+            <div style="font-size: 1.15rem; font-weight: 800; color: var(--text-heading); margin-bottom: 4px;">
+              CashManager v2.4.0 <span style="font-size: 12px; font-weight: 600; color: #10b981; background: #ecfdf5; padding: 2px 8px; border-radius: 99px;">Mới nhất</span>
+            </div>
+            <div style="font-size: 13px; color: var(--muted);">
+              Bản phát hành chính thức (Fintech Edition) • Cập nhật: 28/11/2026
+            </div>
+          </div>
+
+          <!-- Thông tin thiết bị & phiên đăng nhập -->
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px 18px;">
+            <div style="font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px;">
+              <i class="fa-solid fa-laptop" style="color: var(--primary); margin-right: 4px;"></i> Thiết bị &amp; Trình duyệt
+            </div>
+            <div id="sessionDeviceInfo" style="font-size: 1.05rem; font-weight: 700; color: var(--text-heading); margin-bottom: 4px;">
+              Windows PC • Trình duyệt Web
+            </div>
+            <div id="sessionTimeInfo" style="font-size: 13px; color: var(--muted);">
+              Phiên làm việc hiện tại • Trạng thái: An toàn &amp; Đã mã hóa
+            </div>
+          </div>
+        </div>
+
+        <!-- Thao tác phiên đăng nhập -->
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding-top: 14px; border-top: 1px solid #e2e8f0;">
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted);">
+            <i class="fa-solid fa-circle-check" style="color: #10b981;"></i>
+            <span>Tài khoản được bảo vệ bởi xác thực phiên đăng nhập an toàn</span>
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <button type="button" class="btn ghost" id="btnRefreshSession" title="Làm mới trạng thái">
+              <i class="fa-solid fa-arrows-rotate"></i> Làm mới
+            </button>
+            <button type="button" class="btn out" id="btnLogoutSession" title="Đăng xuất khỏi thiết bị này">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất phiên này
+            </button>
+          </div>
+        </div>
       </div>
-      
-      <div class="card">
-        <div class="head"><h3>Danh mục của tôi</h3><button class="btn" id="addCat"><i class="fa-solid fa-plus"></i> Thêm danh mục</button></div>
-        <table>
-          <thead><tr><th>Tên danh mục</th><th>Loại</th><th style="text-align:right">Thao tác</th></tr></thead>
-          <tbody id="catBody"></tbody>
-        </table>
+
+      <!-- Khối: Trợ giúp & Hỗ trợ trong Cài đặt -->
+      <div class="card" id="cardHelpInSettings">
+        <div class="head">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 42px; height: 42px; border-radius: 12px; background: #eff6ff; color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">
+              <i class="fa-solid fa-circle-question"></i>
+            </div>
+            <div>
+              <h3 style="margin: 0; font-size: 1.05rem; font-weight: 700; color: var(--text-heading);">Trợ giúp &amp; Hỗ trợ</h3>
+              <p class="muted" style="margin: 2px 0 0 0; font-size: 13px;">Hướng dẫn sử dụng, câu hỏi thường gặp và kênh hỗ trợ kỹ thuật</p>
+            </div>
+          </div>
+          <button type="button" class="btn ghost" onclick="document.querySelector('[data-tab=help]').click()">
+            <span>Mở trung tâm trợ giúp</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-top: 14px;">
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer;" onclick="document.querySelector('[data-tab=help]').click()">
+            <div style="width: 38px; height: 38px; border-radius: 50%; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0;">
+              <i class="fa-solid fa-book-open"></i>
+            </div>
+            <div>
+              <strong style="font-size: 14px; color: var(--text-heading); display: block;">Câu hỏi thường gặp (FAQ)</strong>
+              <small class="muted">Giải đáp về thu chi, ngân sách, quét hóa đơn AI</small>
+            </div>
+          </div>
+
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer;" onclick="if(window.aiWidgetToggle){window.aiWidgetToggle()}else{document.querySelector('[data-tab=help]').click()}">
+            <div style="width: 38px; height: 38px; border-radius: 50%; background: #f3e8ff; color: #7c3aed; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0;">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </div>
+            <div>
+              <strong style="font-size: 14px; color: var(--text-heading); display: block;">Trợ lý AI 24/7</strong>
+              <small class="muted">Hỏi đáp tài chính và hướng dẫn tức thì</small>
+            </div>
+          </div>
+
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer;" onclick="document.querySelector('[data-tab=help]').click()">
+            <div style="width: 38px; height: 38px; border-radius: 50%; background: #ecfdf5; color: #059669; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0;">
+              <i class="fa-solid fa-headset"></i>
+            </div>
+            <div>
+              <strong style="font-size: 14px; color: var(--text-heading); display: block;">Gửi yêu cầu hỗ trợ</strong>
+              <small class="muted">Gửi phiếu hỗ trợ trực tiếp đến kỹ thuật</small>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -410,7 +515,129 @@ td{padding:12px 14px;border-bottom:1px solid var(--line)}
         <button class="btn" id="restoreBtn" disabled><i class="fa-solid fa-rotate-left"></i> Khôi phục dữ liệu</button>
       </div>
     </section>
+
+    <!-- TAB 4: TRỢ GIÚP & HỖ TRỢ -->
+    <section class="tab hide" id="tab-help">
+      <div class="grid g2">
+        <!-- Cột 1: Câu hỏi thường gặp (FAQ) -->
+        <div class="card">
+          <div class="head">
+            <h3 style="display:flex; align-items:center; gap:8px;">
+              <i class="fa-solid fa-circle-question" style="color:var(--primary)"></i> Câu hỏi thường gặp (FAQ)
+            </h3>
+          </div>
+          <div class="faq-list" style="display:flex; flex-direction:column; gap:12px;">
+            <details style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:12px 14px; cursor:pointer;" open>
+              <summary style="font-weight:700; color:var(--text-heading); font-size:14px; list-style:none; display:flex; justify-content:space-between; align-items:center;">
+                <span>1. Làm sao để ghi nhận khoản thu / chi mới?</span>
+                <i class="fa-solid fa-chevron-down" style="font-size:12px; color:var(--muted)"></i>
+              </summary>
+              <p style="margin-top:10px; font-size:13px; color:var(--text-body); line-height:1.5;">
+                Bạn có thể bấm nút <strong>"+ Giao dịch"</strong> ở góc phải trên cùng mọi trang hoặc vào mục <strong>Sổ giao dịch</strong> để thêm khoản chi hoặc thu. Ngoài ra, bạn cũng có thể bấm <strong>"Chọn ảnh"</strong> để AI tự động quét hóa đơn và điền số tiền, danh mục giúp bạn.
+              </p>
+            </details>
+
+            <details style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:12px 14px; cursor:pointer;">
+              <summary style="font-weight:700; color:var(--text-heading); font-size:14px; list-style:none; display:flex; justify-content:space-between; align-items:center;">
+                <span>2. Tính năng Quét hóa đơn OCR bằng AI hoạt động ra sao?</span>
+                <i class="fa-solid fa-chevron-down" style="font-size:12px; color:var(--muted)"></i>
+              </summary>
+              <p style="margin-top:10px; font-size:13px; color:var(--text-body); line-height:1.5;">
+                Hệ thống tích hợp mô hình Gemini AI thông minh. Khi bạn tải lên ảnh hóa đơn, biên lai chuyển khoản hoặc phiếu mua hàng, AI sẽ tự động phân tích hình ảnh, đọc tổng số tiền và nhận diện danh mục tương ứng trong vài giây.
+              </p>
+            </details>
+
+            <details style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:12px 14px; cursor:pointer;">
+              <summary style="font-weight:700; color:var(--text-heading); font-size:14px; list-style:none; display:flex; justify-content:space-between; align-items:center;">
+                <span>3. Làm thế nào để nhận cảnh báo chi tiêu vượt ngân sách?</span>
+                <i class="fa-solid fa-chevron-down" style="font-size:12px; color:var(--muted)"></i>
+              </summary>
+              <p style="margin-top:10px; font-size:13px; color:var(--text-body); line-height:1.5;">
+                Vào tab <strong>Cài đặt</strong> và bật công tắc <strong>"Nhận email cảnh báo khi ngân sách đạt 80%"</strong>. Khi tổng chi tiêu của một danh mục đạt 80% hạn mức đã đặt, hệ thống sẽ gửi cảnh báo tức thì qua email và chuông thông báo.
+              </p>
+            </details>
+
+            <details style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:12px 14px; cursor:pointer;">
+              <summary style="font-weight:700; color:var(--text-heading); font-size:14px; list-style:none; display:flex; justify-content:space-between; align-items:center;">
+                <span>4. Quỹ chung và Chia hóa đơn nhóm hoạt động như thế nào?</span>
+                <i class="fa-solid fa-chevron-down" style="font-size:12px; color:var(--muted)"></i>
+              </summary>
+              <p style="margin-top:10px; font-size:13px; color:var(--text-body); line-height:1.5;">
+                Từ Cổng Không Gian, chọn <strong>Quỹ chung</strong>. Bạn có thể tạo quỹ nhóm cho gia đình hoặc chuyến du lịch, mời thành viên qua liên kết và ghi nhận các khoản chi chung để hệ thống tự động tính toán bù trừ công bằng.
+              </p>
+            </details>
+
+            <details style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:12px 14px; cursor:pointer;">
+              <summary style="font-weight:700; color:var(--text-heading); font-size:14px; list-style:none; display:flex; justify-content:space-between; align-items:center;">
+                <span>5. Dữ liệu tài chính của tôi có an toàn không?</span>
+                <i class="fa-solid fa-chevron-down" style="font-size:12px; color:var(--muted)"></i>
+              </summary>
+              <p style="margin-top:10px; font-size:13px; color:var(--text-body); line-height:1.5;">
+                Mọi thông tin tài chính đều được lưu trữ trong không gian riêng biệt, mã hóa mật khẩu và có tính năng tải bản sao lưu (.json) về máy bất cứ lúc nào tại tab <strong>Sao lưu &amp; Dữ liệu</strong>.
+              </p>
+            </details>
+          </div>
+        </div>
+
+        <!-- Cột 2: Gửi yêu cầu hỗ trợ & Kênh liên hệ -->
+        <div style="display:flex; flex-direction:column; gap:22px;">
+          <!-- Card Biểu mẫu hỗ trợ -->
+          <div class="card">
+            <h3 style="display:flex; align-items:center; gap:8px;">
+              <i class="fa-solid fa-headset" style="color:var(--primary)"></i> Gửi yêu cầu hỗ trợ
+            </h3>
+            <p class="muted" style="margin-bottom:14px">Nếu bạn gặp sự cố hoặc cần hỗ trợ tính năng, vui lòng gửi tin nhắn. Đội ngũ kỹ thuật sẽ phản hồi sớm nhất.</p>
+            <form id="supportHelpForm">
+              <div class="field">
+                <label for="supportSubject">Chủ đề cần hỗ trợ</label>
+                <select id="supportSubject" required>
+                  <option value="Hỗ trợ sử dụng tính năng">Hỗ trợ sử dụng tính năng</option>
+                  <option value="Báo cáo sự cố / Lỗi kỹ thuật">Báo cáo sự cố / Lỗi kỹ thuật</option>
+                  <option value="Góp ý cải tiến giao diện & trải nghiệm">Góp ý cải tiến giao diện & trải nghiệm</option>
+                  <option value="Yêu cầu hỗ trợ tài khoản & bảo mật">Yêu cầu hỗ trợ tài khoản & bảo mật</option>
+                  <option value="Khác">Chủ đề khác</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="supportMessage">Nội dung chi tiết</label>
+                <textarea id="supportMessage" rows="4" placeholder="Mô tả cụ thể câu hỏi hoặc sự cố bạn gặp phải..." style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:10px; font-family:inherit; font-size:14px; resize:vertical;" required></textarea>
+              </div>
+              <button type="submit" class="btn" id="btnSubmitSupport">
+                <i class="fa-solid fa-paper-plane"></i> Gửi yêu cầu hỗ trợ
+              </button>
+            </form>
+          </div>
+
+          <!-- Card Thông tin liên hệ nhanh -->
+          <div class="card">
+            <h3 style="margin-bottom:12px;">Kênh hỗ trợ trực tiếp</h3>
+            <div style="display:grid; gap:12px;">
+              <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:#f8fafc; border-radius:10px;">
+                <div style="width:36px; height:36px; border-radius:50%; background:#eff6ff; color:var(--primary); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                  <i class="fa-solid fa-envelope"></i>
+                </div>
+                <div>
+                  <small class="muted" style="display:block;">Email hỗ trợ</small>
+                  <a href="mailto:cashmanager.contact@gmail.com" style="color:var(--primary); font-size:14px; font-weight:700; text-decoration:none;">cashmanager.contact@gmail.com</a>
+                </div>
+              </div>
+
+              <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:#f8fafc; border-radius:10px; cursor:pointer;" onclick="if(window.aiWidgetToggle){window.aiWidgetToggle()}">
+                <div style="width:36px; height:36px; border-radius:50%; background:#f3e8ff; color:#7c3aed; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </div>
+                <div>
+                  <small class="muted" style="display:block;">Trợ lý tài chính AI</small>
+                  <strong style="color:#7c3aed; font-size:14px;">Hỏi đáp AI tức thì 24/7 &rarr;</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
+</main>
 </div>
 
 <div class="modal" id="modal">
@@ -449,7 +676,8 @@ td{padding:12px 14px;border-bottom:1px solid var(--line)}
 <div class="toast" id="toast"></div>
 <script src="../assets/js/pwa.js"></script>
 <script src="../assets/js/i18n.js?v=20261127"></script>
-<script src="../assets/js/header_nav.js?v=20261127_m4"></script>
+<script src="../assets/js/header_nav.js?v=20261127_m5"></script>
 <script src="../assets/js/account.js"></script>
+<script src="../assets/js/ai_chat_widget.js?v=20261128"></script>
 </body>
 </html>

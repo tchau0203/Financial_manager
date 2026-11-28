@@ -123,7 +123,7 @@ $extractedData = null;
 $source        = 'rule_based';
 
 if (!empty($apiKey)) {
-    $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=" . urlencode($apiKey);
+    $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" . urlencode($apiKey);
 
     // Chuyển đổi ảnh sang Base64
     $rawImageContent = file_get_contents($file['tmp_name']);

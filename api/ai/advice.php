@@ -112,7 +112,7 @@ $aiAdvice = null;
 $source   = 'rule_based';
 
 if (!empty($apiKey)) {
-    $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=" . urlencode($apiKey);
+    $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" . urlencode($apiKey);
 
     $postData = [
         'contents' => [
@@ -124,7 +124,7 @@ if (!empty($apiKey)) {
         ],
         'generationConfig' => [
             'temperature'     => 0.4,
-            'maxOutputTokens' => 2048,
+            'maxOutputTokens' => 800,
             'thinkingConfig'  => ['thinkingBudget' => 0]
         ]
     ];
@@ -168,7 +168,7 @@ if (!empty($apiKey)) {
                     'potential_wastes' => is_array($parsedAi['potential_wastes'] ?? null) ? $parsedAi['potential_wastes'] : [],
                     'action_items'     => is_array($parsedAi['action_items'] ?? null) ? $parsedAi['action_items'] : []
                 ];
-                $source = 'gemini-3.5-flash';
+                $source = 'gemini-1.5-flash';
             }
         }
     }

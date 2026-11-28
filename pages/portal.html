@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cổng Không Gian Làm Việc - CashManager</title>
+    <link rel="manifest" href="../manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Base Stylesheet -->
+    <link rel="stylesheet" href="../assets/css/style.css?v=20261128_v2">
+
+    <style>
+        :root {
+            --portal-bg: #f4f7fb;
+            --portal-card-bg: #ffffff;
+            --portal-blue: #2563eb;
+            --portal-green: #10b981;
+            --portal-purple: #7c3aed;
+            --portal-text: #0f172a;
+            --portal-muted: #64748b;
+        }
+
+        body, body.portal-body {
+            background-color: var(--portal-bg) !important;
+            font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif !important;
+            color: var(--portal-text) !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            min-height: 100vh !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: stretch !important;
+            justify-content: flex-start !important;
+            width: 100% !important;
+        }
+
+        /* Top Header Full Width */
+        .portal-header {
+            width: 100% !important;
+            background: #ffffff !important;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.9) !important;
+            padding: 1.15rem 2.5rem !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 100 !important;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04) !important;
+            box-sizing: border-box !important;
+        }
+
+        .portal-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            text-decoration: none;
+            color: var(--portal-text);
+        }
+
+        .portal-logo-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 1.25rem;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .portal-brand-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .portal-brand-name {
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: #0f172a;
+        }
+
+        .portal-brand-tag {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--portal-blue);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .portal-header-right {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .portal-date-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #f1f5f9;
+            padding: 0.45rem 1rem;
+            border-radius: 50px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--portal-muted);
+        }
+
+        .portal-user-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.35rem 0.85rem;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 50px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+
+        .portal-user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #2563eb;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .portal-user-name {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--portal-text);
+        }
+
+        .portal-btn-logout {
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            padding: 0.4rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .portal-btn-logout:hover {
+            background: #fee2e2;
+        }
+
+        /* Container & Hero */
+        .portal-container {
+            max-width: 1320px;
+            margin: 0 auto;
+            padding: 2.5rem 1.75rem 4rem 1.75rem;
+            flex: 1;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .portal-hero {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 3rem auto;
+        }
+
+        .portal-hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #eff6ff;
+            color: var(--portal-blue);
+            padding: 0.35rem 0.95rem;
+            border-radius: 50px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            border: 1px solid #dbeafe;
+        }
+
+        .portal-hero-title {
+            font-size: 2.35rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: #0f172a;
+            margin: 0 0 0.85rem 0;
+            line-height: 1.25;
+        }
+
+        .portal-hero-sub {
+            font-size: 1.05rem;
+            color: var(--portal-muted);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        /* 3 Main Space Cards Grid */
+        .portal-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.75rem;
+            align-items: stretch;
+        }
+
+        .portal-card {
+            background: var(--portal-card-bg);
+            border-radius: 24px;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+
+        .portal-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px -8px rgba(15, 23, 42, 0.1);
+        }
+
+        /* Card 1: Cá nhân (Nổi bật) */
+        .portal-card.primary {
+            border-top: 5px solid var(--portal-blue);
+        }
+
+        .portal-card.green {
+            border-top: 5px solid var(--portal-green);
+        }
+
+        .portal-card.purple {
+            border-top: 5px solid var(--portal-purple);
+        }
+
+        .pcard-inner {
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .pcard-top-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            align-self: flex-start;
+            margin-bottom: 1.25rem;
+        }
+
+        .portal-card.primary .pcard-top-tag {
+            background: #eff6ff;
+            color: var(--portal-blue);
+        }
+
+        .portal-card.green .pcard-top-tag {
+            background: #ecfdf5;
+            color: var(--portal-green);
+        }
+
+        .portal-card.purple .pcard-top-tag {
+            background: #f5f3ff;
+            color: var(--portal-purple);
+        }
+
+        .pcard-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .pcard-icon-wrap {
+            width: 58px;
+            height: 58px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            flex-shrink: 0;
+            color: #ffffff;
+        }
+
+        .portal-card.primary .pcard-icon-wrap {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            box-shadow: 0 8px 20px -3px rgba(37, 99, 235, 0.4);
+        }
+
+        .portal-card.green .pcard-icon-wrap {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 8px 20px -3px rgba(16, 185, 129, 0.4);
+        }
+
+        .portal-card.purple .pcard-icon-wrap {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+            box-shadow: 0 8px 20px -3px rgba(124, 58, 237, 0.4);
+        }
+
+        .pcard-title-wrap h2 {
+            font-size: 1.35rem;
+            font-weight: 800;
+            margin: 0;
+            color: #0f172a;
+            letter-spacing: -0.02em;
+        }
+
+        .pcard-title-wrap small {
+            font-size: 0.82rem;
+            color: var(--portal-muted);
+            font-weight: 500;
+        }
+
+        .pcard-desc {
+            font-size: 0.9rem;
+            color: #475569;
+            line-height: 1.6;
+            margin: 0 0 1.5rem 0;
+        }
+
+        /* Sub-module Items List inside Personal Card */
+        .pcard-features-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+            margin-bottom: 2rem;
+            flex: 1;
+        }
+
+        .feature-item-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.65rem 0.9rem;
+            border-radius: 12px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            text-decoration: none;
+            color: #1e293b;
+            font-size: 0.86rem;
+            font-weight: 600;
+            transition: all 0.18s ease;
+        }
+
+        .feature-item-link:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            transform: translateX(4px);
+            color: var(--portal-blue);
+        }
+
+        .feature-item-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .feature-item-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+        }
+
+        .feature-item-arrow {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            transition: transform 0.2s;
+        }
+
+        .feature-item-link:hover .feature-item-arrow {
+            transform: translateX(3px);
+            color: var(--portal-blue);
+        }
+
+        /* Large Action CTA Button */
+        .pcard-btn-action {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.65rem;
+            width: 100%;
+            padding: 0.95rem 1.5rem;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-decoration: none;
+            color: #ffffff;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+            border: none;
+            cursor: pointer;
+        }
+
+        .portal-card.primary .pcard-btn-action {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            box-shadow: 0 6px 16px -2px rgba(37, 99, 235, 0.4);
+        }
+
+        .portal-card.primary .pcard-btn-action:hover {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+            box-shadow: 0 8px 24px -2px rgba(37, 99, 235, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .portal-card.green .pcard-btn-action {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 6px 16px -2px rgba(16, 185, 129, 0.4);
+        }
+
+        .portal-card.green .pcard-btn-action:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            box-shadow: 0 8px 24px -2px rgba(16, 185, 129, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .portal-card.purple .pcard-btn-action {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+            box-shadow: 0 6px 16px -2px rgba(124, 58, 237, 0.4);
+        }
+
+        .portal-card.purple .pcard-btn-action:hover {
+            background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
+            box-shadow: 0 8px 24px -2px rgba(124, 58, 237, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 1080px) {
+            .portal-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .portal-hero-title {
+                font-size: 1.95rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .portal-header {
+                padding: 0.85rem 1.25rem;
+            }
+            .portal-container {
+                padding: 1.75rem 1.25rem 3rem 1.25rem;
+            }
+            .portal-hero-title {
+                font-size: 1.65rem;
+            }
+            .portal-date-pill {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="portal-body">
+
+    <!-- TOP HEADER -->
+    <header class="portal-header">
+        <a href="portal.html" class="portal-brand">
+            <div class="portal-logo-icon">
+                <i class="fa-solid fa-bolt"></i>
+            </div>
+            <div class="portal-brand-text">
+                <span class="portal-brand-name">CashManager</span>
+                <span class="portal-brand-tag">Cổng Không Gian</span>
+            </div>
+        </a>
+
+        <div class="portal-header-right">
+            <div class="portal-date-pill">
+                <i class="fa-regular fa-calendar"></i>
+                <span id="currentDateDisplay">28 Tháng 11, 2026</span>
+            </div>
+
+            <!-- Nút Quản trị chỉ hiển thị cho tài khoản có quyền admin -->
+            <a href="admin/dashboard.html" id="portalAdminBtn" style="display:none; align-items:center; gap:8px; padding:0.45rem 1rem; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color:#ffffff; border-radius:50px; text-decoration:none; font-size:0.85rem; font-weight:700; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35); transition: transform 0.2s;" title="Truy cập Trang Quản Trị Hệ Thống">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>Quản trị Admin</span>
+            </a>
+
+            <div class="portal-user-badge">
+                <div class="portal-user-avatar" id="userAvatarText">C</div>
+                <span class="portal-user-name" id="userDisplayName">Thái Châu</span>
+            </div>
+
+            <button type="button" class="portal-btn-logout" id="btnLogoutPortal" title="Đăng xuất tài khoản">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN PORTAL BODY -->
+    <main class="portal-container">
+
+        <!-- HERO INTRO -->
+        <div class="portal-hero">
+            <div class="portal-hero-badge">
+                <i class="fa-solid fa-layer-group"></i> Không Gian Làm Việc Độc Lập
+            </div>
+            <h1 class="portal-hero-title">
+                Xin chào, <span id="heroUserName">Thái Châu</span> 👋
+            </h1>
+            <p class="portal-hero-sub">
+                Hệ thống tài chính được chia thành 3 không gian chuyên biệt. Vui lòng chọn không gian bạn muốn làm việc hôm nay:
+            </p>
+        </div>
+
+        <!-- 3 MAIN WORKSPACE CARDS -->
+        <div class="portal-grid">
+
+            <!-- ==========================================
+                 PHẦN 1: KHÔNG GIAN CÁ NHÂN
+                 ========================================== -->
+            <div class="portal-card primary">
+                <div class="pcard-inner">
+                    <span class="pcard-top-tag">
+                        <i class="fa-solid fa-user-shield"></i> Không gian chính • Cá nhân
+                    </span>
+
+                    <div class="pcard-header">
+                        <div class="pcard-icon-wrap">
+                            <i class="fa-solid fa-wallet"></i>
+                        </div>
+                        <div class="pcard-title-wrap">
+                            <h2>Tài Chính Cá Nhân</h2>
+                            <small>Quản lý dòng tiền & ngân sách riêng tư</small>
+                        </div>
+                    </div>
+
+                    <p class="pcard-desc">
+                        Không gian riêng tư quản lý tổng thể số dư, theo dõi lịch sử thu chi, định vị bản đồ và lập ngân sách tiết kiệm cá nhân.
+                    </p>
+
+                    <!-- Danh sách các phân hệ con của Phần Cá nhân -->
+                    <div class="pcard-features-list">
+                        <a href="dashboard.html" class="feature-item-link" title="Bảng điều khiển tổng quan">
+                            <div class="feature-item-left">
+                                <div class="feature-item-icon" style="color: #2563eb;"><i class="fa-solid fa-table-cells-large"></i></div>
+                                <span>Bảng điều khiển (Tổng quan)</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-right feature-item-arrow"></i>
+                        </a>
+
+                        <a href="transactions.html" class="feature-item-link" title="Sổ giao dịch & Báo cáo thu chi">
+                            <div class="feature-item-left">
+                                <div class="feature-item-icon" style="color: #10b981;"><i class="fa-solid fa-book-bookmark"></i></div>
+                                <span>Sổ giao dịch & Báo cáo</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-right feature-item-arrow"></i>
+                        </a>
+
+                        <a href="budget.html" class="feature-item-link" title="Kế hoạch hạn mức ngân sách">
+                            <div class="feature-item-left">
+                                <div class="feature-item-icon" style="color: #f59e0b;"><i class="fa-solid fa-piggy-bank"></i></div>
+                                <span>Kế hoạch ngân sách</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-right feature-item-arrow"></i>
+                        </a>
+
+                        <a href="map.html" class="feature-item-link" title="Bản đồ giao dịch theo địa điểm">
+                            <div class="feature-item-left">
+                                <div class="feature-item-icon" style="color: #06b6d4;"><i class="fa-solid fa-map-location-dot"></i></div>
+                                <span>Bản đồ thu chi</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-right feature-item-arrow"></i>
+                        </a>
+
+                        <a href="notifications.html" class="feature-item-link" title="Trung tâm thông báo & Cảnh báo chi tiêu">
+                            <div class="feature-item-left">
+                                <div class="feature-item-icon" style="color: #e11d48;"><i class="fa-solid fa-bell"></i></div>
+                                <span>Thông báo & Cảnh báo</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-right feature-item-arrow"></i>
+                        </a>
+
+                        <a href="account.html" class="feature-item-link" title="Cài đặt tài khoản & Bảo mật">
+                            <div class="feature-item-left">
+                                <div class="feature-item-icon" style="color: #64748b;"><i class="fa-solid fa-gear"></i></div>
+                                <span>Cài đặt tài khoản</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-right feature-item-arrow"></i>
+                        </a>
+                    </div>
+
+                    <a href="dashboard.html" class="pcard-btn-action">
+                        <span>Vào Không Gian Cá Nhân</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- ==========================================
+                 PHẦN 2: QUỸ CHUNG
+                 ========================================== -->
+            <div class="portal-card green">
+                <div class="pcard-inner">
+                    <span class="pcard-top-tag">
+                        <i class="fa-solid fa-users"></i> Tài chính nhóm • Gia đình
+                    </span>
+
+                    <div class="pcard-header">
+                        <div class="pcard-icon-wrap">
+                            <i class="fa-solid fa-people-roof"></i>
+                        </div>
+                        <div class="pcard-title-wrap">
+                            <h2>Quỹ Chung</h2>
+                            <small>Quản lý chi tiêu nhóm & gia đình</small>
+                        </div>
+                    </div>
+
+                    <p class="pcard-desc">
+                        Không gian quản lý dòng tiền dùng chung cho gia đình, nhóm bạn du lịch, tiền phòng trọ và đối soát công nợ tự động, minh bạch.
+                    </p>
+
+                    <div class="pcard-features-list">
+                        <div class="feature-item-link" style="cursor: default;">
+                            <div class="feature-item-left">
+                                <div class="feature-item-icon" style="color: #10b981;"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+                                <span>Tạo & Quản lý nhiều quỹ độc lập</span>
+                            </div>
+                            <i class="fa-solid fa-check" style="color: #10b981; font-size: 0.8rem;"></i>
+                        </div>
+
+                        <div class="feature-item-link" style="cursor: default;">
+                            <div class="feature-item-left">
+                                <div class="feature-item-icon" style="color: #059669;"><i class="fa-solid fa-scale-balanced"></i></div>
+                                <span>Chia hóa đơn tự động & Công bằng</span>
+                            </div>
+                            <i class="fa-solid fa-check" style="color: #10b981; font-size: 0.8rem;"></i>
+                        </div>
+
+                        <div class="feature-item-link" style="cursor: default;">
+                            <div class="feature-item-left">
+                                <div class="feature-item-icon" style="color: #047857;"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                                <span>Lịch sử đóng góp & Báo cáo quỹ</span>
+                            </div>
+                            <i class="fa-solid fa-check" style="color: #10b981; font-size: 0.8rem;"></i>
+                        </div>
+
+                        <div class="feature-item-link" style="cursor: default;">
+                            <div class="feature-item-left">
+                                <div class="feature-item-icon" style="color: #0d9488;"><i class="fa-solid fa-user-plus"></i></div>
+                                <span>Mời thành viên bằng mã liên kết</span>
+                            </div>
+                            <i class="fa-solid fa-check" style="color: #10b981; font-size: 0.8rem;"></i>
+                        </div>
+                    </div>
+
+                    <a href="shared.html" class="pcard-btn-action">
+                        <span>Truy Cập Quỹ Chung</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- ==========================================
+                 PHẦN 3: ĐỔI QUA ỨNG DỤNG ĐIỆN THOẠI
+                 ========================================== -->
+            <div class="portal-card purple">
+                <div class="pcard-inner">
+                    <span class="pcard-top-tag">
+                        <i class="fa-solid fa-mobile-screen-button"></i> Giao diện di động • Mạng xã hội
+                    </span>
+
+                    <div class="pcard-header">
+                        <div class="pcard-icon-wrap">
+                            <i class="fa-solid fa-mobile-screen-button"></i>
+                        </div>
+                        <div class="pcard-title-wrap">
+                            <h2>Đổi Qua Ứng Dụng Điện Thoại</h2>
+                            <small>Trải nghiệm phiên bản di động độc lập</small>
+                        </div>
+                    </div>
+
+                    <p class="pcard-desc">
+                        Chuyển sang giao diện mô phỏng ứng dụng điện thoại (Mobile App), chụp ảnh hóa đơn tức thì, lướt bảng tin ảnh và tương tác tài chính phong cách mới.
+                    </p>
+
+                    <div class="pcard-features-list">
+                        <div class="feature-item-link" style="cursor: default;">
+                            <div class="feature-item-left">
+                                <div class="feature-item-icon" style="color: #7c3aed;"><i class="fa-solid fa-mobile-screen"></i></div>
+                                <span>Giao diện màn hình điện thoại độc lập</span>
+                            </div>
+                            <i class="fa-solid fa-check" style="color: #7c3aed; font-size: 0.8rem;"></i>
+                        </div>
+
+                        <div class="feature-item-link" style="cursor: default;">
+                            <div class="feature-item-left">
+                                <div class="feature-item-icon" style="color: #8b5cf6;"><i class="fa-solid fa-camera"></i></div>
+                                <span>Chụp ảnh hóa đơn & Ghi chép nhanh</span>
+                            </div>
+                            <i class="fa-solid fa-check" style="color: #7c3aed; font-size: 0.8rem;"></i>
+                        </div>
+
+                        <div class="feature-item-link" style="cursor: default;">
+                            <div class="feature-item-left">
+                                <div class="feature-item-icon" style="color: #6d28d9;"><i class="fa-solid fa-images"></i></div>
+                                <span>Bảng tin hóa đơn dạng lướt ảnh</span>
+                            </div>
+                            <i class="fa-solid fa-check" style="color: #7c3aed; font-size: 0.8rem;"></i>
+                        </div>
+
+                        <div class="feature-item-link" style="cursor: default;">
+                            <div class="feature-item-left">
+                                <div class="feature-item-icon" style="color: #a855f7;"><i class="fa-solid fa-icons"></i></div>
+                                <span>Thả cảm xúc & Tương tác tài chính</span>
+                            </div>
+                            <i class="fa-solid fa-check" style="color: #7c3aed; font-size: 0.8rem;"></i>
+                        </div>
+                    </div>
+
+                    <a href="feed.html" class="pcard-btn-action">
+                        <span>Đổi Qua Ứng Dụng Điện Thoại</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Auth & Logic Script -->
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/pwa.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Cập nhật ngày tháng hiện tại
+            const dateEl = document.getElementById('currentDateDisplay');
+            if (dateEl) {
+                const now = new Date();
+                dateEl.textContent = now.toLocaleDateString('vi-VN', {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'numeric',
+                    year: 'numeric'
+                });
+            }
+
+            // Tải thông tin người dùng
+            try {
+                const res = await apiFetch('/auth/me.php', { method: 'GET' });
+                if (res && res.success && res.data) {
+                    const u = res.data;
+                    const name = u.full_name || u.username || 'Bạn';
+                    document.getElementById('userDisplayName').textContent = name;
+                    document.getElementById('heroUserName').textContent = name;
+                    const initial = name.trim().charAt(0).toUpperCase();
+                    document.getElementById('userAvatarText').textContent = initial;
+
+                    // Chỉ hiển thị nút Quản trị nếu tài khoản là Admin
+                    const adminBtn = document.getElementById('portalAdminBtn');
+                    if (adminBtn) {
+                        if (u.role === 'admin') {
+                            adminBtn.style.display = 'inline-flex';
+                        } else {
+                            adminBtn.style.display = 'none';
+                        }
+                    }
+                } else {
+                    window.location.href = 'login.html';
+                }
+            } catch (err) {
+                console.warn('Lỗi xác thực người dùng:', err);
+                window.location.href = 'login.html';
+            }
+
+            // Nút đăng xuất
+            const btnLogout = document.getElementById('btnLogoutPortal');
+            if (btnLogout) {
+                btnLogout.addEventListener('click', async () => {
+                    if (confirm('Bạn có chắc chắn muốn đăng xuất khỏi CashManager?')) {
+                        try {
+                            await apiFetch('/auth/logout.php', { method: 'POST' });
+                        } finally {
+                            localStorage.clear();
+                            window.location.href = 'login.html';
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

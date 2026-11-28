@@ -77,6 +77,9 @@
             if (!this.dataset.fallback && fileName) {
                 this.dataset.fallback = '1';
                 this.src = '../api/posts/view.php?file=' + encodeURIComponent(fileName);
+            } else {
+                this.onerror = null;
+                this.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1e1b4b"/><stop offset="100%" stop-color="#312e81"/></linearGradient></defs><rect width="100%" height="100%" fill="url(#g)"/><circle cx="200" cy="170" r="48" fill="#6366f1" opacity="0.3"/><path d="M176 170a24 24 0 0 1 48 0c0 14-10 20-18 26-6 4-6 8-6 14h-8c0-8 2-14 9-19 6-5 15-9 15-21a16 16 0 1 0-32 0h-8zm20 54a6 6 0 1 1 0 12 6 6 0 0 1 0-12z" fill="#a5b4fc"/><text x="200" y="270" text-anchor="middle" fill="#94a3b8" font-family="sans-serif" font-size="14" font-weight="600">Ảnh giao dịch</text></svg>');
             }
         };
         img.src = '../' + rawPath;
@@ -451,6 +454,21 @@
             state.me = u;
             $('meAvatar').innerHTML = avatarInner(u.full_name || u.username, u.avatar_url);
             $('meAvatar').title = u.full_name || u.username || '';
+
+            // Nếu tài khoản là Admin -> Hiển thị nút quay lại Admin trên thanh bên của feed
+            if (u && u.role === 'admin') {
+                const sbMenu = document.querySelector('.sidebar-menu');
+                if (sbMenu && !document.getElementById('sidebarAdminBtn')) {
+                    const adminBtn = document.createElement('a');
+                    adminBtn.href = 'admin/dashboard.html';
+                    adminBtn.className = 'menu-item';
+                    adminBtn.id = 'sidebarAdminBtn';
+                    adminBtn.title = 'Trang Quản trị Hệ Thống';
+                    adminBtn.style.cssText = 'background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important; color: #ffffff !important; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35); position: relative;';
+                    adminBtn.innerHTML = `<i class="fa-solid fa-shield-halved"></i><span class="tooltip" style="background:#4c1d95; color:#fff;">Trang Quản trị</span>`;
+                    sbMenu.appendChild(adminBtn);
+                }
+            }
         } catch (e) { return; }
 
         // Trình xem: điều hướng

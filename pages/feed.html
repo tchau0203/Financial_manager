@@ -1,20 +1,20 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Bảng tin - Quản Lý Chi Tiêu</title>
+<title>Ứng Dụng Điện Thoại - CashManager</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="../assets/css/style.css?v=20261128_v2">
 <style>
-:root{--primary:#4f46e5;--green:#10b981;--red:#ef4444;--muted:#64748b;--line:#e2e8f0}
+:root{--primary:#2563eb;--green:#10b981;--red:#ef4444;--muted:#64748b;--line:#e2e8f0}
 *{box-sizing:border-box;margin:0;padding:0}
-body{min-height:100vh;background:#f1f5f9;color:#0f172a;font:15px/1.5 'Inter','Segoe UI',system-ui,sans-serif}
 .green{color:var(--green)}.red{color:var(--red)}.muted{color:var(--muted);font-size:13px}.hide{display:none!important}
 .pad{padding:12px}
 
-/* ===== Mobile-first: topbar + nội dung 1 cột ===== */
-.sidebar{display:none}
-.main{min-width:0}
+/* Stage container in app-main */
+.app-main.stage{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:24px;padding:24px;background:radial-gradient(1100px 700px at 50% 20%, #1e293b 0%, #0b1120 100%);overflow-y:auto;position:relative;border-radius:0 28px 28px 0}
+@media(max-width:768px){.app-main.stage{border-radius:28px;padding:12px}}
 .topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px;background:#fff;border-bottom:1px solid var(--line)}
 .topbar h1{display:flex;align-items:center;gap:8px;font-size:17px}
 .topbar h1 a{color:var(--muted);text-decoration:none}
@@ -95,10 +95,8 @@ input:focus,select:focus,textarea:focus{outline:2px solid #c7d2fe;border-color:v
 
 
 /* ===== Trình xem kiểu Locket ===== */
-body{background:#0c0a09}
-.stage{display:flex;align-items:center;justify-content:center;gap:18px;min-height:100vh;padding:12px;background:radial-gradient(1200px 700px at 50% 0,#292524 0,#0c0a09 70%)}
-.locket{display:flex;flex-direction:column;align-items:center;width:min(430px,100%);height:min(920px,calc(100vh - 24px));padding:16px 16px 18px;border-radius:38px;background:linear-gradient(180deg,#2b2623 0,#1c1816 100%);box-shadow:0 30px 80px rgba(0,0,0,.55);border:1px solid #3a332f;color:#fafaf9;overflow:hidden}
-@media(max-width:560px){.stage{padding:0}.locket{width:100vw;height:100dvh;border-radius:0;border:0}}
+.locket{display:flex;flex-direction:column;align-items:center;width:min(420px,100%);height:min(860px,calc(100vh - 64px));padding:16px 16px 18px;border-radius:38px;background:linear-gradient(180deg,#2b2623 0,#1c1816 100%);box-shadow:0 30px 80px rgba(0,0,0,.55);border:1px solid #3a332f;color:#fafaf9;overflow:hidden}
+@media(max-width:560px){.locket{width:100vw;height:100dvh;border-radius:0;border:0}}
 .l-top{display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:12px}
 .l-round{position:relative;display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border:0;border-radius:50%;background:rgba(68,64,60,.75);color:#fafaf9;font-size:18px;text-decoration:none;cursor:pointer;overflow:hidden}
 .l-round .badge{position:absolute;top:2px;right:2px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#ef4444;color:#fff;font-size:11px;line-height:18px;text-align:center}
@@ -220,30 +218,13 @@ body{background:#0c0a09}
 .save-btn{width:100%;margin:14px 0 18px;padding:18px;border:0;border-radius:99px;background:#c026d3;color:#fff;font:700 18px inherit;cursor:pointer}
 .save-btn:disabled{opacity:.6;cursor:not-allowed}
 
-/* ===== Màn hình lớn ===== */
+/* ===== Màn hình lớn & Dialog ===== */
 @media(min-width:700px){
   .modal{align-items:center}
   .sheet{border-radius:20px}
 }
-@media(min-width:900px){
-  body{display:flex}
-  .sidebar{display:block;width:235px;flex-shrink:0;position:sticky;top:0;height:100vh;background:#0f172a}
-  .logo{display:flex;align-items:center;gap:10px;padding:20px 22px;border-bottom:1px solid #1e293b;color:#fff;font-size:19px;font-weight:700}
-  .logo i{color:#6366f1}
-  .nav{padding-top:12px}
-  .nav a{display:flex;align-items:center;gap:12px;padding:14px 22px;border-left:3px solid transparent;color:#cbd5e1;font-weight:500;text-decoration:none}
-  .nav a i{width:18px;text-align:center}
-  .nav a:hover,.nav a.active{background:#1e293b;color:#fff}
-  .nav a.active{border-left-color:var(--primary);font-weight:600}
-  .main{flex:1}
-  .topbar h1 a{display:none}
-  .fab{right:36px;bottom:32px}
-  .toast{bottom:36px}
-}
 
 /* ===== ĐỒNG NHẤT với màn camera: nền đen, điểm nhấn tím ===== */
-body{background:#000}
-.stage{background:radial-gradient(1000px 600px at 50% 0,#18181b 0,#000 70%)}
 .locket{padding:16px 14px 0;background:#000;border:1px solid #27272a;box-shadow:0 30px 80px rgba(0,0,0,.6)}
 .l-round,.l-pill{background:#27272a}
 .av-btn{border:2px solid #3f3f46}
@@ -277,21 +258,38 @@ body{background:#000}
 </style>
 </head>
 <body>
-<aside class="sidebar">
-  <div class="logo"><i class="fa-solid fa-wallet"></i> CashManager</div>
-  <nav class="nav">
-    <a href="dashboard.html"><i class="fa-solid fa-chart-pie"></i> Bảng điều khiển</a>
-    <a href="income.html"><i class="fa-solid fa-arrow-down"></i> Thu nhập</a>
-    <a href="expense.html"><i class="fa-solid fa-arrow-up"></i> Chi tiêu</a>
-    <a href="budget.html"><i class="fa-solid fa-piggy-bank"></i> Ngân sách</a>
-    <a href="report.html"><i class="fa-solid fa-chart-column"></i> Báo cáo</a>
-    <a href="map.html"><i class="fa-solid fa-map-location-dot"></i> Bản đồ thu chi</a>
-    <a href="shared.html"><i class="fa-solid fa-users"></i> Quỹ chung</a>
-    <a href="feed.html" class="active"><i class="fa-solid fa-camera-retro"></i> Bảng tin</a>
-  </nav>
-</aside>
+<div class="app-shell app-container">
+  <aside class="app-sidebar sidebar" id="appSidebar">
+    <div class="brand-logo-circle" title="Cổng Không Gian Làm Việc (Portal Hub)" onclick="window.location.href='portal.html'" style="cursor: pointer;">
+      <i class="fa-solid fa-bolt"></i>
+    </div>
+    <nav class="sidebar-menu">
+      <a href="feed.html" class="menu-item active" title="Ứng dụng điện thoại">
+        <i class="fa-solid fa-mobile-screen-button"></i>
+        <span class="tooltip">Ứng dụng điện thoại</span>
+      </a>
+      <a href="portal.html" class="menu-item" title="Cổng Không Gian">
+        <i class="fa-solid fa-layer-group"></i>
+        <span class="tooltip">Đổi không gian</span>
+      </a>
+    </nav>
+    <div class="sidebar-bottom">
+      <a href="portal.html" class="menu-item" title="Về Cổng">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span class="tooltip">Về Cổng</span>
+      </a>
+      <a href="account.html" class="menu-item" title="Cài đặt">
+        <i class="fa-solid fa-gear"></i>
+        <span class="tooltip">Cài đặt</span>
+      </a>
+      <a href="javascript:void(0)" class="menu-item" onclick="if(confirm('Bạn có chắc chắn muốn đăng xuất?')){fetch('../api/auth/logout.php',{method:'POST'}).finally(()=>{localStorage.clear();window.location.href='login.html'})}" title="Đăng xuất">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        <span class="tooltip">Đăng xuất</span>
+      </a>
+    </div>
+  </aside>
 
-<div class="main stage">
+  <main class="main-content app-main stage">
   <div class="locket">
     <header class="l-top">
       <a class="l-round av-btn" id="meAvatar" href="account.html" title="Tài khoản"><span>?</span></a>
@@ -334,6 +332,7 @@ body{background:#000}
     <button type="button" id="btnPrev" title="Bài trước (↑)" aria-label="Bài trước"><i class="fa-solid fa-chevron-up"></i></button>
     <button type="button" id="btnNext" title="Bài kế tiếp (↓)" aria-label="Bài kế tiếp"><i class="fa-solid fa-chevron-down"></i></button>
   </div>
+</main>
 </div>
 
 <!-- Lưới lịch sử -->

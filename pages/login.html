@@ -64,8 +64,8 @@
             width: 38px;
             height: 38px;
             border-radius: 11px;
-            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 55%, #4338ca 100%);
-            box-shadow: 0 6px 14px rgba(79, 70, 229, 0.28), inset 0 1px 1px rgba(255, 255, 255, 0.35);
+            background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 55%, #3b82f6 100%);
+            box-shadow: 0 6px 14px rgba(37, 99, 235, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.35);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -175,11 +175,11 @@
         }
         .auth-input:focus {
             background: #ffffff;
-            border-color: #6366f1;
-            box-shadow: 0 0 0 3.5px rgba(99, 102, 241, 0.14);
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3.5px rgba(37, 99, 235, 0.14);
         }
         .input-group-custom:focus-within .field-icon-left {
-            color: #4f46e5;
+            color: #2563eb;
         }
 
         .password-toggle-btn {
@@ -206,12 +206,12 @@
         .forgot-link {
             font-size: 0.82rem;
             font-weight: 600;
-            color: #4f46e5;
+            color: #2563eb;
             text-decoration: none;
             transition: color 0.15s;
         }
         .forgot-link:hover {
-            color: #3730a3;
+            color: #1d4ed8;
             text-decoration: underline;
         }
 
@@ -224,20 +224,20 @@
             font-weight: 700;
             font-family: inherit;
             color: #ffffff;
-            background: linear-gradient(90deg, #6366f1 0%, #5b3df5 50%, #4f46e5 100%);
+            background: linear-gradient(90deg, #1d4ed8 0%, #2563eb 50%, #3b82f6 100%);
             border: none;
             border-radius: 12px;
             cursor: pointer;
-            box-shadow: 0 10px 22px rgba(79, 70, 229, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 22px rgba(37, 99, 235, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.3);
             transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
         }
         .btn-primary-purple:hover {
-            background: linear-gradient(90deg, #4f46e5 0%, #4338ca 100%);
+            background: linear-gradient(90deg, #1e40af 0%, #1d4ed8 100%);
             transform: translateY(-1px);
-            box-shadow: 0 14px 26px rgba(79, 70, 229, 0.42), inset 0 1px 1px rgba(255, 255, 255, 0.35);
+            box-shadow: 0 14px 26px rgba(37, 99, 235, 0.42), inset 0 1px 1px rgba(255, 255, 255, 0.35);
         }
         .btn-primary-purple:active {
             transform: translateY(0);
@@ -433,7 +433,7 @@
                     if (role === 'admin') {
                         setTimeout(() => window.location.href = 'admin/dashboard.html', 800);
                     } else {
-                        setTimeout(() => window.location.href = 'dashboard.html', 800);
+                        setTimeout(() => window.location.href = 'portal.html', 800);
                     }
                 } else {
                     showToast('Thất bại', res ? (res.message || res.error) : 'Sai tài khoản hoặc mật khẩu', 'error');

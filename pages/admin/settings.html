@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cài Đặt Hệ Thống - CashManager Admin</title>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <link rel="stylesheet" href="../../assets/css/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --admin-primary: #7c3aed;
+            --admin-hover: #6d28d9;
+            --admin-bg-soft: #f5f3ff;
+        }
+        .admin-sidebar {
+            background: linear-gradient(180deg, #3b0764 0%, #581c87 50%, #6b21a8 100%) !important;
+        }
+        .admin-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.25rem 0.65rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-admin { background: #ede9fe; color: #6d28d9; border: 1px solid #ddd6fe; }
+        
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 1.5rem;
+        }
+        .setting-card {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+        .setting-card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .setting-card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--admin-bg-soft);
+            color: var(--admin-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            flex-shrink: 0;
+        }
+        .setting-card-title {
+            margin: 0;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-heading);
+        }
+        .setting-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.85rem 0;
+            border-bottom: 1px solid #f8fafc;
+            gap: 1rem;
+        }
+        .setting-row:last-child {
+            border-bottom: none;
+        }
+        .setting-label {
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 0.2rem;
+        }
+        .setting-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+        /* Toggle Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 46px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: #cbd5e1;
+            transition: .25s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .25s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--admin-primary); }
+        input:checked + .slider:before { transform: translateX(22px); }
+        .toast {
+            display: none;
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            z-index: 9999;
+            padding: 12px 20px;
+            border-radius: 10px;
+            background: #0f172a;
+            color: #fff;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            font-weight: 500;
+        }
+        .toast.show { display: block; }
+        .toast.err { background: #ef4444; }
+    </style>
+</head>
+<body>
+    <div class="app-container app-shell">
+        <!-- Sidebar Admin Chuẩn Fintech Slim 84px -->
+        <aside class="app-sidebar sidebar admin-sidebar" id="appSidebar">
+            <div class="brand-logo-circle" title="Cổng Quản Trị Hệ Thống" onclick="window.location.href='dashboard.html'" style="cursor: pointer; background: rgba(167, 139, 250, 0.25); border: 1px solid rgba(216, 180, 254, 0.4);">
+                <i class="fa-solid fa-shield-halved" style="color: #ffffff;"></i>
+            </div>
+            <nav class="sidebar-menu">
+                <a href="dashboard.html" class="menu-item" title="Tổng quan hệ thống">
+                    <i class="fa-solid fa-gauge-high"></i>
+                    <span class="tooltip">Tổng quan</span>
+                </a>
+                <a href="users.html" class="menu-item" title="Quản lý tài khoản">
+                    <i class="fa-solid fa-users-gear"></i>
+                    <span class="tooltip">Tài khoản</span>
+                </a>
+                <a href="categories.html" class="menu-item" title="Danh mục mặc định">
+                    <i class="fa-solid fa-tags"></i>
+                    <span class="tooltip">Danh mục</span>
+                </a>
+                <a href="system.html" class="menu-item" title="Thông báo & Hệ thống">
+                    <i class="fa-solid fa-bullhorn"></i>
+                    <span class="tooltip">Thông báo &amp; Sao lưu</span>
+                </a>
+                <a href="settings.html" class="menu-item active" title="Cài đặt hệ thống">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span class="tooltip">Cài đặt</span>
+                </a>
+            </nav>
+            <div class="sidebar-bottom">
+                <a href="../dashboard.html" class="menu-item" title="Xem trang Người dùng">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span class="tooltip">Về người dùng</span>
+                </a>
+                <a href="javascript:void(0)" class="menu-item" onclick="logoutAdmin()" title="Đăng xuất">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <span class="tooltip">Đăng xuất</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content app-main">
+            <header class="app-header header" style="padding: 1.25rem 2rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--text-heading); margin: 0;">Cài Đặt Hệ Thống Quản Trị</h2>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div style="display: flex; align-items: center; gap: 0.6rem;">
+                        <div style="width: 38px; height: 38px; border-radius: 50%; background: #7c3aed; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.05rem;">
+                            <i class="fa-solid fa-crown"></i>
+                        </div>
+                        <div>
+                            <div id="adminName" style="font-weight: 700; font-size: 0.92rem; color: var(--text-heading);">Admin</div>
+                            <div class="admin-badge badge-admin">Quản trị viên</div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="btnSaveTop" style="background: #7c3aed; border-color: #7c3aed; border-radius: var(--radius-pill); padding: 0.45rem 1.15rem; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-floppy-disk"></i> Lưu cài đặt
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-body" style="padding: 1.75rem 2rem 3rem; max-width: 1300px;">
+                <form id="adminSettingsForm">
+                    <div class="settings-grid">
+                        
+                        <!-- CARD 1: Cấu hình Vận hành & Hệ thống -->
+                        <div class="setting-card">
+                            <div class="setting-card-header">
+                                <div class="setting-card-icon"><i class="fa-solid fa-server"></i></div>
+                                <div>
+                                    <h3 class="setting-card-title">Vận Hành & Truy Cập</h3>
+                                    <small class="muted">Kiểm soát trạng thái hoạt động của toàn bộ ứng dụng</small>
+                                </div>
+                            </div>
+
+                            <div class="setting-row">
+                                <div>
+                                    <div class="setting-label">Chế độ bảo trì (Maintenance Mode)</div>
+                                    <p class="setting-desc">Khi bật, chỉ tài khoản Admin mới có thể truy cập hệ thống</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="maintenance_mode" name="maintenance_mode">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="setting-row">
+                                <div>
+                                    <div class="setting-label">Cho phép đăng ký tài khoản mới</div>
+                                    <p class="setting-desc">Mở hoặc tạm khóa trang đăng ký thành viên mới</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="allow_registration" name="allow_registration" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="setting-row">
+                                <div>
+                                    <div class="setting-label">Đăng nhập Google (OAuth2)</div>
+                                    <p class="setting-desc">Cho phép người dùng đăng nhập nhanh bằng tài khoản Google</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="google_login_enabled" name="google_login_enabled" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+
+                            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #f1f5f9;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <div>
+                                        <label style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px;">Tên ứng dụng</label>
+                                        <input type="text" id="app_name" name="app_name" class="form-control" value="CashManager" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px;">
+                                    </div>
+                                    <div>
+                                        <label style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px;">Phiên bản</label>
+                                        <input type="text" id="app_version" name="app_version" class="form-control" value="2.4.0" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CARD 2: Cấu hình Email & Máy chủ SMTP -->
+                        <div class="setting-card">
+                            <div class="setting-card-header">
+                                <div class="setting-card-icon"><i class="fa-solid fa-envelope"></i></div>
+                                <div>
+                                    <h3 class="setting-card-title">Máy Chủ Email (SMTP)</h3>
+                                    <small class="muted">Cấu hình gửi email cảnh báo ngân sách và OTP</small>
+                                </div>
+                            </div>
+
+                            <div style="display: grid; gap: 12px;">
+                                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
+                                    <div>
+                                        <label style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px;">Máy chủ SMTP (Host)</label>
+                                        <input type="text" id="mail_host" name="mail_host" value="smtp.gmail.com" class="form-control" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px;">
+                                    </div>
+                                    <div>
+                                        <label style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px;">Cổng (Port)</label>
+                                        <input type="number" id="mail_port" name="mail_port" value="587" class="form-control" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px;">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px;">Tài khoản gửi (Email User)</label>
+                                    <input type="email" id="mail_user" name="mail_user" value="cashmanager.contact@gmail.com" class="form-control" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px;">
+                                </div>
+
+                                <div style="display: flex; gap: 8px; align-items: center; margin-top: 6px;">
+                                    <button type="button" class="btn btn-outline" id="btnTestMail" style="padding: 7px 14px; font-size: 0.82rem; font-weight: 600; border-color: #cbd5e1; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px;">
+                                        <i class="fa-solid fa-paper-plane"></i> Gửi thử email kiểm tra
+                                    </button>
+                                    <span id="mailTestStatus" style="font-size: 0.8rem; color: var(--text-muted);"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CARD 3: Cấu hình Trí tuệ nhân tạo Gemini AI -->
+                        <div class="setting-card">
+                            <div class="setting-card-header">
+                                <div class="setting-card-icon" style="background: #fdf2f8; color: #db2777;"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                                <div>
+                                    <h3 class="setting-card-title">Trí Tuệ Nhân Tạo (Gemini AI)</h3>
+                                    <small class="muted">Tối ưu tốc độ trợ lý tài chính &amp; Quét hóa đơn OCR</small>
+                                </div>
+                            </div>
+
+                            <div class="setting-row">
+                                <div>
+                                    <div class="setting-label">Trạng thái mô hình AI</div>
+                                    <p class="setting-desc">Kết nối Google Gemini Interactions &amp; Live API</p>
+                                </div>
+                                <span class="admin-badge badge-active"><i class="fa-solid fa-circle-check"></i> Đang hoạt động</span>
+                            </div>
+
+                            <div style="margin-top: 1rem;">
+                                <label style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px;">Mô hình AI mặc định</label>
+                                <select id="ai_model" name="ai_model" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px; background: #fff;">
+                                    <option value="gemini-2.0-flash" selected>⚡ Gemini 2.0 Flash (Tốc độ cao nhất &amp; Ổn định)</option>
+                                    <option value="gemini-1.5-flash">🚀 Gemini 1.5 Flash (Bản tiêu chuẩn)</option>
+                                    <option value="gemini-1.5-pro">🧠 Gemini 1.5 Pro (Phân tích tài chính chuyên sâu)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- CARD 4: Thông số Tài chính & Hạn mức mặc định -->
+                        <div class="setting-card">
+                            <div class="setting-card-header">
+                                <div class="setting-card-icon" style="background: #ecfdf5; color: #059669;"><i class="fa-solid fa-piggy-bank"></i></div>
+                                <div>
+                                    <h3 class="setting-card-title">Hạn Mức &amp; Tiền Tệ Mặc Định</h3>
+                                    <small class="muted">Thiết lập quy chuẩn tài chính cho người dùng mới</small>
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                                <div>
+                                    <label style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px;">Ngưỡng cảnh báo mặc định</label>
+                                    <select id="default_threshold" name="default_threshold" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px; background: #fff;">
+                                        <option value="70">70% hạn mức</option>
+                                        <option value="80" selected>80% hạn mức (Khuyên dùng)</option>
+                                        <option value="90">90% hạn mức</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px;">Đơn vị tiền tệ chính</label>
+                                    <select id="default_currency" name="default_currency" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px; background: #fff;">
+                                        <option value="VND" selected>VND (đ) - Việt Nam Đồng</option>
+                                        <option value="USD">USD ($) - Đô la Mỹ</option>
+                                        <option value="EUR">EUR (€) - Euro</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end;">
+                                <button type="submit" class="btn btn-primary" id="btnSaveBottom" style="background: #7c3aed; border-color: #7c3aed; padding: 0.6rem 1.4rem; border-radius: 8px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+                                    <i class="fa-solid fa-check"></i> Lưu tất cả cài đặt
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const $ = id => document.getElementById(id);
+        const toast = (msg, err) => {
+            const t = $('toast');
+            t.textContent = msg;
+            t.className = 'toast show' + (err ? ' err' : '');
+            setTimeout(() => { t.className = 'toast'; }, 3000);
+        };
+
+        async function logoutAdmin() {
+            if (!confirm('Bạn có chắc chắn muốn đăng xuất tài khoản quản trị?')) return;
+            try {
+                await fetch('../../api/auth/logout.php', { method: 'POST', credentials: 'same-origin' });
+            } catch (_) {}
+            localStorage.clear();
+            window.location.href = '../login.html';
+        }
+
+        async function initAdminSettings() {
+            // Xác thực admin
+            try {
+                const meRes = await fetch('../../api/auth/me.php', { credentials: 'same-origin' });
+                const meData = await meRes.json();
+                if (!meRes.ok || !meData.user || meData.user.role !== 'admin') {
+                    window.location.href = '../login.html';
+                    return;
+                }
+                $('adminName').textContent = meData.user.full_name || meData.user.username;
+            } catch (_) {
+                window.location.href = '../login.html';
+                return;
+            }
+
+            // Tải cấu hình hiện tại
+            try {
+                const res = await fetch('../../api/admin/settings.php', { credentials: 'same-origin' });
+                const data = await res.json();
+                if (data.success && data.settings) {
+                    const s = data.settings;
+                    if ($('maintenance_mode')) $('maintenance_mode').checked = s.maintenance_mode === '1';
+                    if ($('allow_registration')) $('allow_registration').checked = s.allow_registration === '1';
+                    if ($('google_login_enabled')) $('google_login_enabled').checked = s.google_login_enabled === '1';
+                    if ($('app_name')) $('app_name').value = s.app_name || 'CashManager';
+                    if ($('app_version')) $('app_version').value = s.app_version || '2.4.0';
+                    if ($('mail_host')) $('mail_host').value = s.mail_host || 'smtp.gmail.com';
+                    if ($('mail_port')) $('mail_port').value = s.mail_port || '587';
+                    if ($('mail_user')) $('mail_user').value = s.mail_user || 'cashmanager.contact@gmail.com';
+                    if ($('ai_model')) $('ai_model').value = s.ai_model || 'gemini-2.0-flash';
+                    if ($('default_threshold')) $('default_threshold').value = s.default_threshold || '80';
+                    if ($('default_currency')) $('default_currency').value = s.default_currency || 'VND';
+                }
+            } catch (e) {
+                toast('Lỗi khi tải cấu hình', true);
+            }
+        }
+
+        // Lưu cài đặt
+        async function saveSettings(e) {
+            if (e) e.preventDefault();
+            const payload = {
+                maintenance_mode: $('maintenance_mode').checked ? '1' : '0',
+                allow_registration: $('allow_registration').checked ? '1' : '0',
+                google_login_enabled: $('google_login_enabled').checked ? '1' : '0',
+                app_name: $('app_name').value.trim(),
+                app_version: $('app_version').value.trim(),
+                mail_host: $('mail_host').value.trim(),
+                mail_port: $('mail_port').value.trim(),
+                mail_user: $('mail_user').value.trim(),
+                ai_model: $('ai_model').value,
+                default_threshold: $('default_threshold').value,
+                default_currency: $('default_currency').value
+            };
+
+            const btnSave = $('btnSaveTop');
+            btnSave.disabled = true;
+            btnSave.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang lưu...';
+
+            try {
+                const res = await fetch('../../api/admin/settings.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify(payload)
+                });
+                const j = await res.json();
+                if (j.success) {
+                    toast(j.message || 'Đã lưu cấu hình hệ thống!');
+                } else {
+                    toast(j.error || 'Có lỗi xảy ra', true);
+                }
+            } catch (err) {
+                toast('Không thể kết nối máy chủ', true);
+            } finally {
+                btnSave.disabled = false;
+                btnSave.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Lưu cài đặt';
+            }
+        }
+
+        $('adminSettingsForm').onsubmit = saveSettings;
+        $('btnSaveTop').onclick = saveSettings;
+
+        // Thử gửi mail kiểm tra
+        $('btnTestMail').onclick = async () => {
+            const btn = $('btnTestMail');
+            const status = $('mailTestStatus');
+            btn.disabled = true;
+            status.textContent = 'Đang gửi...';
+
+            try {
+                const res = await fetch('../../api/admin/settings.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ action: 'test_mail' })
+                });
+                const j = await res.json();
+                if (j.success) {
+                    status.innerHTML = '<span style="color:#059669;"><i class="fa-solid fa-circle-check"></i> ' + j.message + '</span>';
+                    toast('Đã gửi email kiểm tra thành công!');
+                } else {
+                    status.innerHTML = '<span style="color:#dc2626;"><i class="fa-solid fa-circle-xmark"></i> ' + (j.error || 'Gửi thất bại') + '</span>';
+                    toast(j.error || 'Gửi thất bại', true);
+                }
+            } catch (_) {
+                status.textContent = 'Lỗi kết nối';
+            } finally {
+                btn.disabled = false;
+            }
+        };
+
+        initAdminSettings();
+    </script>
+</body>
+</html>

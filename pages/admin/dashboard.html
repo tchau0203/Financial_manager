@@ -83,26 +83,48 @@
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Sidebar Admin -->
-        <aside class="sidebar admin-sidebar">
-            <div class="sidebar-brand">
-                <i class="fa-solid fa-shield-halved" style="color: #a78bfa; margin-right: 0.5rem;"></i> CashManager
-                <span style="font-size: 0.7rem; background: #7c3aed; color: #fff; padding: 2px 6px; border-radius: 4px; margin-left: 4px;">ADMIN</span>
+    <div class="app-container app-shell">
+        <!-- Sidebar Admin Chuẩn Fintech Slim 84px -->
+        <aside class="app-sidebar sidebar admin-sidebar" id="appSidebar">
+            <div class="brand-logo-circle" title="Cổng Quản Trị Hệ Thống" onclick="window.location.href='dashboard.html'" style="cursor: pointer; background: rgba(167, 139, 250, 0.25); border: 1px solid rgba(216, 180, 254, 0.4);">
+                <i class="fa-solid fa-shield-halved" style="color: #ffffff;"></i>
             </div>
-            <ul class="sidebar-menu">
-                <li class="active"><a href="dashboard.html"><i class="fa-solid fa-gauge-high"></i> Tổng quan hệ thống</a></li>
-                <li><a href="users.html"><i class="fa-solid fa-users-gear"></i> Quản lý tài khoản</a></li>
-                <li><a href="categories.html"><i class="fa-solid fa-tags"></i> Danh mục mặc định</a></li>
-                <li><a href="system.html"><i class="fa-solid fa-bullhorn"></i> Thông báo & Hệ thống</a></li>
-                <li style="margin-top: 1.5rem; border-top: 1px solid #1e293b; padding-top: 0.75rem;">
-                    <a href="../dashboard.html"><i class="fa-solid fa-wallet"></i> Xem trang Người dùng</a>
-                </li>
-            </ul>
+            <nav class="sidebar-menu">
+                <a href="dashboard.html" class="menu-item active" title="Tổng quan hệ thống">
+                    <i class="fa-solid fa-gauge-high"></i>
+                    <span class="tooltip">Tổng quan</span>
+                </a>
+                <a href="users.html" class="menu-item" title="Quản lý tài khoản">
+                    <i class="fa-solid fa-users-gear"></i>
+                    <span class="tooltip">Tài khoản</span>
+                </a>
+                <a href="categories.html" class="menu-item" title="Danh mục mặc định">
+                    <i class="fa-solid fa-tags"></i>
+                    <span class="tooltip">Danh mục</span>
+                </a>
+                <a href="system.html" class="menu-item" title="Thông báo & Hệ thống">
+                    <i class="fa-solid fa-bullhorn"></i>
+                    <span class="tooltip">Thông báo &amp; Sao lưu</span>
+                </a>
+                <a href="settings.html" class="menu-item" title="Cài đặt hệ thống">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span class="tooltip">Cài đặt</span>
+                </a>
+            </nav>
+            <div class="sidebar-bottom">
+                <a href="../dashboard.html" class="menu-item" title="Xem trang Người dùng">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span class="tooltip">Về người dùng</span>
+                </a>
+                <a href="javascript:void(0)" class="menu-item" onclick="if(confirm('Bạn có chắc chắn muốn đăng xuất tài khoản quản trị?')){fetch('../../api/auth/logout.php',{method:'POST'}).finally(()=>{localStorage.clear();window.location.href='../login.html'})}" title="Đăng xuất">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <span class="tooltip">Đăng xuất</span>
+                </a>
+            </div>
         </aside>
 
         <!-- Main Content -->
-        <main class="main-content">
+        <main class="main-content app-main">
             <header class="header">
                 <div style="display: flex; align-items: center; gap: 0.75rem;">
                     <h2 style="font-size: 1.25rem; margin: 0;">Bảng Điều Khiển Quản Trị Hệ Thống</h2>

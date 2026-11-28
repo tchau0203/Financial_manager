@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông Báo - Quản Lý Chi Tiêu</title>
+    <link rel="manifest" href="../manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <link rel="stylesheet" href="../assets/css/style.css?v=20261128_v1">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .notif-item {
+            display: flex;
+            gap: 1.25rem;
+            align-items: flex-start;
+            padding: 1.15rem 1.35rem;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s ease;
+        }
+        .notif-item:hover {
+            background: #f8fafc;
+        }
+        .notif-item:last-child {
+            border-bottom: none;
+        }
+        .notif-icon-circle {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        .notif-icon-circle.info { background: #eff6ff; color: #2563eb; }
+        .notif-icon-circle.warning { background: #fffbeb; color: #f59e0b; }
+        .notif-icon-circle.success { background: #ecfdf5; color: #10b981; }
+        .notif-icon-circle.danger { background: #fef2f2; color: #ef4444; }
+        .notif-content { flex: 1; }
+        .notif-title { font-weight: 700; color: var(--text-heading); font-size: 0.95rem; margin-bottom: 0.25rem; }
+        .notif-desc { color: var(--text-muted); font-size: 0.88rem; line-height: 1.45; }
+        .notif-time { font-size: 0.78rem; color: var(--text-light); margin-top: 0.4rem; }
+    </style>
+</head>
+<body>
+    <div class="app-shell app-container">
+        <!-- SLIM ROYAL BLUE SIDEBAR -->
+        <aside class="app-sidebar sidebar" id="appSidebar">
+            <div class="brand-logo-circle" title="Cổng Không Gian Làm Việc (Portal Hub)" onclick="window.location.href='portal.html'" style="cursor: pointer;">
+                <i class="fa-solid fa-bolt"></i>
+            </div>
+            <nav class="sidebar-menu">
+                <a href="dashboard.html" class="menu-item">
+                    <i class="fa-solid fa-table-cells-large"></i>
+                    <span class="tooltip">Bảng điều khiển</span>
+                </a>
+                <a href="transactions.html" class="menu-item">
+                    <i class="fa-solid fa-book-bookmark"></i>
+                    <span class="tooltip">Sổ giao dịch & Báo cáo</span>
+                </a>
+                <a href="budget.html" class="menu-item">
+                    <i class="fa-solid fa-piggy-bank"></i>
+                    <span class="tooltip">Ngân sách</span>
+                </a>
+                <a href="map.html" class="menu-item">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                    <span class="tooltip">Bản đồ</span>
+                </a>
+                <a href="notifications.html" class="menu-item active">
+                    <i class="fa-regular fa-bell"></i>
+                    <span class="tooltip">Thông báo</span>
+                </a>
+                <a href="portal.html" class="menu-item" title="Cổng Không Gian">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <span class="tooltip">Đổi không gian</span>
+                </a>
+            </nav>
+            <div class="sidebar-bottom">
+                <a href="account.html" class="menu-item" title="Tài khoản">
+                    <i class="fa-solid fa-gear"></i>
+                    <span class="tooltip">Cài đặt</span>
+                </a>
+                <a href="javascript:void(0)" class="menu-item" onclick="if(confirm('Bạn có chắc chắn muốn đăng xuất?')){fetch('../api/auth/logout.php',{method:'POST'}).finally(()=>{localStorage.clear();window.location.href='login.html'})}" title="Đăng xuất">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <span class="tooltip">Đăng xuất</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- MAIN VIEW -->
+        <main class="main-content app-main">
+            <header class="app-header header">
+                <div class="header-left">
+                    <h1 class="page-title" style="margin: 0; font-size: 1.5rem; font-weight: 800; color: var(--text-heading);">Thông báo</h1>
+                </div>
+
+                <div class="header-search">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" class="search-pill" placeholder="Tìm kiếm thông báo, cảnh báo chi tiêu...">
+                </div>
+
+                <div class="header-right">
+                    <button type="button" class="btn-ai-header" onclick="window.location.href='dashboard.html'" title="Trợ lý tài chính AI">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>Trợ lý AI</span>
+                    </button>
+                    <div class="date-pill" id="currentDatePill">
+                        <i class="fa-regular fa-calendar"></i>
+                        <span>28 Tháng 11, 2026</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-body" style="max-width: 1000px; margin: 0 auto; width: 100%;">
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="margin: 0; font-size: 1.1rem; font-weight: 700;">Hộp thư thông báo</h3>
+                        <span style="font-size: 0.85rem; color: var(--primary); font-weight: 600; cursor: pointer;">Đánh dấu tất cả đã đọc</span>
+                    </div>
+                    <div class="notif-list" id="notifList">
+                        <div class="notif-item">
+                            <div class="notif-icon-circle success"><i class="fa-solid fa-piggy-bank"></i></div>
+                            <div class="notif-content">
+                                <div class="notif-title">Mục tiêu tiết kiệm đạt 92%</div>
+                                <div class="notif-desc">Bạn đang quản lý chi tiêu rất tốt trong tháng 11. Số dư ròng hiện tại đang dương 2.300.000 đ.</div>
+                                <div class="notif-time">15 phút trước</div>
+                            </div>
+                        </div>
+                        <div class="notif-item">
+                            <div class="notif-icon-circle warning"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                            <div class="notif-content">
+                                <div class="notif-title">Cảnh báo hạn mức Ăn uống</div>
+                                <div class="notif-desc">Danh mục Ăn uống đã sử dụng 85% hạn mức ngân sách tháng này.</div>
+                                <div class="notif-time">2 giờ trước</div>
+                            </div>
+                        </div>
+                        <div class="notif-item">
+                            <div class="notif-icon-circle info"><i class="fa-solid fa-users"></i></div>
+                            <div class="notif-content">
+                                <div class="notif-title">Giao dịch mới trong Quỹ chung</div>
+                                <div class="notif-desc">Thành viên vừa thêm khoản chi 150.000 đ cho chi phí sinh hoạt nhóm.</div>
+                                <div class="notif-time">Hôm qua lúc 18:30</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="../assets/js/pwa.js"></script>
+    <script src="../assets/js/ai_chat_widget.js?v=20261128"></script>
+</body>
+</html>

@@ -2,991 +2,1424 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bảng Điều Khiển - Quản Lý Chi Tiêu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CashManager - Modern Clean Fintech Dashboard</title>
     <link rel="manifest" href="../manifest.json">
-    <meta name="theme-color" content="#4f46e5">
+    <meta name="theme-color" content="#2563eb">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="CashManager">
-    <link rel="stylesheet" href="../assets/css/style.css?v=20261127_m5">
-    <link rel="stylesheet" href="../assets/css/components.css?v=20261127_m5">
+
+    <!-- Fonts: Inter & Plus Jakarta Sans / Space Grotesk -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Global App Styles -->
+    <link rel="stylesheet" href="../assets/css/style.css?v=20261128">
+
+    <!-- Chart.js 4.4.1 UMD -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
     <style>
-/* ===== Trợ lý AI: đánh giá tự động ===== */
-.ai-box{margin-bottom:1.5rem}
-.ai-head{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
-.ai-head h3{margin:0}
-.ai-btn{padding:.55rem 1.1rem;border:0;border-radius:999px;background:linear-gradient(135deg,#6366f1,#a855f7);color:#fff;font-weight:600;cursor:pointer}
-.ai-btn:disabled{opacity:.6;cursor:wait}
-#aiResult:not(:empty){margin-top:1rem;padding-top:1rem;border-top:1px dashed #e2e8f0}
-.ai-review{display:flex;gap:1.25rem;align-items:flex-start}
-.ai-grade{flex-shrink:0;width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:2.3rem;font-weight:800;animation:aiPop .6s cubic-bezier(.34,1.56,.64,1) both}
-.ai-grade.A{background:#10b981}.ai-grade.B{background:#3b82f6}.ai-grade.C{background:#f59e0b}.ai-grade.D{background:#ef4444}
-@keyframes aiPop{0%{transform:scale(0) rotate(-120deg)}100%{transform:scale(1) rotate(0)}}
-.ai-text{line-height:1.65;white-space:pre-line}
-.ai-text.typing::after{content:"▍";color:#6366f1;animation:aiBlink .8s steps(1) infinite}
-@keyframes aiBlink{50%{opacity:0}}
-.ai-tips{margin-top:.75rem;padding-left:1.25rem;line-height:1.6}
-@media(max-width:600px){.ai-review{flex-direction:column;align-items:center;text-align:center}}
-
-/* ===== [HUY] Chatbot AI hỏi - đáp dạng Popup thu nhỏ góc phải (giống Meta AI / Messenger) ===== */
-.ai-fab {
-    position: fixed;
-    right: 24px;
-    bottom: 24px;
-    z-index: 990;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 18px 10px 14px;
-    border: none;
-    border-radius: 999px;
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-    color: #ffffff;
-    font-family: inherit;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 8px 24px rgba(79, 70, 229, 0.4);
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.ai-fab:hover {
-    transform: translateY(-2px) scale(1.03);
-    box-shadow: 0 12px 28px rgba(79, 70, 229, 0.5);
-}
-.ai-fab-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    font-size: 0.95rem;
-}
-.ai-chat-widget {
-    position: fixed;
-    right: 24px;
-    bottom: 24px;
-    width: 380px;
-    max-width: calc(100vw - 32px);
-    height: 530px;
-    max-height: calc(100vh - 80px);
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-    background: #ffffff;
-    border-radius: 16px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 16px 48px rgba(15, 23, 42, 0.22);
-    overflow: hidden;
-    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
-}
-.ai-chat-widget.collapsed {
-    display: none !important;
-}
-.ai-widget-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 16px;
-    background: #ffffff;
-    border-bottom: 1px solid #f1f5f9;
-}
-.ai-widget-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.ai-widget-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #6366f1, #a855f7);
-    color: #fff;
-    font-size: 0.95rem;
-}
-.ai-widget-actions {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-.ai-widget-btn {
-    width: 30px;
-    height: 30px;
-    border-radius: 8px;
-    border: none;
-    background: transparent;
-    color: #64748b;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.15s, color 0.15s;
-}
-.ai-widget-btn:hover {
-    background: #f1f5f9;
-    color: #0f172a;
-}
-.ai-widget-body {
-    flex: 1;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-    padding: 12px;
-    background: #f8fafc;
-    overflow: hidden;
-}
-.ai-widget-body .aic-list {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    margin-bottom: 8px;
-    padding: 10px;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: .75rem;
-}
-.aic-msg { display: flex; gap: .6rem; max-width: 92%; }
-.aic-msg.me { align-self: flex-end; flex-direction: row-reverse; }
-.aic-av { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; flex-shrink: 0; border-radius: 50%; background: linear-gradient(135deg,#6366f1,#a855f7); color: #fff; font-size: .8rem; }
-.aic-bub { padding: .55rem .85rem; border: 1px solid #e2e8f0; border-radius: 14px; background: #fff; line-height: 1.5; font-size: 0.88rem; word-break: break-word; }
-.aic-msg.me .aic-bub { border-color: var(--primary,#4f46e5); background: var(--primary,#4f46e5); color: #fff; }
-.aic-msg.err .aic-bub { border-color: #fecaca; background: #fef2f2; color: #b91c1c; }
-.aic-bub p { margin: 0 0 .4rem; } .aic-bub p:last-child { margin: 0; }
-.aic-bub ul, .aic-bub ol { margin: .25rem 0 .4rem 1.15rem; }
-.ai-widget-body .aic-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 4px;
-    max-height: 80px;
-    overflow-y: auto;
-}
-.ai-widget-body .aic-chip {
-    padding: 4px 10px;
-    border: 1px solid #c7d2fe;
-    border-radius: 999px;
-    background: #eef2ff;
-    color: var(--primary,#4f46e5);
-    font-family: inherit;
-    font-size: 0.78rem;
-    font-weight: 500;
-    text-align: left;
-    cursor: pointer;
-    transition: background 0.15s;
-}
-.ai-widget-body .aic-chip:hover { background: #e0e7ff; }
-.ai-widget-body .aic-chip:disabled, .aic-send:disabled { opacity: .55; cursor: not-allowed; }
-.ai-widget-footer {
-    padding: 10px 14px;
-    background: #ffffff;
-    border-top: 1px solid #f1f5f9;
-}
-.ai-widget-footer .aic-form { display: flex; gap: 8px; align-items: center; }
-.ai-widget-footer .aic-form .form-control { flex: 1; min-width: 0; font-size: 0.88rem; padding: 8px 12px; }
-.ai-widget-footer .aic-send { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; padding: 0; border-radius: 8px; flex-shrink: 0; }
-@media (max-width: 480px) {
-    .ai-chat-widget { right: 12px; bottom: 12px; width: calc(100vw - 24px); height: 82vh; }
-    .ai-fab { right: 16px; bottom: 16px; }
-}
-/* Hỗ trợ Dark Mode cho Chatbot Widget */
-body.dark-mode .ai-chat-widget { background: #1e293b; border-color: #334155; box-shadow: 0 16px 48px rgba(0,0,0,0.5); }
-body.dark-mode .ai-widget-header { background: #1e293b; border-color: #334155; }
-body.dark-mode .ai-widget-title div { color: #f8fafc; }
-body.dark-mode .ai-widget-btn { color: #94a3b8; }
-body.dark-mode .ai-widget-btn:hover { background: #334155; color: #f8fafc; }
-body.dark-mode .ai-widget-body { background: #0f172a; }
-body.dark-mode .ai-widget-body .aic-list { background: #1e293b; border-color: #334155; }
-body.dark-mode .aic-bub { background: #334155; color: #f1f5f9; border-color: #475569; }
-body.dark-mode .ai-widget-footer { background: #1e293b; border-color: #334155; }
-body.dark-mode .ai-widget-footer .form-control { background: #0f172a; border-color: #334155; color: #f8fafc; }
-    
-/* ===== Mobile Responsive Override (Inline để tránh cache) ===== */
-@media (max-width: 768px) {
-    .sidebar {
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        bottom: 0 !important;
-        width: 280px !important;
-        max-width: 82vw !important;
-        background: #0f172a !important;
-        z-index: 1050 !important;
-        transform: translateX(-100%) !important;
-        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-        display: flex !important;
-        flex-direction: column !important;
-        box-shadow: none;
-    }
-    .sidebar.open {
-        transform: translateX(0) !important;
-        box-shadow: 0 0 50px rgba(0,0,0,0.6) !important;
-    }
-    .sidebar-brand {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-        padding: 0 1.25rem !important;
-    }
-    .btn-sidebar-close {
-        display: flex !important;
-        align-items: center;
-        justify-content: center;
-        width: 34px;
-        height: 34px;
-        border-radius: 50%;
-        border: none;
-        background: rgba(255,255,255,0.12);
-        color: #fff;
-        font-size: 1.1rem;
-        cursor: pointer;
-    }
-    .sidebar-backdrop {
-        position: fixed;
-        inset: 0;
-        background: rgba(15,23,42,0.6);
-        backdrop-filter: blur(2px);
-        -webkit-backdrop-filter: blur(2px);
-        z-index: 1040;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.3s ease;
-    }
-    .sidebar-backdrop.show {
-        opacity: 1;
-        pointer-events: auto;
-    }
-    .main-content {
-        margin-left: 0 !important;
-        padding-bottom: 74px !important;
-    }
-    .header {
-        height: 56px !important;
-        padding: 0 10px !important;
-        gap: 6px !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: flex-start !important;
-    }
-    .btn-sidebar-toggle {
-        display: inline-flex !important;
-        align-items: center;
-        justify-content: center;
-        width: 38px;
-        height: 38px;
-        min-width: 38px;
-        border-radius: 8px;
-        border: 1px solid #334155;
-        background: #1e293b;
-        color: #f8fafc;
-        font-size: 1.15rem;
-        cursor: pointer;
-        padding: 0;
-        margin-right: 4px;
-        flex-shrink: 0;
-    }
-    .page-header-title {
-        font-size: 1rem !important;
-        font-weight: 700 !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        flex: 1 1 auto !important;
-        min-width: 0 !important;
-    }
-    .header-user-nav {
-        gap: 6px !important;
-        margin-left: auto !important;
-        flex-shrink: 0 !important;
-    }
-    .user-profile-name {
-        display: none !important;
-    }
-    .user-profile-btn {
-        padding: 4px 6px !important;
-        gap: 4px !important;
-    }
-    .btn-quick-tx {
-        padding: 6px 10px !important;
-        font-size: 0.8rem !important;
-        gap: 4px !important;
-    }
-    @media (max-width: 420px) {
-        .btn-quick-tx .tx-text { display: none !important; }
-        .btn-quick-tx {
-            padding: 6px 8px !important;
-            border-radius: 50% !important;
-            width: 34px !important;
-            height: 34px !important;
-            min-width: 34px !important;
-            justify-content: center !important;
+        /* =========================================================
+           CSS VARIABLES & RESET - MODERN CLEAN FINTECH (IMAGE DESIGN)
+           ========================================================= */
+        :root {
+            --bg-outer: #e9eef5;
+            --bg-canvas: #f4f7fb;
+            --bg-card: #ffffff;
+            --bg-input: #f1f5f9;
+            
+            --primary-blue: #2563eb;
+            --primary-blue-dark: #1d4ed8;
+            --primary-blue-light: #eff6ff;
+            --primary-gradient: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #3b82f6 100%);
+            --card-gradient: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #1e40af 100%);
+            
+            --color-success: #10b981;
+            --color-success-bg: #ecfdf5;
+            --color-warning: #f59e0b;
+            --color-danger: #ef4444;
+            --color-danger-bg: #fef2f2;
+            
+            --text-heading: #0f172a;
+            --text-body: #334155;
+            --text-muted: #64748b;
+            --text-light: #94a3b8;
+            
+            --shadow-subtle: 0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+            --shadow-card: 0 10px 25px -4px rgba(15, 23, 42, 0.06), 0 4px 10px -2px rgba(15, 23, 42, 0.03);
+            --shadow-hover: 0 14px 30px -4px rgba(15, 23, 42, 0.1), 0 6px 12px -2px rgba(15, 23, 42, 0.04);
+            
+            --radius-app: 28px;
+            --radius-card: 22px;
+            --radius-pill: 9999px;
+            --radius-sm: 12px;
+            
+            --font-main: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
+            --sidebar-width: 84px;
         }
-    }
-    .content-body {
-        padding: 12px 14px !important;
-    }
-    .grid-kpi {
-        grid-template-columns: 1fr !important;
-        gap: 10px !important;
-        margin-bottom: 1.25rem !important;
-    }
-    .card {
-        padding: 1rem !important;
-        border-radius: 14px !important;
-    }
-    .card-title {
-        font-size: 0.78rem !important;
-    }
-    .card-value {
-        font-size: 1.5rem !important;
-    }
-    .ai-fab {
-        bottom: 74px !important;
-        right: 12px !important;
-        padding: 8px 14px !important;
-        font-size: 0.85rem !important;
-    }
-    .ai-chat-widget {
-        right: 8px !important;
-        bottom: 68px !important;
-        width: calc(100vw - 16px) !important;
-        height: calc(100vh - 120px) !important;
-    }
-    .mobile-bottom-nav {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 60px;
-        background: #1e293b;
-        border-top: 1px solid #334155;
-        box-shadow: 0 -2px 12px rgba(15,23,42,0.25);
-        z-index: 950;
-        display: flex;
-        align-items: center;
-        justify-content: space-around;
-        padding: 0 4px;
-        padding-bottom: env(safe-area-inset-bottom, 0);
-    }
-    .mb-nav-item {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 3px;
-        height: 100%;
-        color: #94a3b8;
-        text-decoration: none;
-        font-size: 0.7rem;
-        font-weight: 500;
-        background: none;
-        border: none;
-        cursor: pointer;
-    }
-    .mb-nav-item i { font-size: 1.15rem; }
-    .mb-nav-item.active, .mb-nav-item:active {
-        color: #6366f1 !important;
-        font-weight: 700;
-    }
-}
-@media (min-width: 769px) {
-    .btn-sidebar-toggle { display: none !important; }
-    .btn-sidebar-close { display: none !important; }
-    .sidebar-backdrop { display: none !important; }
-    .mobile-bottom-nav { display: none !important; }
-}
 
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-    .header {
-        position: sticky !important;
-        top: 0 !important;
-        z-index: 999 !important;
-        background: #0f172a !important;
-    }
-    .user-dropdown-wrapper {
-        position: relative !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        z-index: 1001 !important;
-    }
-    .user-dropdown-menu {
-        position: absolute !important;
-        top: calc(100% + 8px) !important;
-        right: 0 !important;
-        z-index: 1002 !important;
-    }
-    .modal {
-        z-index: 1100 !important;
-    }
-    input, select, textarea {
-        font-size: 16px !important;
-    }
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-outer);
+            color: var(--text-body);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            letter-spacing: -0.01em;
+            line-height: 1.45;
+        }
 
-</style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: var(--radius-pill);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* =========================================================
+           MAIN APP CONTAINER (Tablet/Desktop Shell like reference)
+           ========================================================= */
+        .app-shell {
+            width: 100%;
+            max-width: 1440px;
+            background-color: var(--bg-canvas);
+            border-radius: var(--radius-app);
+            box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.12), 0 0 1px 1px rgba(255, 255, 255, 0.8) inset;
+            display: flex;
+            min-height: 900px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* =========================================================
+           ROYAL BLUE ICON SIDEBAR (Left Column)
+           ========================================================= */
+        .app-sidebar {
+            width: var(--sidebar-width);
+            background: var(--primary-gradient);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.75rem 0;
+            z-index: 50;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .brand-logo-circle {
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 1.4rem;
+            font-weight: 800;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+            margin-bottom: 2.25rem;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .brand-logo-circle:hover {
+            transform: scale(1.05);
+        }
+
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            align-items: center;
+            flex: 1;
+            width: 100%;
+        }
+
+        .menu-item {
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 1.15rem;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+
+        .menu-item:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Active State: White pill background with blue icon */
+        .menu-item.active {
+            background: #ffffff;
+            color: var(--primary-blue);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .menu-item .tooltip {
+            position: absolute;
+            left: 70px;
+            background: #0f172a;
+            color: #ffffff;
+            padding: 0.35rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 100;
+        }
+
+        .menu-item:hover .tooltip {
+            opacity: 1;
+        }
+
+        .sidebar-bottom {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            align-items: center;
+        }
+
+        /* =========================================================
+           MAIN APP CONTENT AREA
+           ========================================================= */
+        .app-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+
+        /* Top Bar / Header */
+        .app-header {
+            padding: 1.75rem 2.25rem 1.25rem 2.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            position: sticky;
+            top: 0;
+            background: rgba(244, 247, 251, 0.9);
+            backdrop-filter: blur(12px);
+            z-index: 20;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .mobile-hamburger {
+            display: none;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-heading);
+            cursor: pointer;
+            box-shadow: var(--shadow-subtle);
+        }
+
+        .page-title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            letter-spacing: -0.03em;
+        }
+
+        /* Center Pill Search Bar */
+        .header-search {
+            flex: 1;
+            max-width: 420px;
+            position: relative;
+        }
+
+        .search-pill {
+            width: 100%;
+            height: 42px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-pill);
+            padding: 0 1.25rem 0 2.5rem;
+            font-family: inherit;
+            font-size: 0.88rem;
+            color: var(--text-heading);
+            outline: none;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+        }
+
+        .search-pill:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+            font-size: 0.85rem;
+            pointer-events: none;
+        }
+
+        /* Right Date & Quick Action */
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+        }
+
+        .date-pill {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius-pill);
+            padding: 0.5rem 1.15rem;
+            font-size: 0.84rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+        }
+
+        .date-pill i {
+            color: var(--primary-blue);
+        }
+
+        .btn-ai-header {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            color: #7c3aed;
+            padding: 0.5rem 0.95rem;
+            border-radius: var(--radius-pill);
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+            transition: all 0.2s ease;
+        }
+
+        .btn-ai-header:hover {
+            background: #f5f3ff;
+            border-color: #ddd6fe;
+            transform: translateY(-1px);
+        }
+
+        /* Dashboard Body Content */
+        .dashboard-body {
+            padding: 0.5rem 2.25rem 2.5rem 2.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* =========================================================
+           TOP ROW: 4 KPI CARDS (Hero Blue + 3 White Cards)
+           ========================================================= */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: 1.15fr 1fr 1fr 1fr;
+            gap: 1.25rem;
+        }
+
+        .card-base {
+            background: var(--bg-card);
+            border-radius: var(--radius-card);
+            padding: 1.35rem 1.45rem;
+            box-shadow: var(--shadow-subtle);
+            border: 1px solid rgba(226, 232, 240, 0.6);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card-base:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* Hero Balance Card (Vibrant Royal Blue) */
+        .card-hero-balance {
+            background: var(--primary-gradient);
+            color: #ffffff;
+            border: none;
+            box-shadow: 0 10px 25px -4px rgba(37, 99, 235, 0.35);
+        }
+
+        .hero-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.85rem;
+        }
+
+        .hero-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        .hero-amount {
+            font-size: 1.85rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.35rem;
+            color: #ffffff;
+        }
+
+        .hero-sub {
+            font-size: 0.76rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Standard White KPI Cards */
+        .kpi-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.85rem;
+        }
+
+        .kpi-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .kpi-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 0.2rem 0.5rem;
+            border-radius: var(--radius-pill);
+        }
+
+        .kpi-badge.positive {
+            background: var(--color-success-bg);
+            color: #059669;
+        }
+
+        .kpi-badge.negative {
+            background: var(--color-danger-bg);
+            color: #e11d48;
+        }
+
+        .kpi-amount {
+            font-size: 1.65rem;
+            font-weight: 800;
+            color: var(--text-heading);
+            letter-spacing: -0.03em;
+            margin-bottom: 0.35rem;
+        }
+
+        .kpi-sub {
+            font-size: 0.76rem;
+            color: var(--text-light);
+        }
+
+        /* =========================================================
+           MIDDLE ROW: (Monthly Trend Full Width)
+           ========================================================= */
+        .middle-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
+        }
+
+        .card-header-clean {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.15rem;
+        }
+
+        .card-title-clean {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-heading);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .icon-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: var(--text-light);
+            cursor: pointer;
+        }
+
+        .icon-actions i:hover {
+            color: var(--text-heading);
+        }
+
+        /* Virtual ATM / Debit Card */
+        .virtual-card-box {
+            position: relative;
+            width: 100%;
+            height: 155px;
+            background: var(--card-gradient);
+            border-radius: 18px;
+            padding: 1.2rem;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 12px 24px -6px rgba(15, 23, 42, 0.25);
+            margin-bottom: 1.25rem;
+            overflow: hidden;
+        }
+
+        .virtual-card-box::before {
+            content: '';
+            position: absolute;
+            top: -40%;
+            right: -20%;
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .vcard-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .vcard-holder {
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+        }
+
+        .mastercard-logo {
+            display: flex;
+        }
+
+        .mc-circle {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+        }
+        .mc-circle.red { background: #eb001b; }
+        .mc-circle.yellow { background: #f79e1b; margin-left: -9px; opacity: 0.9; }
+
+        .vcard-number {
+            font-family: monospace;
+            font-size: 0.95rem;
+            letter-spacing: 0.12em;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .vcard-bottom {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Log Cash Button */
+        .btn-log-cash {
+            width: 100%;
+            height: 44px;
+            background: var(--primary-blue);
+            color: #ffffff;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 0.88rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .btn-log-cash:hover {
+            background: var(--primary-blue-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.4);
+        }
+
+        /* Monthly Trend Chart Container */
+        .trend-chart-container {
+            position: relative;
+            width: 100%;
+            height: 260px;
+        }
+
+        .select-trend-month {
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            padding: 0.25rem 0.65rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* =========================================================
+           BOTTOM ROW: (Future Transactions | Recent Transactions | Spending)
+           ========================================================= */
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 290px 1.4fr 1fr;
+            gap: 1.25rem;
+        }
+
+        /* 1. Future Transactions List */
+        .future-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .future-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+        }
+
+        .future-icon-brand {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.95rem;
+            flex-shrink: 0;
+            color: #ffffff;
+        }
+
+        .future-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .future-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-heading);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .future-date {
+            font-size: 0.72rem;
+            color: var(--text-light);
+        }
+
+        .future-amount {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-heading);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .btn-add-reminder {
+            width: 100%;
+            height: 38px;
+            background: #ffffff;
+            border: 1px dashed #cbd5e1;
+            border-radius: var(--radius-sm);
+            color: var(--primary-blue);
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-add-reminder:hover {
+            border-color: var(--primary-blue);
+            background: var(--primary-blue-light);
+        }
+
+        /* 2. Recent Transactions List (Grouped with Category Pills) */
+        .tx-group-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-light);
+            margin: 0.65rem 0 0.5rem 0;
+        }
+
+        .recent-tx-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+        }
+
+        .recent-tx-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.65rem 0.75rem;
+            border-radius: 12px;
+            transition: background 0.15s ease;
+        }
+
+        .recent-tx-row:hover {
+            background: #f8fafc;
+        }
+
+        .tx-left-block {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            min-width: 0;
+            flex: 1.2;
+        }
+
+        .tx-brand-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            color: var(--text-heading);
+            flex-shrink: 0;
+        }
+
+        .tx-name-date {
+            min-width: 0;
+        }
+
+        .tx-name {
+            font-size: 0.86rem;
+            font-weight: 700;
+            color: var(--text-heading);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .tx-time {
+            font-size: 0.72rem;
+            color: var(--text-light);
+        }
+
+        .tx-category-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            padding: 0.2rem 0.6rem;
+            border-radius: var(--radius-pill);
+            background: #f8fafc;
+            flex: 1;
+            justify-content: flex-start;
+        }
+
+        .cat-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+        }
+
+        .tx-right-block {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .tx-value {
+            font-size: 0.88rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .tx-value.expense { color: var(--text-heading); }
+        .tx-value.income { color: var(--color-success); }
+
+        .tx-doc-icon {
+            color: #cbd5e1;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .tx-doc-icon:hover { color: var(--primary-blue); }
+
+        /* 3. Spending by Category (Donut + Legend) */
+        .spending-donut-wrap {
+            position: relative;
+            width: 100%;
+            height: 180px;
+            margin-bottom: 1rem;
+        }
+
+        .spending-legend-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem 0.75rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .legend-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .legend-color-circle {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* =========================================================
+           MODALS (Quick Add Transaction & AI Assistant)
+           ========================================================= */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-window {
+            background: #ffffff;
+            width: 100%;
+            max-width: 480px;
+            border-radius: 24px;
+            padding: 1.75rem;
+            box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.3);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .modal-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--text-heading);
+        }
+
+        .btn-modal-close {
+            background: #f1f5f9;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 0.35rem;
+        }
+
+        .form-input {
+            width: 100%;
+            height: 42px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0 0.9rem;
+            font-family: inherit;
+            font-size: 0.88rem;
+            color: var(--text-heading);
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary-blue);
+            background: #ffffff;
+        }
+
+        .type-toggle-pill {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: #f1f5f9;
+            padding: 0.25rem;
+            border-radius: 12px;
+            gap: 0.35rem;
+        }
+
+        .type-pill-btn {
+            background: transparent;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .type-pill-btn.active.expense {
+            background: #ffffff;
+            color: #ef4444;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .type-pill-btn.active.income {
+            background: #ffffff;
+            color: #10b981;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        /* AI Chat Window */
+        .chat-body-clean {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            height: 380px;
+            overflow-y: auto;
+            padding: 0.5rem 0;
+            margin-bottom: 1rem;
+        }
+
+        .chat-bubble {
+            max-width: 85%;
+            padding: 0.75rem 1rem;
+            border-radius: 16px;
+            font-size: 0.86rem;
+            line-height: 1.5;
+        }
+
+        .chat-bubble.bot {
+            align-self: flex-start;
+            background: #f1f5f9;
+            color: var(--text-heading);
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-bubble.user {
+            align-self: flex-end;
+            background: var(--primary-blue);
+            color: #ffffff;
+            border-bottom-right-radius: 4px;
+        }
+
+        /* =========================================================
+           RESPONSIVE BREAKPOINTS
+           ========================================================= */
+        @media (max-width: 1200px) {
+            .kpi-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .middle-grid {
+                grid-template-columns: 1fr;
+            }
+            .bottom-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 840px) {
+            body {
+                padding: 0;
+            }
+            .app-shell {
+                border-radius: 0;
+                min-height: 100vh;
+            }
+            .app-sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                transform: translateX(-100%);
+            }
+            .app-sidebar.mobile-open {
+                transform: translateX(0);
+            }
+            .mobile-hamburger {
+                display: none !important;
+            }
+            .header-search {
+                display: none;
+            }
+            .app-header {
+                padding: 1rem 1.25rem;
+            }
+            .dashboard-body {
+                padding: 0.5rem 1.25rem 2rem 1.25rem;
+            }
+            .kpi-row {
+                grid-template-columns: 1fr;
+            }
+            .bottom-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
 </head>
 <body>
-    <div class="app-container">
-        <aside class="sidebar">
-            <div class="sidebar-brand">
-                <span><i class="fa-solid fa-wallet" style="margin-right: 0.5rem; color: var(--primary);"></i> CashManager</span>
-                <button type="button" id="btnSidebarClose" class="btn-sidebar-close" aria-label="Đóng menu"><i class="fa-solid fa-xmark"></i></button>
+
+    <!-- APP SHELL CONTAINER -->
+    <div class="app-shell">
+
+        <!-- ROYAL BLUE SLIM SIDEBAR -->
+        <aside class="app-sidebar sidebar" id="appSidebar">
+            <!-- Brand Mark Circle (Về Cổng Không Gian) -->
+            <div class="brand-logo-circle" title="Cổng Không Gian Làm Việc (Portal Hub)" onclick="window.location.href='portal.html'" style="cursor: pointer;">
+                <i class="fa-solid fa-bolt"></i>
             </div>
-            <ul class="sidebar-menu">
-                <li class="active"><a href="dashboard.html"><i class="fa-solid fa-chart-pie"></i> Bảng điều khiển</a></li>
-                <li><a href="income.html"><i class="fa-solid fa-arrow-down-long"></i> Thu nhập</a></li>
-                <li><a href="expense.html"><i class="fa-solid fa-arrow-up-long"></i> Chi tiêu</a></li>
-                <li><a href="budget.html"><i class="fa-solid fa-piggy-bank"></i> Ngân sách</a></li>
-                <li><a href="report.html"><i class="fa-solid fa-chart-column"></i> Báo cáo</a></li>
-                <li><a href="map.html"><i class="fa-solid fa-map-location-dot"></i> Bản đồ thu chi</a></li>
-                <li><a href="shared.html"><i class="fa-solid fa-users"></i> Quỹ chung</a></li>
-                <li><a href="feed.html"><i class="fa-solid fa-camera-retro"></i> Bảng tin</a></li>
-            </ul>
+
+            <!-- Navigation Menu Icons (Phần Cá Nhân) -->
+            <nav class="sidebar-menu">
+                <a href="dashboard.html" class="menu-item active">
+                    <i class="fa-solid fa-table-cells-large"></i>
+                    <span class="tooltip">Bảng điều khiển</span>
+                </a>
+                <a href="transactions.html" class="menu-item">
+                    <i class="fa-solid fa-book-bookmark"></i>
+                    <span class="tooltip">Sổ giao dịch & Báo cáo</span>
+                </a>
+                <a href="budget.html" class="menu-item">
+                    <i class="fa-solid fa-piggy-bank"></i>
+                    <span class="tooltip">Ngân sách</span>
+                </a>
+                <a href="map.html" class="menu-item">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                    <span class="tooltip">Bản đồ</span>
+                </a>
+                <a href="notifications.html" class="menu-item">
+                    <i class="fa-regular fa-bell"></i>
+                    <span class="tooltip">Thông báo</span>
+                </a>
+                <a href="portal.html" class="menu-item" title="Cổng Không Gian">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <span class="tooltip">Đổi không gian</span>
+                </a>
+            </nav>
+
+            <!-- Bottom Settings & Logout -->
+            <div class="sidebar-bottom">
+                <a href="account.html" class="menu-item" title="Tài khoản">
+                    <i class="fa-solid fa-gear"></i>
+                    <span class="tooltip">Cài đặt</span>
+                </a>
+                <a href="#" class="menu-item" id="btnAppLogout" title="Đăng xuất">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <span class="tooltip">Đăng xuất</span>
+                </a>
+            </div>
         </aside>
 
-        <div class="main-content">
-            <header class="header">
-                <button type="button" id="btnSidebarToggle" class="btn-sidebar-toggle" aria-label="Mở menu"><i class="fa-solid fa-bars"></i></button>
-                <div class="page-header-title">Tổng quan tài chính</div>
-                <div class="header-user-nav" id="headerUserNav">
-                    <button type="button" class="btn-quick-tx" id="btnHeaderAddTx" title="Thêm giao dịch mới">
-                        <i class="fa-solid fa-plus"></i> <span class="tx-text">Giao dịch</span>
+        <!-- MAIN VIEW -->
+        <main class="app-main">
+
+            <!-- HEADER -->
+            <header class="app-header">
+                <div class="header-left">
+                    <h1 class="page-title">Bảng điều khiển</h1>
+                </div>
+
+                <!-- Search Pill -->
+                <div class="header-search">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" class="search-pill" placeholder="Tìm kiếm giao dịch, danh mục, hóa đơn...">
+                </div>
+
+                <!-- Right Date Pill & AI Button -->
+                <div class="header-right">
+                    <button class="btn-ai-header" id="btnOpenAiModal">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>Trợ lý AI</span>
                     </button>
-                    <button id="btnQuickAdd" style="display:none;"></button>
-                    <div class="user-dropdown-wrapper" id="userDropdownWrapper">
-                        <button type="button" class="user-profile-btn" id="userProfileBtn" aria-expanded="false" title="Tài khoản">
-                            <span class="user-avatar-circle" id="headerAvatar">T</span>
-                            <span class="user-profile-name" id="headerUserName">Thái Châu</span>
-                            <i class="fa-solid fa-caret-down user-profile-caret"></i>
-                        </button>
-                        <div class="user-dropdown-menu" id="userDropdownMenu">
-                            <a href="account.html" class="user-dropdown-item" id="menuItemSettings">
-                                <i class="fa-solid fa-sliders"></i>
-                                <span>Cài đặt</span>
-                            </a>
-                            <a href="help.html" target="_blank" class="user-dropdown-item" id="menuItemHelp">
-                                <i class="fa-regular fa-circle-question"></i>
-                                <span>Trợ giúp</span>
-                            </a>
-                            <a href="javascript:void(0)" class="user-dropdown-item item-logout" id="menuItemLogout">
-                                <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                                <span>Đăng xuất</span>
-                            </a>
-                        </div>
+                    <div class="date-pill" id="currentDatePill">
+                        <i class="fa-regular fa-calendar"></i>
+                        <span id="displayCurrentDate">28 Tháng 11, 2026</span>
                     </div>
                 </div>
             </header>
 
-            <div class="content-body">
-                <!-- 4 Thẻ KPI -->
-                <div class="grid-kpi">
-                    <div class="card">
-                        <div class="card-title">Tổng thu tháng này</div>
-                        <div class="card-value" id="kpi-income" style="color: var(--success);">0 đ</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-title">Tổng chi tháng này</div>
-                        <div class="card-value" id="kpi-expense" style="color: var(--danger);">0 đ</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-title">Số dư ròng</div>
-                        <div class="card-value" id="kpi-balance" style="color: var(--primary);">0 đ</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-title">Tỷ lệ tiết kiệm</div>
-                        <div class="card-value" id="kpi-saving" style="color: var(--warning);">0%</div>
-                    </div>
-                </div>
+            <!-- DASHBOARD BODY CONTENT -->
+            <div class="dashboard-body">
 
-                <!-- Widget tiến độ ngân sách -->
-                <div class="card" style="margin-bottom: 2rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <h3 style="font-size: 1rem;">Tiến độ ngân sách tháng</h3>
-                        <span id="budget-progress-text" style="font-size: 0.875rem; color: var(--text-muted);">Đang tải...</span>
-                    </div>
-                    <div class="progress">
-                        <div id="budget-progress-bar" class="progress-bar"></div>
-                    </div>
-                </div>
-
-                <!-- Trợ lý tài chính AI: Đánh giá tự động & Khung chat thu nhỏ -->
-                <div class="card ai-box">
-                    <div class="ai-head">
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <h3 style="margin: 0;">🤖 Trợ lý tài chính AI</h3>
-                            <span style="font-size: 0.75rem; background: #e0e7ff; color: #4338ca; padding: 2px 8px; border-radius: 999px; font-weight: 600;">Gemini AI</span>
+                <!-- 1. TOP ROW: 4 KPI CARDS -->
+                <section class="kpi-row">
+                    <!-- Total Balance Hero Card (Vibrant Royal Blue) -->
+                    <div class="card-base card-hero-balance">
+                        <div class="hero-top">
+                            <span class="hero-label">Tổng số dư</span>
+                            <i class="fa-solid fa-wallet" style="opacity: 0.85;"></i>
                         </div>
-                        <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
-                            <button type="button" id="aiAskBtn" class="ai-btn" title="Nhận đánh giá và phân tích nhanh">Đánh giá nhanh</button>
-                            <button type="button" id="btnOpenAiChat" class="ai-btn" style="background: linear-gradient(135deg, #6366f1, #a855f7); color: #fff;" title="Mở khung chat hỏi đáp trực tiếp">
-                                <i class="fa-solid fa-comments"></i> <span>Mở chat AI</span>
-                            </button>
+                        <div>
+                            <div class="hero-amount" id="kpiHeroBalance">0 đ</div>
+                            <div class="hero-sub">Số dư khả dụng trên toàn bộ ví</div>
                         </div>
                     </div>
-                    <div id="aiResult"></div>
-                </div>
 
-                <!-- 2 Biểu đồ -->
-                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
-                    <div class="card">
-                        <h3>Xu hướng thu chi 12 tháng</h3>
-                        <div style="position: relative; height: 260px; margin-top: 1rem;">
-                            <canvas id="trendChart"></canvas>
+                    <!-- Income Card -->
+                    <div class="card-base">
+                        <div class="kpi-top">
+                            <span class="kpi-label">Tổng thu nhập</span>
+                            <span class="kpi-badge positive" id="kpiIncomeBadge">
+                                <i class="fa-solid fa-arrow-trend-up"></i> 12%
+                            </span>
+                        </div>
+                        <div>
+                            <div class="kpi-amount" id="kpiIncomeVal">0 đ</div>
+                            <div class="kpi-sub">Lương, thưởng & các khoản thu khác</div>
                         </div>
                     </div>
-                    <div class="card">
-                        <h3>Cơ cấu chi tiêu tháng này</h3>
-                        <div style="position: relative; height: 260px; margin-top: 1rem;">
-                            <canvas id="categoryChart"></canvas>
+
+                    <!-- Expenses Card -->
+                    <div class="card-base">
+                        <div class="kpi-top">
+                            <span class="kpi-label">Tổng chi tiêu</span>
+                            <span class="kpi-badge negative" id="kpiExpenseBadge">
+                                <i class="fa-solid fa-arrow-trend-down"></i> 5%
+                            </span>
+                        </div>
+                        <div>
+                            <div class="kpi-amount" id="kpiExpenseVal">0 đ</div>
+                            <div class="kpi-sub">Hóa đơn, mua sắm & sinh hoạt phí</div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Bảng 5 Giao dịch gần đây -->
-                <div class="card">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <h3>Giao dịch gần đây</h3>
-                        <a href="expense.html" style="font-size: 0.875rem; color: var(--primary); text-decoration: none;">Xem tất cả</a>
+                    <!-- Net Savings Card -->
+                    <div class="card-base">
+                        <div class="kpi-top">
+                            <span class="kpi-label">Tiết kiệm ròng</span>
+                            <span class="kpi-badge positive" id="kpiSavingBadge" style="background:#eff6ff; color:#2563eb;">
+                                <i class="fa-solid fa-piggy-bank"></i> Tốt
+                            </span>
+                        </div>
+                        <div>
+                            <div class="kpi-amount" id="kpiSavingVal">0 đ</div>
+                            <div class="kpi-sub" id="kpiSavingSub">Tỷ lệ thu nhập được tiết kiệm</div>
+                        </div>
                     </div>
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Loại</th>
-                                    <th>Danh mục</th>
-                                    <th>Ngày</th>
-                                    <th>Ghi chú</th>
-                                    <th data-sort="amount" style="text-align: right;">Số tiền</th>
-                                </tr>
-                            </thead>
-                            <tbody id="recent-tx-tbody">
-                                <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Đang tải...</td></tr>
-                            </tbody>
-                        </table>
+                </section>
+
+                <!-- 2. MIDDLE ROW: MONTHLY TREND (FULL WIDTH) -->
+                <section class="middle-grid">
+                    <div class="card-base">
+                        <div class="card-header-clean">
+                            <h3 class="card-title-clean">Xu hướng thu chi</h3>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <select class="select-trend-month" id="trendTimeSelect">
+                                    <option value="this_month">Tháng này</option>
+                                    <option value="6_months">6 tháng gần đây</option>
+                                    <option value="12_months" selected>12 tháng qua</option>
+                                </select>
+                                <div class="icon-actions">
+                                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="trend-chart-container">
+                            <canvas id="monthlyTrendChart"></canvas>
+                        </div>
                     </div>
-                </div>
+                </section>
+
+                <!-- 3. BOTTOM ROW: KẾ HOẠCH CHI TIÊU | GIAO DỊCH GẦN ĐÂY | CƠ CẤU CHI TIÊU -->
+                <section class="bottom-grid">
+
+                    <!-- Column 1: Kế hoạch chi tiêu / Hạn mức -->
+                    <div class="card-base">
+                        <div class="card-header-clean">
+                            <h3 class="card-title-clean">Kế hoạch chi tiêu</h3>
+                            <div class="icon-actions">
+                                <i class="fa-solid fa-ellipsis-vertical"></i>
+                            </div>
+                        </div>
+
+                        <div class="future-list" id="futureTxList">
+                            <div class="future-item">
+                                <div class="future-icon-brand" style="background: #e11d48;">
+                                    <i class="fa-solid fa-cube"></i>
+                                </div>
+                                <div class="future-info">
+                                    <div class="future-title">Gói phần mềm & Dịch vụ</div>
+                                    <div class="future-date">28 Tháng 11</div>
+                                </div>
+                                <div class="future-amount">250.000 đ</div>
+                            </div>
+
+                            <div class="future-item">
+                                <div class="future-icon-brand" style="background: #0284c7;">
+                                    <i class="fa-solid fa-graduation-cap"></i>
+                                </div>
+                                <div class="future-info">
+                                    <div class="future-title">Học tập & Phát triển</div>
+                                    <div class="future-date">29 Tháng 11</div>
+                                </div>
+                                <div class="future-amount">180.000 đ</div>
+                            </div>
+
+                            <div class="future-item">
+                                <div class="future-icon-brand" style="background: #111827;">
+                                    <i class="fa-solid fa-film"></i>
+                                </div>
+                                <div class="future-info">
+                                    <div class="future-title">Xem phim & Giải trí</div>
+                                    <div class="future-date">30 Tháng 11</div>
+                                </div>
+                                <div class="future-amount">260.000 đ</div>
+                            </div>
+
+                            <div class="future-item">
+                                <div class="future-icon-brand" style="background: #0d9488;">
+                                    <i class="fa-solid fa-bolt"></i>
+                                </div>
+                                <div class="future-info">
+                                    <div class="future-title">Tiền điện, nước & Internet</div>
+                                    <div class="future-date">01 Tháng 12</div>
+                                </div>
+                                <div class="future-amount">1.150.000 đ</div>
+                            </div>
+                        </div>
+
+                        <button class="btn-add-reminder" id="btnAddReminder">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Quản lý ngân sách</span>
+                        </button>
+                    </div>
+
+                    <!-- Column 2: Giao dịch gần đây -->
+                    <div class="card-base">
+                        <div class="card-header-clean">
+                            <h3 class="card-title-clean">Giao dịch gần đây</h3>
+                            <div style="display: flex; align-items: center; gap: 0.85rem;">
+                                <i class="fa-solid fa-magnifying-glass" style="font-size: 0.85rem; color: var(--text-light); cursor: pointer;"></i>
+                                <i class="fa-solid fa-sliders" style="font-size: 0.85rem; color: var(--text-light); cursor: pointer;"></i>
+                                <a href="transactions.html" style="font-size: 0.8rem; color: var(--text-muted); text-decoration: none; font-weight: 600;">Xem tất cả</a>
+                            </div>
+                        </div>
+
+                        <div class="tx-group-title">Hôm nay</div>
+                        <div class="recent-tx-list" id="recentTodayList">
+                            <!-- Nạp tự động từ JS -->
+                        </div>
+
+                        <div class="tx-group-title" style="margin-top: 0.85rem;">Trước đó</div>
+                        <div class="recent-tx-list" id="recentEarlierList">
+                            <!-- Nạp tự động từ JS -->
+                        </div>
+                    </div>
+
+                    <!-- Column 3: Cơ cấu chi tiêu -->
+                    <div class="card-base">
+                        <div class="card-header-clean">
+                            <h3 class="card-title-clean">Cơ cấu chi tiêu</h3>
+                            <div class="icon-actions">
+                                <i class="fa-solid fa-ellipsis-vertical"></i>
+                            </div>
+                        </div>
+
+                        <div class="spending-donut-wrap">
+                            <canvas id="categoryDonutChart"></canvas>
+                        </div>
+
+                        <div class="spending-legend-grid" id="categoryLegendGrid">
+                            <!-- Nạp tự động từ JS -->
+                        </div>
+                    </div>
+
+                </section>
+
             </div>
-        </div>
+        </main>
+
     </div>
 
-    <!-- Modal Thêm Giao Dịch Nhanh -->
-    <div id="modalQuickAdd" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Thêm giao dịch nhanh</h3>
-                <button id="btnCloseModal" class="modal-close">&times;</button>
+    <!-- MODAL LOG CASH (+ Giao dịch mới) -->
+    <div class="modal-overlay" id="modalLogCash">
+        <div class="modal-window">
+            <div class="modal-head">
+                <h3 class="modal-title">Ghi chép giao dịch tiền mặt</h3>
+                <button class="btn-modal-close" id="btnCloseLogCash">&times;</button>
             </div>
-            <form id="formQuickAdd">
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label class="form-label">Loại giao dịch</label>
-                        <select id="quick_type" class="form-control" required>
-                            <option value="expense">Chi tiêu</option>
-                            <option value="income">Thu nhập</option>
-                        </select>
+
+            <form id="formLogCash">
+                <div class="form-group">
+                    <div class="type-toggle-pill">
+                        <button type="button" class="type-pill-btn active expense" id="btnLogExpense">Khoản Chi</button>
+                        <button type="button" class="type-pill-btn income" id="btnLogIncome">Khoản Thu</button>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Danh mục</label>
-                        <select id="quick_category_id" class="form-control" required>
-                            <option value="5">Ăn uống</option>
-                            <option value="6">Mua sắm</option>
-                            <option value="7">Di chuyển</option>
-                            <option value="8">Hóa đơn & Tiện ích</option>
-                            <option value="9">Giải trí</option>
-                            <option value="10">Y tế & Sức khỏe</option>
-                            <option value="11">Giáo dục</option>
-                            <option value="12">Chi tiêu khác</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Số tiền (VNĐ)</label>
-                        <input type="number" id="quick_amount" class="form-control" placeholder="100000" required min="1">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Ngày giao dịch</label>
-                        <input type="date" id="quick_date" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Phương thức thanh toán</label>
-                        <select id="quick_method" class="form-control">
-                            <option value="cash">Tiền mặt</option>
-                            <option value="bank">Chuyển khoản</option>
-                            <option value="e-wallet">Ví điện tử</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Ghi chú</label>
-                        <input type="text" id="quick_note" class="form-control" placeholder="Ghi chú thêm...">
-                    </div>
+                    <input type="hidden" id="cashType" value="expense">
                 </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Lưu giao dịch</button>
+
+                <div class="form-group">
+                    <label class="form-label">Số tiền (VNĐ)</label>
+                    <input type="number" id="cashAmount" class="form-input" placeholder="Ví dụ: 150000" required min="1000" step="1000">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Danh mục</label>
+                    <select id="cashCategory" class="form-input" required>
+                        <option value="">-- Chọn danh mục --</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Ghi chú / Nơi chi tiêu</label>
+                    <input type="text" id="cashNote" class="form-input" placeholder="Ví dụ: Tiền chợ, Cà phê, Ăn trưa...">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Ngày giao dịch</label>
+                    <input type="date" id="cashDate" class="form-input" required>
+                </div>
+
+                <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
+                    <button type="button" class="btn-add-reminder" style="flex: 1;" id="btnCancelLogCash">Hủy</button>
+                    <button type="submit" class="btn-log-cash" style="flex: 1;">Lưu giao dịch</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <script src="../assets/js/auth.js"></script>
-    <script src="../assets/js/header_nav.js?v=20261127_m5"></script>
-    <script src="../assets/js/pwa.js"></script>
-    <script src="../assets/js/table_sort.js"></script>
-    <script src="../assets/js/dashboard.js?v=2"></script>
-    <script>
-        document.getElementById('quick_date').valueAsDate = new Date();
-    </script>
+    <!-- MODAL GEMINI AI ASSISTANT -->
+    <div class="modal-overlay" id="modalAiAssistant">
+        <div class="modal-window" style="max-width: 520px;">
+            <div class="modal-head">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-wand-magic-sparkles" style="color: #7c3aed;"></i>
+                    <h3 class="modal-title">Trợ lý Gemini AI</h3>
+                </div>
+                <button class="btn-modal-close" id="btnCloseAiModal">&times;</button>
+            </div>
 
-    <!-- Nút "Hỏi chuyên gia AI": đánh giá tự động -->
-    <script>
-(function () {
-    const btn = document.getElementById('aiAskBtn');
-    const box = document.getElementById('aiResult');
-    let run = 0;
-
-    btn.addEventListener('click', async () => {
-        const my = ++run;
-        btn.disabled = true;
-        box.textContent = 'Chuyên gia AI đang phân tích dữ liệu của bạn...';
-        try {
-            const r = await fetch('../api/ai/advice.php', { credentials: 'include' });
-            if (r.status === 401) { location.href = 'login.html'; return; }
-            const j = await r.json();
-            if (j.success === false) throw new Error(j.message || j.error || 'Không thể lấy nhận xét từ AI');
-            if (my !== run) return;
-            const d = j.data || j;
-
-            const grade = String(d.grade || '').toUpperCase().charAt(0);   // A, B, C, D
-            const text = d.summary || d.advice || d.comment || '';
-            const tips = d.actions || d.tips || [];
-
-            box.replaceChildren();
-            const wrap = document.createElement('div');
-            wrap.className = 'ai-review';
-            if ('ABCD'.includes(grade) && grade) {
-                const badge = document.createElement('div');
-                badge.className = 'ai-grade ' + grade;
-                badge.textContent = grade;
-                wrap.appendChild(badge);
-            }
-            const body = document.createElement('div');
-            const p = document.createElement('div');
-            p.className = 'ai-text typing';
-            body.appendChild(p);
-            wrap.appendChild(body);
-            box.appendChild(wrap);
-
-            // Hiệu ứng gõ chữ
-            let i = 0;
-            (function type() {
-                if (my !== run) return;
-                i += 2;
-                p.textContent = text.slice(0, i);
-                if (i < text.length) return setTimeout(type, 20);
-                p.classList.remove('typing');
-                if (tips.length) {
-                    const ul = document.createElement('ul');
-                    ul.className = 'ai-tips';
-                    tips.forEach(t => {
-                        const li = document.createElement('li');
-                        li.textContent = typeof t === 'string' ? t : (t.title || t.text || '');
-                        ul.appendChild(li);
-                    });
-                    body.appendChild(ul);
-                }
-            })();
-        } catch (e) {
-            box.textContent = e.message || 'Không thể kết nối chuyên gia AI.';
-        } finally {
-            btn.disabled = false;
-        }
-    });
-})();
-    </script>
-
-    <!-- Nút nổi mở Chatbot AI ở góc phải dưới (Floating Action Button) -->
-    <button type="button" id="aiFab" class="ai-fab" title="Trò chuyện cùng Trợ lý tài chính AI">
-        <span class="ai-fab-icon"><i class="fa-solid fa-robot"></i></span>
-        <span class="ai-fab-text">Hỏi AI</span>
-    </button>
-
-    <!-- Cửa sổ Chatbot AI thu nhỏ dạng popup góc phải (giống Meta AI / Messenger) -->
-    <div id="aiChatWidget" class="ai-chat-widget collapsed" role="dialog" aria-labelledby="aiWidgetTitle" hidden>
-        <div class="ai-widget-header">
-            <div class="ai-widget-title" id="aiWidgetTitle">
-                <span class="ai-widget-badge"><i class="fa-solid fa-robot"></i></span>
+            <div style="background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 14px; padding: 0.85rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <div style="font-weight: 700; font-size: 0.95rem; line-height: 1.2;">Trợ lý tài chính AI</div>
-                    <small style="color: #64748b; font-size: 0.75rem; display: flex; align-items: center; gap: 4px;">
-                        <span style="display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #10b981;"></span> Trực tuyến
-                    </small>
+                    <div style="font-size: 0.75rem; font-weight: 700; color: #6d28d9; text-transform: uppercase;">Đánh giá sức khỏe tài chính</div>
+                    <div style="font-size: 0.85rem; color: #4c1d95;" id="aiHealthSummary">Đang đánh giá chi tiêu...</div>
+                </div>
+                <button type="button" id="btnRunQuickEvaluation" style="background:#7c3aed; color:#fff; border:none; padding:0.4rem 0.85rem; border-radius:8px; font-size:0.78rem; font-weight:700; cursor:pointer;">
+                    Đánh giá ngay
+                </button>
+            </div>
+
+            <div class="chat-body-clean" id="aiChatBody">
+                <div class="chat-bubble bot">
+                    Xin chào! Tôi là trợ lý tài chính Gemini. Bạn có câu hỏi nào về việc tiết kiệm, hạn mức chi tiêu hay phân bổ ngân sách tháng này không?
                 </div>
             </div>
-            <div class="ai-widget-actions">
-                <button type="button" id="aiWidgetMinimize" class="ai-widget-btn" title="Thu nhỏ"><i class="fa-solid fa-minus"></i></button>
-                <button type="button" id="aiWidgetClose" class="ai-widget-btn" title="Đóng"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-        </div>
 
-        <div class="ai-widget-body">
-            <div class="aic-list" id="aicList" aria-live="polite"></div>
-            <div class="aic-chips">
-                <button type="button" class="aic-chip" data-q="Làm sao để tháng sau tôi tiết kiệm được 2 triệu?">💡 Tiết kiệm 2 triệu?</button>
-                <button type="button" class="aic-chip" data-q="Với thu nhập hiện tại, tôi có nên mua điện thoại mới không?">📱 Có nên mua điện thoại?</button>
-                <button type="button" class="aic-chip" data-q="Gợi ý cách giảm 30% tiền ăn uống tháng tới?">🥗 Giảm 30% tiền ăn?</button>
-            </div>
-        </div>
-
-        <div class="ai-widget-footer">
-            <form id="aicForm" class="aic-form" onsubmit="return false;">
-                <input type="text" id="aicInput" class="form-control" maxlength="500" autocomplete="off"
-                       aria-label="Câu hỏi tài chính cho AI"
-                       placeholder="Hỏi về chi tiêu, tiết kiệm...">
-                <button type="button" id="aicSend" class="ai-btn aic-send" title="Gửi"><i class="fa-solid fa-paper-plane"></i></button>
+            <form id="aiChatForm" style="display: flex; gap: 0.5rem;">
+                <input type="text" id="aiChatInput" class="form-input" placeholder="Hỏi AI về ngân sách, chi tiêu..." autocomplete="off">
+                <button type="submit" class="btn-log-cash" style="width: 44px; height: 42px; border-radius: 12px; padding: 0;">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
             </form>
         </div>
     </div>
 
-    <!-- [HUY] Chatbot AI hỏi - đáp: gọi api/ai/chat.php -->
-    <script>
-(function () {
-    const widget = document.getElementById('aiChatWidget');
-    const fab = document.getElementById('aiFab');
-    const btnOpenCard = document.getElementById('btnOpenAiChat');
-    const btnClose = document.getElementById('aiWidgetClose');
-    const btnMin = document.getElementById('aiWidgetMinimize');
-    const list = document.getElementById('aicList');
-    const input = document.getElementById('aicInput');
-    const sendBtn = document.getElementById('aicSend');
-    const chips = document.querySelectorAll('.aic-chip');
-    let busy = false;
-
-    function openChat() {
-        if (!widget) return;
-        widget.classList.remove('collapsed');
-        widget.hidden = false;
-        if (fab) fab.style.display = 'none';
-        list.scrollTop = list.scrollHeight;
-        setTimeout(() => input && input.focus(), 150);
-    }
-
-    function closeChat() {
-        if (!widget) return;
-        widget.classList.add('collapsed');
-        widget.hidden = true;
-        if (fab) fab.style.display = 'flex';
-    }
-
-    if (fab) fab.addEventListener('click', openChat);
-    if (btnOpenCard) btnOpenCard.addEventListener('click', openChat);
-    if (btnClose) btnClose.addEventListener('click', closeChat);
-    if (btnMin) btnMin.addEventListener('click', closeChat);
-
-    const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-
-    // Định dạng câu trả lời của AI: **đậm**, danh sách gạch đầu dòng / đánh số, đoạn văn
-    function fmt(text) {
-        const inline = s => s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-        const out = [];
-        let ul = false, ol = false;
-        const close = () => {
-            if (ul) { out.push('</ul>'); ul = false; }
-            if (ol) { out.push('</ol>'); ol = false; }
-        };
-        esc(text).split(/\r?\n/).forEach(line => {
-            const l = line.trim();
-            let m;
-            if ((m = l.match(/^[-*•]\s+(.*)/))) {
-                if (!ul) { close(); out.push('<ul>'); ul = true; }
-                out.push('<li>' + inline(m[1]) + '</li>');
-            } else if ((m = l.match(/^\d+[.)]\s+(.*)/))) {
-                if (!ol) { close(); out.push('<ol>'); ol = true; }
-                out.push('<li>' + inline(m[1]) + '</li>');
-            } else if ((m = l.match(/^#{1,6}\s+(.*)/))) {
-                close(); out.push('<p><strong>' + inline(m[1]) + '</strong></p>');
-            } else if (!l) {
-                close();
-            } else {
-                close(); out.push('<p>' + inline(l) + '</p>');
-            }
-        });
-        close();
-        return out.join('');
-    }
-
-    function add(cls, html) {
-        const d = document.createElement('div');
-        d.className = 'aic-msg ' + cls;
-        d.innerHTML = (cls === 'me' ? '' : '<span class="aic-av"><i class="fa-solid fa-robot"></i></span>')
-            + '<div class="aic-bub">' + html + '</div>';
-        list.appendChild(d);
-        list.scrollTop = list.scrollHeight;
-        return d;
-    }
-
-    function setBusy(b) {
-        busy = b;
-        sendBtn.disabled = input.disabled = b;
-        chips.forEach(c => { c.disabled = b; });
-    }
-
-    async function ask(q) {
-        q = String(q || '').trim();
-        if (!q || busy) return;
-        setBusy(true);
-        input.value = '';
-        add('me', esc(q));
-        const wait = add('ai', '<i class="fa-solid fa-spinner fa-spin"></i> AI đang suy nghĩ…');
-        const ctl = new AbortController();
-        const timer = setTimeout(() => ctl.abort(), 40000);
-                  try {
-              let r = null;
-              // 1. Thử gửi POST với FormData (tránh bị ModSecurity của InfinityFree chặn 403)
-              try {
-                  const fd = new FormData();
-                  fd.append('question', q);
-                  r = await fetch('../api/ai/chat.php', {
-                      method: 'POST', credentials: 'include', signal: ctl.signal,
-                      body: fd
-                  });
-              } catch (_) {}
-
-              // 2. Nếu bị 403 hoặc lỗi, tự động fallback sang GET (an toàn 100% trên InfinityFree)
-              if (!r || r.status === 403 || !r.ok) {
-                  r = await fetch('../api/ai/chat.php?question=' + encodeURIComponent(q), {
-                      method: 'GET', credentials: 'include', signal: ctl.signal
-                  });
-              }
-            if (r.status === 401) { location.href = 'login.html'; return; }
-            let j = {};
-            const raw = await r.text();
-            try { j = JSON.parse(raw); } catch (e) {
-                const i = raw.indexOf('{"success"');
-                if (i >= 0) { try { j = JSON.parse(raw.slice(i)); } catch (e2) {} }
-                else throw new Error('Máy chủ trả dữ liệu không hợp lệ (HTTP ' + r.status + '): ' + raw.replace(/<[^>]*>/g, ' ').trim().slice(0, 200));
-            }
-            if (!r.ok || j.success === false || j.status === 'error') throw new Error(j.message || j.error || 'Máy chủ chưa phản hồi đúng');
-            const d = j.data !== undefined ? j.data : j;
-            const text = typeof d === 'string' ? d : (d.answer ?? d.reply ?? d.response ?? d.text ?? d.message ?? '');
-            if (!text) throw new Error('AI chưa trả về nội dung');
-            wait.querySelector('.aic-bub').innerHTML = fmt(text);
-        } catch (err) {
-            wait.classList.add('err');
-            wait.querySelector('.aic-bub').textContent = err.name === 'AbortError'
-                ? 'AI phản hồi quá lâu, bạn thử gửi lại nhé.'
-                : 'Chưa nhận được câu trả lời: ' + err.message;
-        } finally {
-            clearTimeout(timer);
-            setBusy(false);
-            list.scrollTop = list.scrollHeight;
-            input.focus();
-        }
-    }
-
-    sendBtn.addEventListener('click', () => ask(input.value));
-    // e.isComposing: không gửi nhầm khi đang gõ dấu tiếng Việt (Telex/VNI)
-    input.addEventListener('keydown', e => {
-        if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); ask(input.value); }
-    });
-    chips.forEach(c => c.addEventListener('click', () => ask(c.dataset.q)));
-
-    add('ai', fmt('Xin chào! Mình là trợ lý tài chính AI. Bạn cứ hỏi về chi tiêu, tiết kiệm hay kế hoạch mua sắm, mình sẽ trả lời dựa trên số liệu thu chi của bạn nhé.'));
-})();
-    </script>
-
-    <!-- Mobile Navigation Drawer & Bottom Bar -->
-    <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
-    <nav id="mobileBottomNav" class="mobile-bottom-nav">
-        <a href="dashboard.html" class="mb-nav-item active">
-            <i class="fa-solid fa-house"></i>
-            <span>Tổng quan</span>
-        </a>
-        <a href="expense.html" class="mb-nav-item">
-            <i class="fa-solid fa-arrow-trend-down"></i>
-            <span>Chi tiêu</span>
-        </a>
-        <a href="feed.html" class="mb-nav-item">
-            <i class="fa-solid fa-camera-retro"></i>
-            <span>Bảng tin</span>
-        </a>
-        <a href="report.html" class="mb-nav-item">
-            <i class="fa-solid fa-chart-pie"></i>
-            <span>Báo cáo</span>
-        </a>
-        <button type="button" class="mb-nav-item" id="btnBottomNavMenu">
-            <i class="fa-solid fa-bars"></i>
-            <span>Menu</span>
-        </button>
-    </nav>
-    <script>
-    (function() {
-        const sidebar = document.querySelector('.sidebar');
-        const backdrop = document.getElementById('sidebarBackdrop');
-        const toggleBtn = document.getElementById('btnSidebarToggle');
-        const closeBtn = document.getElementById('btnSidebarClose');
-        const menuBtn = document.getElementById('btnBottomNavMenu');
-
-        function openMenu(e) {
-            if (e) e.preventDefault();
-            if (sidebar) sidebar.classList.add('open');
-            if (backdrop) backdrop.classList.add('show');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeMenu(e) {
-            if (sidebar) sidebar.classList.remove('open');
-            if (backdrop) backdrop.classList.remove('show');
-            document.body.style.overflow = '';
-        }
-
-        if (toggleBtn) toggleBtn.addEventListener('click', openMenu);
-        if (menuBtn) menuBtn.addEventListener('click', openMenu);
-        if (closeBtn) closeBtn.addEventListener('click', closeMenu);
-        if (backdrop) backdrop.addEventListener('click', closeMenu);
-
-        if (sidebar) {
-            sidebar.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
-        }
-    
-        // Gắn sự kiện trực tiếp cho nút + Giao dịch và Avatar Dropdown
-        const btnAddTx = document.getElementById('btnHeaderAddTx');
-        const userWrapper = document.getElementById('userDropdownWrapper');
-        const userTrigger = document.getElementById('userProfileBtn');
-        const modalQuick = document.getElementById('modalQuickAdd');
-
-        if (btnAddTx) {
-            btnAddTx.onclick = function(e) {
-                if (e) e.preventDefault();
-                if (modalQuick) {
-                    modalQuick.classList.add('show');
-                    if (typeof updateQuickCategorySelect === 'function') updateQuickCategorySelect();
-                }
-            };
-        }
-
-        if (userTrigger && userWrapper) {
-            userTrigger.onclick = function(e) {
-                if (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-                userWrapper.classList.toggle('active');
-            };
-
-            document.addEventListener('click', function(e) {
-                if (!userWrapper.contains(e.target)) {
-                    userWrapper.classList.remove('active');
-                }
-            });
-        }
-    })();
-    </script>
+    <!-- MAIN DASHBOARD LOGIC JS -->
+    <script src="../assets/js/dashboard.js?v=20261128_fintech"></script>
+    <!-- FLOATING AI ASSISTANT WIDGET -->
+    <script src="../assets/js/ai_chat_widget.js?v=20261128"></script>
 </body>
 </html>

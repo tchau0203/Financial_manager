@@ -253,8 +253,8 @@ function checkBudgetAlerts($userId, $pdo, $month = null, $year = null) {
                 $title = "Cảnh báo vượt ngân sách";
                 $msg = "Bạn đã chi tiêu " . number_format($spent, 0, ',', '.') . " đ vượt hạn mức " . number_format($budgetAmount, 0, ',', '.') . " đ cho danh mục " . $catName;
                 
-                // Tránh lặp thông báo nếu cảnh báo chưa đọc đã tồn tại
-                $checkStmt = $pdo->prepare('SELECT id FROM notifications WHERE user_id = ? AND title = ? AND message LIKE ? AND is_read = 0 LIMIT 1');
+                // Tránh lặp thông báo nếu cảnh báo đã gửi trong vòng 12 giờ qua
+                $checkStmt = $pdo->prepare('SELECT id FROM notifications WHERE user_id = ? AND title = ? AND message LIKE ? AND created_at >= NOW() - INTERVAL 12 HOUR LIMIT 1');
                 $checkStmt->execute([$userId, $title, "%$catName%"]);
                 if (!$checkStmt->fetch()) {
                     $pdo->prepare('INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, "danger")')->execute([$userId, $title, $msg]);
@@ -264,7 +264,7 @@ function checkBudgetAlerts($userId, $pdo, $month = null, $year = null) {
                 $title = "Cảnh báo sắp đạt hạn mức";
                 $msg = "Bạn đã chi " . round($pct, 1) . "% hạn mức ngân sách cho danh mục " . $catName;
                 
-                $checkStmt = $pdo->prepare('SELECT id FROM notifications WHERE user_id = ? AND title = ? AND message LIKE ? AND is_read = 0 LIMIT 1');
+                $checkStmt = $pdo->prepare('SELECT id FROM notifications WHERE user_id = ? AND title = ? AND message LIKE ? AND created_at >= NOW() - INTERVAL 12 HOUR LIMIT 1');
                 $checkStmt->execute([$userId, $title, "%$catName%"]);
                 if (!$checkStmt->fetch()) {
                     $pdo->prepare('INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, "warning")')->execute([$userId, $title, $msg]);

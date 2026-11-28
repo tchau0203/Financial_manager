@@ -42,7 +42,7 @@
             try {
                 const res = await apiFetch('/auth/me.php', { method: 'GET' });
                 if (res && res.success) {
-                    window.location.href = 'pages/dashboard.html';
+                    window.location.href = 'pages/portal.html';
                 } else {
                     window.location.href = 'pages/login.html';
                 }

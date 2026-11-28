@@ -92,11 +92,11 @@
                     <div class="modal-body" style="text-align:center; padding:1.5rem 1.25rem;">
                         <p style="color:var(--text-muted); margin-bottom:1.25rem; font-size:0.95rem;">Bạn muốn thêm khoản chi tiêu hay khoản thu nhập?</p>
                         <div class="quick-tx-choice">
-                            <a href="${basePath}expense.html?action=new" class="quick-tx-btn expense" id="btnChoiceExpense">
+                            <a href="${basePath}transactions.html?tab=expense&action=new_expense" class="quick-tx-btn expense" id="btnChoiceExpense">
                                 <i class="fa-solid fa-arrow-trend-down"></i>
                                 <span>Thêm chi tiêu</span>
                             </a>
-                            <a href="${basePath}income.html?action=new" class="quick-tx-btn income" id="btnChoiceIncome">
+                            <a href="${basePath}transactions.html?tab=income&action=new_income" class="quick-tx-btn income" id="btnChoiceIncome">
                                 <i class="fa-solid fa-arrow-trend-up"></i>
                                 <span>Thêm thu nhập</span>
                             </a>
@@ -335,7 +335,7 @@
                                     </div>
                                 </div>
                                 <div style="display:flex; gap:8px;">
-                                    <a href="mailto:support@cashmanager.vn" class="btn btn-primary" style="padding:7px 14px; font-size:13px; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+                                    <a href="mailto:cashmanager.contact@gmail.com" class="btn btn-primary" style="padding:7px 14px; font-size:13px; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
                                         <i class="fa-solid fa-envelope"></i> Gửi email hỗ trợ
                                     </a>
                                 </div>
@@ -493,19 +493,28 @@
 
         if (trigger && wrapper && !trigger.dataset.headerBound) {
             trigger.dataset.headerBound = '1';
-            trigger.addEventListener('click', (e) => {
-                e.stopPropagation();
+            const toggleUserMenu = (e) => {
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
                 const isOpen = wrapper.classList.toggle('active');
                 trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-            });
+            };
+            trigger.addEventListener('click', toggleUserMenu);
+            trigger.addEventListener('touchend', (e) => {
+                toggleUserMenu(e);
+            }, { passive: false });
 
             // Đóng menu khi bấm ra ngoài
-            document.addEventListener('click', (e) => {
+            const closeIfOutside = (e) => {
                 if (!wrapper.contains(e.target)) {
                     wrapper.classList.remove('active');
                     trigger.setAttribute('aria-expanded', 'false');
                 }
-            });
+            };
+            document.addEventListener('click', closeIfOutside);
+            document.addEventListener('touchend', closeIfOutside);
 
             // Đóng menu khi bấm Escape
             document.addEventListener('keydown', (e) => {
@@ -519,8 +528,11 @@
         // Xử lý nút "+ Giao dịch"
         if (btnAddTx && !btnAddTx.dataset.headerBound) {
             btnAddTx.dataset.headerBound = '1';
-            btnAddTx.addEventListener('click', (e) => {
-                e.preventDefault();
+            const handleAddTx = (e) => {
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
                 // 1. Nếu đang ở trang Chi tiêu -> mở form thêm chi tiêu
                 const btnAddExpense = document.getElementById('btnAddExpense');
                 if (btnAddExpense) {
@@ -533,7 +545,14 @@
                     btnAddIncome.click();
                     return;
                 }
-                // 3. Nếu đang ở trang Dashboard -> mở form Thêm nhanh
+                // 3. Nếu đang ở trang transactions.html
+                const btnTabAll = document.getElementById('tabAll');
+                const btnTabExpense = document.getElementById('tabExpense');
+                if (btnTabExpense || btnTabAll) {
+                    const btnAddExpenseTx = document.getElementById('btnAddExpenseTx');
+                    if (btnAddExpenseTx) { btnAddExpenseTx.click(); return; }
+                }
+                // 4. Nếu đang ở trang Dashboard -> mở form Thêm nhanh
                 const modalQuickAdd = document.getElementById('modalQuickAdd');
                 if (modalQuickAdd) {
                     modalQuickAdd.classList.add('show');
@@ -545,11 +564,15 @@
                     btnQuickAdd.click();
                     return;
                 }
-                // 4. Nếu ở trang khác -> mở modal chọn loại giao dịch
+                // 5. Nếu ở trang khác -> mở modal chọn loại giao dịch
                 ensureQuickTxModal();
                 const choiceModal = document.getElementById('modalQuickChoice');
                 if (choiceModal) choiceModal.classList.add('show');
-            });
+            };
+            btnAddTx.addEventListener('click', handleAddTx);
+            btnAddTx.addEventListener('touchend', (e) => {
+                handleAddTx(e);
+            }, { passive: false });
         }
 
         // Gắn sự kiện cho các mục trong menu
@@ -604,6 +627,40 @@
         // Tương thích với các id cũ
         const oldUserEl = document.getElementById('header-username') || document.getElementById('userName');
         if (oldUserEl) oldUserEl.textContent = name;
+
+        // Xử lý quyền Admin: Chỉ tài khoản có role === 'admin' mới được hiển thị lối tắt quay về Admin
+        if (userData && userData.role === 'admin') {
+            // 1. Thêm vào Dropdown Menu Header
+            const dropdown = document.getElementById('userDropdownMenu');
+            if (dropdown && !document.getElementById('menuItemAdmin')) {
+                const adminItem = document.createElement('a');
+                adminItem.href = `${basePath}admin/dashboard.html`;
+                adminItem.className = 'user-dropdown-item';
+                adminItem.id = 'menuItemAdmin';
+                adminItem.style.cssText = 'color: #7c3aed; font-weight: 700; background: #f5f3ff; border-radius: 8px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; border: 1px solid rgba(124, 58, 237, 0.2); padding: 8px 12px;';
+                adminItem.innerHTML = `<i class="fa-solid fa-shield-halved" style="color:#7c3aed; font-size:1.05rem;"></i><span>Trang Quản trị (Admin)</span>`;
+                dropdown.insertBefore(adminItem, dropdown.firstChild);
+            }
+
+            // 2. Thêm biểu tượng vào Sidebar Menu người dùng
+            const sidebarMenu = document.querySelector('.sidebar-menu');
+            if (sidebarMenu && !document.getElementById('sidebarAdminBtn')) {
+                const adminBtn = document.createElement('a');
+                adminBtn.href = `${basePath}admin/dashboard.html`;
+                adminBtn.className = 'menu-item admin-menu-item';
+                adminBtn.id = 'sidebarAdminBtn';
+                adminBtn.title = 'Trang Quản trị Hệ Thống';
+                adminBtn.style.cssText = 'background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important; color: #ffffff !important; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35); position: relative;';
+                adminBtn.innerHTML = `<i class="fa-solid fa-shield-halved"></i><span class="tooltip" style="background:#4c1d95; color:#fff;">Trang Quản trị</span>`;
+                sidebarMenu.appendChild(adminBtn);
+            }
+        } else {
+            // Đảm bảo an toàn: Người dùng thường không bao giờ nhìn thấy nút Admin
+            const adminItem = document.getElementById('menuItemAdmin');
+            if (adminItem) adminItem.remove();
+            const sidebarAdminBtn = document.getElementById('sidebarAdminBtn');
+            if (sidebarAdminBtn) sidebarAdminBtn.remove();
+        }
     }
 
     // Tự động tải thông tin người dùng từ máy chủ nếu chưa có
@@ -622,6 +679,12 @@
 
     // Nâng cấp khối header hiện tại trên trang
     function upgradeHeader() {
+        // Nếu trang đã dùng Modern Clean Header (.app-header hoặc đã có .header-right) thì không tiêm đè HTML cũ
+        if (document.querySelector('.app-header, .header-search, .header-right')) {
+            bindHeaderEvents();
+            return;
+        }
+
         let container = document.getElementById('headerUserNav');
         if (container) {
             bindHeaderEvents();
@@ -650,18 +713,9 @@
 
     // Thiết lập Drawer Sidebar trượt & Thanh điều hướng dưới đáy (Mobile Bottom Navigation Bar)
     function setupMobileDrawerAndBottomNav() {
-        // 1. Nút Hamburger góc trái Header
+        // 1. Nút Hamburger góc trái Header (Đã gỡ bỏ theo yêu cầu giao diện đồng bộ)
         const header = document.querySelector('.header') || document.querySelector('.topbar');
-        let toggleBtn = header ? header.querySelector('#btnSidebarToggle, #btnMenu, .menu-toggle') : null;
-        if (header && !toggleBtn) {
-            toggleBtn = document.createElement('button');
-            toggleBtn.type = 'button';
-            toggleBtn.id = 'btnSidebarToggle';
-            toggleBtn.className = 'btn-sidebar-toggle';
-            toggleBtn.setAttribute('aria-label', 'Mở menu');
-            toggleBtn.innerHTML = '<i class="fa-solid fa-bars"></i>';
-            header.insertBefore(toggleBtn, header.firstElementChild);
-        }
+        // Không tạo nút hamburger 3 vạch trong header
 
         // 2. Nút đóng X trong Sidebar Brand
         const sidebarBrand = document.querySelector('.sidebar .sidebar-brand');
@@ -685,13 +739,12 @@
             document.body.appendChild(backdrop);
         }
 
-        // 4. Thanh điều hướng dưới đáy (Mobile Bottom Navigation Bar)
-        if (!document.getElementById('mobileBottomNav')) {
+        // 4. Thanh điều hướng dưới đáy (Chỉ xuất hiện trên màn hình di động <= 768px)
+        if (window.innerWidth <= 768 && !document.getElementById('mobileBottomNav')) {
             const currentPath = window.location.pathname.toLowerCase();
             const isDashboard = currentPath.includes('dashboard') || currentPath.endsWith('/') || currentPath.endsWith('index.html');
-            const isExpense = currentPath.includes('expense') || currentPath.includes('income');
+            const isTransactions = currentPath.includes('transactions') || currentPath.includes('expense') || currentPath.includes('income') || currentPath.includes('report');
             const isFeed = currentPath.includes('feed');
-            const isReport = currentPath.includes('report');
 
             const bottomNav = document.createElement('nav');
             bottomNav.id = 'mobileBottomNav';
@@ -701,17 +754,13 @@
                     <i class="fa-solid fa-house"></i>
                     <span>Tổng quan</span>
                 </a>
-                <a href="${basePath}expense.html" class="mb-nav-item ${isExpense ? 'active' : ''}">
-                    <i class="fa-solid fa-arrow-trend-down"></i>
-                    <span>Chi tiêu</span>
+                <a href="${basePath}transactions.html" class="mb-nav-item ${isTransactions ? 'active' : ''}">
+                    <i class="fa-solid fa-book-bookmark"></i>
+                    <span>Giao dịch</span>
                 </a>
                 <a href="${basePath}feed.html" class="mb-nav-item ${isFeed ? 'active' : ''}">
                     <i class="fa-solid fa-camera-retro"></i>
                     <span>Bảng tin</span>
-                </a>
-                <a href="${basePath}report.html" class="mb-nav-item ${isReport ? 'active' : ''}">
-                    <i class="fa-solid fa-chart-pie"></i>
-                    <span>Báo cáo</span>
                 </a>
                 <button type="button" class="mb-nav-item" id="btnBottomNavMenu">
                     <i class="fa-solid fa-bars"></i>
@@ -743,120 +792,25 @@
             if (!btn.dataset.drawerBound) {
                 btn.dataset.drawerBound = '1';
                 btn.addEventListener('click', openSidebar);
+                btn.addEventListener('touchend', (e) => {
+                    openSidebar(e);
+                }, { passive: false });
             }
         });
 
         if (closeBtn && !closeBtn.dataset.bound) {
             closeBtn.dataset.bound = '1';
             closeBtn.addEventListener('click', closeSidebar);
+            closeBtn.addEventListener('touchend', (e) => {
+                closeSidebar(e);
+            }, { passive: false });
         }
         if (backdrop && !backdrop.dataset.bound) {
             backdrop.dataset.bound = '1';
             backdrop.addEventListener('click', closeSidebar);
-        }
-
-        // Đóng khi click vào bất kỳ link nào trong sidebar
-        if (sidebar && !sidebar.dataset.linksBound) {
-            sidebar.dataset.linksBound = '1';
-            sidebar.querySelectorAll('a').forEach(a => {
-                a.addEventListener('click', () => {
-                    closeSidebar();
-                });
-            });
-        }
-    }
-
-        // 2. Nút đóng X trong Sidebar Brand
-        const sidebarBrand = document.querySelector('.sidebar .sidebar-brand');
-        if (sidebarBrand && !document.getElementById('btnSidebarClose')) {
-            const closeBtn = document.createElement('button');
-            closeBtn.type = 'button';
-            closeBtn.id = 'btnSidebarClose';
-            closeBtn.className = 'btn-sidebar-close';
-            closeBtn.setAttribute('aria-label', 'Đóng menu');
-            closeBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
-            sidebarBrand.appendChild(closeBtn);
-        }
-
-        // 3. Lớp phủ mờ Backdrop khi mở menu di động
-        let backdrop = document.getElementById('sidebarBackdrop');
-        if (!backdrop) {
-            backdrop = document.createElement('div');
-            backdrop.id = 'sidebarBackdrop';
-            backdrop.className = 'sidebar-backdrop';
-            document.body.appendChild(backdrop);
-        }
-
-        // 4. Thanh điều hướng dưới đáy (Mobile Bottom Navigation Bar)
-        if (!document.getElementById('mobileBottomNav')) {
-            const currentPath = window.location.pathname.toLowerCase();
-            const isDashboard = currentPath.includes('dashboard') || currentPath.endsWith('/') || currentPath.endsWith('index.html');
-            const isExpense = currentPath.includes('expense') || currentPath.includes('income');
-            const isFeed = currentPath.includes('feed');
-            const isReport = currentPath.includes('report');
-
-            const bottomNav = document.createElement('nav');
-            bottomNav.id = 'mobileBottomNav';
-            bottomNav.className = 'mobile-bottom-nav';
-            bottomNav.innerHTML = `
-                <a href="${basePath}dashboard.html" class="mb-nav-item ${isDashboard ? 'active' : ''}">
-                    <i class="fa-solid fa-house"></i>
-                    <span>Tổng quan</span>
-                </a>
-                <a href="${basePath}expense.html" class="mb-nav-item ${isExpense ? 'active' : ''}">
-                    <i class="fa-solid fa-arrow-trend-down"></i>
-                    <span>Chi tiêu</span>
-                </a>
-                <a href="${basePath}feed.html" class="mb-nav-item ${isFeed ? 'active' : ''}">
-                    <i class="fa-solid fa-camera-retro"></i>
-                    <span>Bảng tin</span>
-                </a>
-                <a href="${basePath}report.html" class="mb-nav-item ${isReport ? 'active' : ''}">
-                    <i class="fa-solid fa-chart-pie"></i>
-                    <span>Báo cáo</span>
-                </a>
-                <button type="button" class="mb-nav-item" id="btnBottomNavMenu">
-                    <i class="fa-solid fa-bars"></i>
-                    <span>Menu</span>
-                </button>
-            `;
-            document.body.appendChild(bottomNav);
-        }
-
-        // 5. Gắn sự kiện mở & đóng Sidebar Drawer mượt mà
-        const sidebar = document.querySelector('.sidebar');
-        const toggleBtn = document.getElementById('btnSidebarToggle');
-        const closeBtn = document.getElementById('btnSidebarClose');
-        const bottomNavMenu = document.getElementById('btnBottomNavMenu');
-
-        function openSidebar(e) {
-            if (e) e.preventDefault();
-            if (sidebar) sidebar.classList.add('open');
-            if (backdrop) backdrop.classList.add('show');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeSidebar(e) {
-            if (sidebar) sidebar.classList.remove('open');
-            if (backdrop) backdrop.classList.remove('show');
-            document.body.style.overflow = '';
-        }
-
-        if (toggleBtn && !toggleBtn.dataset.bound) {
-            toggleBtn.dataset.bound = '1';
-            toggleBtn.addEventListener('click', openSidebar);
-        }
-        if (bottomNavMenu && !bottomNavMenu.dataset.bound) {
-            bottomNavMenu.dataset.bound = '1';
-            bottomNavMenu.addEventListener('click', openSidebar);
-        }
-        if (closeBtn && !closeBtn.dataset.bound) {
-            closeBtn.dataset.bound = '1';
-            closeBtn.addEventListener('click', closeSidebar);
-        }
-        if (backdrop && !backdrop.dataset.bound) {
-            backdrop.dataset.bound = '1';
-            backdrop.addEventListener('click', closeSidebar);
+            backdrop.addEventListener('touchend', (e) => {
+                closeSidebar(e);
+            }, { passive: false });
         }
 
         // Đóng khi click vào bất kỳ link nào trong sidebar
@@ -871,16 +825,20 @@
     }
 
     // Khởi chạy khi DOM sẵn sàng
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
-            upgradeHeader();
-            setupMobileDrawerAndBottomNav();
-            fetchCurrentUser();
-        });
-    } else {
+    function initHeaderNav() {
         upgradeHeader();
         setupMobileDrawerAndBottomNav();
+        try {
+            const cachedUser = JSON.parse(localStorage.getItem('user'));
+            if (cachedUser) updateHeaderUser(cachedUser);
+        } catch (_) {}
         fetchCurrentUser();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initHeaderNav);
+    } else {
+        initHeaderNav();
     }
 
     // Xuất API toàn cục để các trang có thể nạp dữ liệu người dùng
